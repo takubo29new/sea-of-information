@@ -6,8 +6,15 @@ import { deleteSave, loadSave, saveGame } from "@/engine/saveClient";
 import { INITIAL_STATE, type Dialogue, type GameState, type HotspotAction, type SceneId } from "@/engine/model";
 import { dialogues, scenes } from "@/data/scenes";
 
+function hideBrokenArt(event: React.SyntheticEvent<HTMLImageElement>) {
+  event.currentTarget.style.display = "none";
+}
+
 export function GameApp() {
   const audioRef = useRef<AudioManager | null>(null);
+  const transitionLockRef = useRef(false);
+  const dialogueLockRef = useRef(false);
+  const pendingPersistRef = useRef(false);
   const [screen, setScreen] = useState<"title" | "game" | "archive">("title");
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const [hasSave, setHasSave] = useState(false);
@@ -47,9 +54,19 @@ export function GameApp() {
     window.setTimeout(() => setSavedFlash(false), 900);
   }, []);
 
+  useEffect(() => {
+    if (!pendingPersistRef.current) return;
+    pendingPersistRef.current = false;
+    persist(state);
+  }, [state, persist]);
+
   const goToScene = useCallback((sceneId: SceneId) => {
+    if (transitionLockRef.current) return;
+    transitionLockRef.current = true;
+    window.setTimeout(() => { transitionLockRef.current = false; }, 300);
     setDialogue(null);
     setLineIndex(0);
+    setMusicFocus(null);
     setState(prev => {
       const target = scenes[sceneId];
       const nextFlags = { ...prev.flags };
@@ -63,10 +80,10 @@ export function GameApp() {
         unlockedMusic: nextMusic,
         updatedAt: new Date().toISOString()
       };
-      queueMicrotask(() => persist(next));
+      pendingPersistRef.current = true;
       return next;
     });
-  }, [persist]);
+  }, []);
 
   const runAction = useCallback((action?: HotspotAction) => {
     if (!action) return;
@@ -80,19 +97,19 @@ export function GameApp() {
     if (action.type === "setFlagAndAdvance") {
       setState(prev => {
         const next = { ...prev, flags: { ...prev.flags, [action.flag]: true }, updatedAt: new Date().toISOString() };
-        queueMicrotask(() => persist(next));
+        pendingPersistRef.current = true;
         return next;
       });
       return goToScene(action.to);
     }
     setState(prev => {
       const next = { ...prev, flags: { ...prev.flags, [action.flag]: true }, updatedAt: new Date().toISOString() };
-      queueMicrotask(() => persist(next));
+      pendingPersistRef.current = true;
       return next;
     });
     setDialogue(dialogues[action.dialogueId]);
     setLineIndex(0);
-  }, [goToScene, persist]);
+  }, [goToScene]);
 
   useEffect(() => {
     if (!musicFocus || musicFocus.phase !== "listening" || musicPosition < musicFocus.until) return;
@@ -117,7 +134,9 @@ export function GameApp() {
   }, [screen, scene.id, scene.track, scene.trackRestart, scene.enterDialogueId, openDialogue]);
 
   const advanceDialogue = useCallback(() => {
-    if (!dialogue) return;
+    if (!dialogue || dialogueLockRef.current) return;
+    dialogueLockRef.current = true;
+    window.setTimeout(() => { dialogueLockRef.current = false; }, 150);
     audioRef.current?.resume();
     if (lineIndex < dialogue.lines.length - 1) return setLineIndex(i => i + 1);
     const after = dialogue.after;
@@ -141,6 +160,9 @@ export function GameApp() {
 
   const startNewGame = () => {
     audioRef.current?.resume();
+    setDialogue(null);
+    setLineIndex(0);
+    setMusicFocus(null);
     const next = { ...INITIAL_STATE, updatedAt: new Date().toISOString() };
     setState(next);
     persist(next);
@@ -150,6 +172,9 @@ export function GameApp() {
   const continueGame = () => {
     const existing = loadSave();
     if (!existing) return;
+    setDialogue(null);
+    setLineIndex(0);
+    setMusicFocus(null);
     setState(existing);
     setScreen("game");
   };
@@ -167,7 +192,7 @@ export function GameApp() {
   }), [scene.hotspots, state.flags]);
 
   if (screen === "title") return <main className="titleScreen" onPointerDown={() => audioRef.current?.resume()}>
-    <div className="titleOcean" aria-hidden="true"><img src="/art/title-background.webp" alt="" /><div className="titleHorizon" /><div className="dataRain" /></div>
+    <div className="titleOcean" aria-hidden="true"><img src="/art/title-background.webp" alt="" onError={hideBrokenArt} /><div className="titleHorizon" /><div className="dataRain" /></div>
     <section className="titlePanel"><p className="eyebrow">TAKUBO29 PRESENTS</p><h1>SEA OF<br />INFORMATION</h1><p className="titleTagline">過去は保存できる。未来は保存できない。</p>
       <nav className="titleMenu"><button onClick={startNewGame}>NEW GAME</button><button onClick={continueGame} disabled={!hasSave}>CONTINUE</button><button onClick={() => setScreen("archive")}>MUSIC ARCHIVE</button><button onClick={() => setSettingsOpen(true)}>SETTINGS</button></nav>
     </section>{settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} />}
@@ -200,7 +225,7 @@ export function GameApp() {
     {dialogue && !musicFocus && <DialogueBox dialogue={dialogue} lineIndex={lineIndex} onAdvance={advanceDialogue} />}
     {musicFocus && scene.track && <MusicFocus track={scene.track} position={musicPosition} until={musicFocus.until} label={musicFocus.label} phase={musicFocus.phase} />}
     {savedFlash && <div className="savedFlash">SAVED</div>}
-    {settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} onTitle={() => { audioRef.current?.pause(); setSettingsOpen(false); setScreen("title"); }} />}
+    {settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} onTitle={() => { audioRef.current?.pause(); setSettingsOpen(false); setDialogue(null); setLineIndex(0); setMusicFocus(null); setScreen("title"); }} />}
   </main>;
 }
 
@@ -210,7 +235,7 @@ function MusicFocus({ track, position, until, label, phase }: { track: keyof typ
   const fmt = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
   const art = track === "sea-of-information" ? "/art/sea-music.webp" : track === "city-of-dawn" ? "/art/city-music.webp" : null;
   return <section className={`musicFocus musicFocus-${phase} musicFocus-track-${track}`} aria-live="polite">
-    {art && <img className="musicFocusArt" src={art} alt="" />}
+    {art && <img className="musicFocusArt" src={art} alt="" onError={hideBrokenArt} />}
     {!art && <div className="musicFocusGeneratedBackdrop" aria-hidden="true" />}
     <div className="musicFocusShade" />
     <div className="musicFocusContent">
@@ -241,7 +266,7 @@ function Settings({ volume, onVolume, onClose, onTitle }: { volume: number; onVo
 function SceneArt({ art }: { art: string }) {
   const realArt = art === "sea" || art === "terminal" || art === "dive" ? "/art/sea-music.webp" : art === "noa" ? "/art/city-noa.webp" : ["city", "city-glitch", "city-investigation", "dusk", "night"].includes(art) ? "/art/city-explore.webp" : null;
   return <div className="sceneArt" aria-hidden="true">
-    {realArt && <img className={`sceneIllustration sceneIllustration-${art}`} src={realArt} alt="" />}
+    {realArt && <img className={`sceneIllustration sceneIllustration-${art}`} src={realArt} alt="" onError={hideBrokenArt} />}
     {art === "sea" && <><div className="seaHorizon"/><div className="memoryCard m1"/><div className="memoryCard m2"/><div className="memoryCard m3"/><div className="reiSilhouette"/></>}
     {art === "terminal" && <><div className="seaHorizon"/><div className="terminalMonolith"><span>ADMIN</span></div><div className="reiSilhouette near"/></>}
     {art === "dive" && <><div className="diveRing"><span>DIVE</span></div><div className="reiSilhouette"/></>}
