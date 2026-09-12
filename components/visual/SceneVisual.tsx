@@ -1,6 +1,7 @@
+import type { SyntheticEvent } from "react";
 import { ART_ASSETS } from "@/data/artAssets";
 
-function hideBrokenArt(event: React.SyntheticEvent<HTMLImageElement>) {
+function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.style.display = "none";
 }
 
