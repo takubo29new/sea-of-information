@@ -1,106 +1,122 @@
-# Astra Browser QA Guide
+# Astra ブラウザQAガイド
 
-You are playtesting **SEA OF INFORMATION** as a real player in a browser.
+このリポジトリは、オリジナルブラウザゲーム **SEA OF INFORMATION** です。
 
-Read the root `README.md` for the current product direction. Test the `dev` build unless the owner gives you another deployment.
+ルートの`README.md`を読み、特別な指示がない限り`dev`の最新ビルドを実際のプレイヤーとしてブラウザで試してください。
 
-## Your role
+## Astraの役割
 
-Prioritize observable player-facing failures and confusing UX. Do not spend the session doing a code review.
+コードレビューではなく、**実プレイQA**を担当してください。
 
-The game deliberately gives music more space than a conventional visual novel. A section taking time is not automatically a bug. The question is whether the player understands what is happening and remains engaged.
+このゲームは一般的なADVより音楽を長く体験させる設計です。時間がかかること自体はバグではありません。
 
-## Core playthrough
+重要なのは、プレイヤーが
+- 今何が起きているか理解できるか
+- 意図的な演出に感じるか
+- 曲を実際に聴けるか
+- 退屈な待ち時間ではなくゲーム体験になっているか
+です。
 
-Start at Title and play continuously through all currently implemented content.
+## 基本プレイ
 
-At the current milestone this should cover:
+タイトルから開始し、その時点で実装されている最後の地点まで通してプレイしてください。
 
-`Title → Sea of information → DIVE → City of Dawn → repeated morning → child intervention → Noa → investigation → AURORA → first sunset/night`
+現在の想定ルート:
 
-As later chapters are added, continue through the newest available milestone.
+`Title → Sea of information → DIVE → City of Dawn → 朝の反復 → 子どもへの介入 → Noa → 調査 → AURORA → 初めての夕方/夜 → Load road → Gadget Area → BIT → 99.7%認証`
 
-## Highest-priority checks
+実装範囲が増えた場合は、最新マイルストーンの最後まで続けてください。
 
-### Progression
-- Can every required hotspot/event be reached?
-- Can you become permanently stuck?
-- Can you accidentally skip required story state?
-- Can rapid clicking cause two scene transitions?
-- Does the game remain sane after using Continue?
+## 最優先チェック
+
+### 進行
+- 必須hotspot/eventへ到達できるか
+- 永久に進めなくならないか
+- 必要なstory stateを飛ばせないか
+- 連打でscene transitionが二重発火しないか
+- Continue後も正常に進めるか
 
 ### Listening Phase
-When progression is intentionally gated by music:
-- Is it immediately obvious that the UI has intentionally changed modes?
-- Is the track title visible?
-- Is current playback position understandable?
-- Is there enough visual movement/change to avoid feeling like a frozen wait screen?
-- Are normal exploration controls clearly absent/disabled rather than apparently broken?
-- At the unlock point, is `SCENE UNLOCKED` or equivalent feedback visible?
-- Does the player UI fade away cleanly?
-- Does the following dialogue/scene appear without needing a confusing extra click?
-- Does the song continue/restart/cut exactly as the scene seems to intend?
+音楽進行待ちになった場合:
+- 通常画面から専用モードへ切り替わったことが一目で分かるか
+- 曲名が見えるか
+- 再生位置が理解できるか
+- frozen画面ではなく、映像/光/文章などに変化があるか
+- 通常探索操作が消えた理由を理解できるか
+- 解放時に`SCENE UNLOCKED`等の明確なフィードバックがあるか
+- プレイヤーUIが自然にフェードアウトするか
+- 余計なクリックなしで次の会話/シーンへ戻れるか
+- 曲が意図せず頭出し・停止・二重再生しないか
 
-### Music experience
-Report if:
-- a track is cut off so quickly that you barely hear it
-- dialogue/menu sounds constantly interrupt the track
-- a long listening section has nothing meaningful happening visually
-- the track title is hard to identify
-- music restarts obviously when moving between scenes that feel continuous
+### 音楽体験
+以下の場合は報告してください。
+- ほとんど曲を聴く前に次の曲へ移る
+- 会話やメニューで頻繁に音楽体験が分断される
+- 長いListening Phaseなのに視覚的な出来事がほぼない
+- 曲名を覚えにくい
+- 連続した場面なのに曲が不自然に再スタートする
 
-### Visuals
-The project is replacing CSS placeholders with real illustrations.
+### ビジュアル
+CSS仮素材から実イラストへ移行中です。
 
-Check:
-- background cropping at common desktop sizes
-- character art covering dialogue/hotspots
-- dialogue covering important focal art
-- unreadable text on bright imagery
-- obvious placeholder/CSS-only scenes next to finished-art scenes
-- transitions/fades that flash the wrong background
+確認:
+- デスクトップ幅で背景が不自然に切れないか
+- キャラ絵がdialogue/hotspotを隠さないか
+- dialogueが重要な絵を大きく隠していないか
+- 明るい絵の上で文字が読めない箇所がないか
+- 完成絵と仮CSSの差が極端な場面がないか
+- fade時に一瞬違う背景が見えないか
 
-### Browser/state abuse tests
-Try at least some of these:
-- double-click a hotspot
-- click rapidly during a fade
-- press Enter/Space while clicking
-- reload during exploration
-- reload during/after dialogue
-- reload around a Listening Phase
-- switch tabs during music and return
-- resize window to narrow desktop width
-- mute/change volume then continue playing
-- start a new game after an existing save
+### 乱暴な操作テスト
+最低でもいくつか試してください。
+- hotspotをダブルクリック
+- fade中に連打
+- Enter/Spaceを押しながらマウスクリック
+- 探索中reload
+- dialogue中reload
+- Listening Phase直前/最中/終了直後にreload
+- 音楽再生中に別タブへ移動→復帰
+- ウィンドウ幅を狭くする
+- ミュート/音量変更後も継続
+- セーブがある状態でNEW GAME
 
-## Reporting format
+## バグ報告形式
 
-For every bug include:
-1. **Severity:** Critical / Medium / Minor
-2. **Where:** chapter + scene/UI
-3. **Steps to reproduce**
-4. **Expected**
-5. **Actual**
-6. Screenshot if useful
+各バグについて:
+1. **重要度:** Critical / Medium / Minor
+2. **場所:** 章 + scene/UI
+3. **再現手順**
+4. **期待結果**
+5. **実際の結果**
+6. 必要ならスクリーンショット
 
-Use **Critical** for progression blockers, crashes, unrecoverable save problems, or audio/input failures that prevent meaningful play.
+### Critical
+- 進行不能
+- crash
+- 復旧困難なセーブ破損
+- 音声/入力不具合でまともにプレイできない
 
-Use **Medium** for confusing progression, broken Listening Phase behavior, major layout problems, or repeatable audio/transition defects.
+### Medium
+- 進行理由がかなり分かりにくい
+- Listening Phaseの挙動不良
+- 大きなレイアウト崩れ
+- 再現性のある音声/transition不具合
 
-Use **Minor** for polish issues that do not meaningfully block the experience.
+### Minor
+プレイ継続に影響しない磨き込みレベル。
 
-At the end provide:
-- furthest point reached
-- critical issue count
-- medium issue count
-- minor issue count
-- whether a full clean playthrough succeeded
-- 3 most important UX observations
+## 最終報告
 
-## Product-specific question
+最後に必ず以下をまとめてください。
+- 到達できた最終地点
+- Critical件数
+- Medium件数
+- Minor件数
+- 最初から最後までclean playthroughできたか
+- 最も重要なUX所感3つ
 
-After the playthrough, answer this separately:
+そして別枠で、必ず次の質問に答えてください。
 
-> **Did the game make you actually listen to and remember the music, or did the music still feel like ordinary background BGM? Why?**
+> **このゲームは、実際に曲を聴かせ、曲を記憶に残す体験になっていましたか？ それとも普通のBGMに感じましたか？ その理由は何ですか？**
 
-This is a key acceptance criterion for the project.
+これは本プロジェクトの重要な合格条件です。
