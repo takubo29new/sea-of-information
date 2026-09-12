@@ -4,7 +4,9 @@ import type { TrackId } from "./model";
 
 export const TRACK_META: Record<TrackId, { src: string; title: string; duration: number }> = {
   "sea-of-information": { src: "/audio/sea-of-information.m4a", title: "Sea of information", duration: 323.8 },
-  "city-of-dawn": { src: "/audio/city-of-dawn.m4a", title: "City of dawn", duration: 343.0 }
+  "city-of-dawn": { src: "/audio/city-of-dawn.m4a", title: "City of dawn", duration: 343.0 },
+  "load-road": { src: "/audio/load-road.mp3", title: "Load road", duration: 323.79 },
+  "gadget-area": { src: "/audio/gadget-area.mp3", title: "Gadget area", duration: 211.30 }
 };
 
 export class AudioManager {
@@ -17,7 +19,9 @@ export class AudioManager {
     if (this.audio) this.audio.volume = this.volume;
   }
 
-  getVolume() { return this.volume; }
+  getVolume() {
+    return this.volume;
+  }
 
   async play(track: TrackId, restart = false) {
     if (this.currentTrack === track && this.audio && !restart) {
@@ -48,14 +52,23 @@ export class AudioManager {
     try { await this.audio.play(); } catch { /* no-op */ }
   }
 
-  pause() { this.audio?.pause(); }
-  getPosition() { return this.audio?.currentTime ?? 0; }
+  pause() {
+    this.audio?.pause();
+  }
+
+  getPosition() {
+    return this.audio?.currentTime ?? 0;
+  }
+
   getDuration() {
     if (!this.currentTrack) return 0;
     const native = this.audio?.duration;
     return native && Number.isFinite(native) ? native : TRACK_META[this.currentTrack].duration;
   }
-  getCurrentTrack() { return this.currentTrack; }
+
+  getCurrentTrack() {
+    return this.currentTrack;
+  }
 
   destroy() {
     if (!this.audio) return;
