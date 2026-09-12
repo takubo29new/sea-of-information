@@ -1,164 +1,226 @@
 # SEA OF INFORMATION
 
-Original browser game combining the creator's original music with cinematic visual storytelling, exploration, mystery, and light interaction.
+オリジナル楽曲を中心に、映像演出・探索・謎解き・物語を組み合わせたブラウザゲームです。
 
-> **Core concept:** the soundtrack is not background music. A major track is treated as a game scene in itself. Visuals, interaction, dialogue timing, and progression are designed around the music so the player actually hears and remembers it.
+> **中心コンセプト:** 楽曲は単なるBGMではありません。主要曲そのものを「ひとつのゲームシーン」として扱い、映像・操作・会話・進行タイミングを音楽に合わせて設計します。プレイヤーが実際に曲を聴き、曲名と場面を結びつけて記憶できることを重要な完成条件とします。
 
-## Branches
+## ブランチ運用
 
-- `main` — stable/release branch. Do not use for active AI-assisted development.
-- `dev` — current development branch and source of truth.
+- `main` — 安定版・リリース用。通常の開発作業では直接変更しない。
+- `dev` — 現在の開発ブランチ。**開発上の正本はこちら。**
 
-AI collaborators should review/test **`dev`** unless explicitly told otherwise.
+Claudeのコードレビュー、AstraのQAも、特別な指示がない限り`dev`を対象にしてください。
 
-## Current status
+## 現在の開発状況
 
-Working milestone: **v0.4 → v0.5**
+現在のマイルストーン: **v0.4 → v0.5**
 
-Implemented:
-- Title / NEW GAME / CONTINUE
-- `Sea of information` prologue
-- `City of Dawn` through AURORA shutdown and the first night
-- Data-driven Scene/Event architecture
-- Autosave and settings foundation
-- Audio manager and Music Archive foundation
-- full-screen **Listening Phase** UI for music-gated progression
-- initial structure for replacing CSS-only visuals with real illustration assets
+実装済み:
+- タイトル / NEW GAME / CONTINUE
+- `Sea of information` プロローグ
+- `City of Dawn` のループ発見〜AURORA停止〜初めての夜
+- データ駆動の Scene / Event 基盤
+- オートセーブ・設定画面の基盤
+- AudioManager / Music Archiveの基盤
+- 音楽進行で次の場面を解放するフルスクリーン **Listening Phase**
+- CSSだけの仮ビジュアルから実イラストへ置き換えるための描画構造
+- `public/audio/` に15曲の実音源を配置
 
-Current work:
-1. Retrofit **all existing scenes** (not only future chapters) with real key visuals, backgrounds, character art, foreground/effects, and lightweight motion.
-2. Apply/refine Listening Phase UX throughout `Sea of information` and `City of Dawn`.
-3. Build `Gadget Area`.
-4. Introduce BIT.
-5. Add environmental machinery puzzles.
-6. End the milestone with `IDENTITY MATCH 99.7% / ADMINISTRATOR REI / WELCOME BACK`.
+現在進行中:
+1. **既存シーンを含めて**実キービジュアル・背景・キャラクター絵へ置換する。
+2. `Sea of information` / `City of Dawn` のListening Phaseをさらに分かりやすく磨く。
+3. City of Dawn後の`Load road`を追加する。
+4. `Gadget Area`を実装する。
+5. BITを登場させる。
+6. 歯車・電源・クレーン等を使った環境パズルを追加する。
+7. `IDENTITY MATCH 99.7% / ADMINISTRATOR REI / WELCOME BACK` まで到達させる。
 
-## Important UX rule: Listening Phase
+## 最重要UX: Listening Phase
 
-Do **not** leave the normal exploration/dialogue UI visible while silently rejecting input because the music has not reached a progression point.
+「まだ曲が進んでいないから」という理由で、通常の探索画面のままクリックを無反応にしてはいけません。
 
-When the story needs the player to experience more of a track:
+ストーリー上、もう少し曲を体験してほしい場合は、明確にモードを切り替えます。
 
-`normal gameplay → deliberate transition → full-screen music-player presentation → music-synchronised visual/text changes → SCENE UNLOCKED → fade player UI out → return to scene/dialogue`
+`通常プレイ → 専用トランジション → フルスクリーン音楽プレイヤーUI → 曲に同期した映像/短文変化 → SCENE UNLOCKED → UIフェードアウト → 元の場面/会話へ復帰`
 
-The Listening Phase should communicate clearly that this is intentional. It should show track title and playback position and use the song's development for visual changes. It must not feel like a countdown/wait screen.
+Listening Phaseでは、少なくとも以下を伝えます。
+- 曲名
+- 現在の再生位置
+- 今は意図的に音楽を体験するフェーズであること
+- 進行可能になったこと
 
-The target for major tracks is generally to let the player naturally hear roughly 50–80% or more on a first playthrough. Short cinematic tracks may be heard almost in full.
+単なる「残り○秒待つ画面」にはしません。曲の展開に合わせて背景・光・カメラ・キャラクター・短いテキストなどが変化し、音楽自体がゲーム体験になるようにします。
 
-## Visual direction
+主要曲は初回プレイで概ね**50〜80%以上**が自然に耳に入る構成を目標にします。短いイベント曲はほぼフルで使用する場合があります。
 
-CSS gradients/shapes are scaffolding, **not the final visual target**.
+## ビジュアル方針
 
-Existing content must also be upgraded. Target structure:
-- full-screen illustrated background/key visual
-- character standing art where appropriate
-- foreground layer
-- subtle parallax / particles / cloud / light / camera motion
-- minimal UI that does not cover the art
-- concise dialogue (usually 1–3 short lines)
+CSSグラデーションや図形は**開発用の足場**であり、最終ビジュアルではありません。
 
-A useful quality test is: **would the scene still make an appealing screenshot if all dialogue text disappeared?** If not, the visual presentation needs more work.
+これは今後作る章だけでなく、すでに作った`Sea of information`と`City of Dawn`にも適用します。
 
-## Story baseline
+目標構造:
+- 16:9のフルスクリーン背景・キービジュアル
+- 必要に応じてキャラクター立ち絵
+- 前景レイヤー
+- パララックス / 粒子 / 雲 / 光 / ゆるいカメラ移動
+- 絵を大きく隠さない最小限のUI
+- 1〜3行程度を基本とする短い会話
 
-Theme: **過去は保存できる。未来は保存できない。**
+品質確認の基準:
 
-SEA OF INFORMATION was built to preserve humanity's memories/history after Earth civilization collapsed. Dr. Rei later added `CREATE`, allowing the system to generate people and worlds that never historically existed.
+> **会話テキストを全部消したスクリーンショットでも、その場面を見たいと思えるか？**
 
-The 17-year-old protagonist Rei is not Dr. Rei, a clone, or a reincarnation. He is a newly generated person assembled from Dr. Rei-related data plus enormous amounts of other human information. This is why administrator systems can identify him at approximately `99.7%` rather than 100%.
+Noなら、ビジュアル演出を改善します。
 
-`12,418` means days since the last human access to SEA OF INFORMATION (~34 years), not a simulation count.
+## 確定している物語の前提
 
-Humanity did not completely go extinct; off-Earth humans survived. The biological Dr. Rei died, while a management AI based on him remained in the system.
+テーマ:
 
-Do not reintroduce old discarded concepts such as 12,418 simulation loops, 12,417 prior Reis, BODY #12418, mass Rei clones, or Project ADAM unless the project owner explicitly changes the story again.
+> **過去は保存できる。未来は保存できない。**
 
-## Current chapter flow
+SEA OF INFORMATIONは、地球文明崩壊前に人類の記憶・歴史・人格・文化・創作物などを保存するために作られた巨大情報保存システムです。
 
-`Sea of information → City of Dawn → Load road → Gadget Area → Load road → wish → Fantasy → beautiful → Break/blavery → Naked → Signal → Spacecraft → New create → Thundercloud → Space Home`
+Dr. Reiは完成前に「保存できるのは過去だけで、保存するだけでは生命ではない」と考え、保存情報を組み合わせて存在しなかった世界・人格・人間を生成する`CREATE`機能を追加しました。
 
-The project uses 15 original tracks, but **15 tracks do not mean 15 stages**. `Load road`, for example, is a recurring travel/intermission piece.
+### 主人公Rei
+17歳。Dr. Rei本人でも、クローンでも、転生でも、完全な人格コピーでもありません。
 
-The mistakenly supplied track `Newborn10` is explicitly excluded from the game.
+Dr. Reiの記憶・人格情報、17歳頃のDr. Rei、周囲の人間から見たDr. Rei、さらに大量の一般人類データからSEA OF INFORMATIONが新しく生成した人物です。
 
-## Main characters
+そのため管理システムではDr. Reiと約`99.7%`一致し、管理者として誤認されることがあります。
 
-- **Rei** — 17. Newly generated protagonist. Slim, dark short hair, white/light-gray minimalist clothing, blue DIVE device. Curious, lightly humorous, acts despite uncertainty.
-- **BIT** — small industrial helper robot, ~30–40 cm, yellow + dark gray/black, simple LCD face. Starts utilitarian/mechanical and gradually shows attachment through actions rather than speeches about having a heart.
-- **Noa** — 16. City of Dawn resident, warm/orange visual identity and orange scarf. Remembers the repeated morning while others do not.
-- **Dr. Rei** — management AI based on the deceased scientist. Not a conventional villain; wants to stop CREATE because he has watched generated beings suffer for decades.
+### 12,418
+シミュレーション回数やReiの個体番号ではありません。
 
-## Technology / architecture
+**SEA OF INFORMATIONへ最後に人間がアクセスしてから経過した日数（約34年）**です。
+
+### 人類
+人類は完全絶滅していません。地球文明は崩壊しましたが、地球外に生存者がいます。
+
+生物としてのDr. Reiは約34年前に死亡しています。ゲーム中に登場するDr. Reiは、本人を元にした管理AIです。
+
+### 廃止済み設定
+以下は明示的に廃止済みです。プロジェクトオーナーが再度採用しない限り復活させないでください。
+- 12,418回のシミュレーション
+- 12,417人の過去Rei
+- BODY #12418
+- 大量のReiクローン
+- Project ADAM
+- Newborn10由来の「第二の肉体Rei」等
+
+## 全体の章構成
+
+`Sea of information → City of Dawn → Load road → Gadget Area → Load road → wish → Fantasy → beautiful → Break / blavery → Naked → Signal → Spacecraft → New create → Thundercloud → Space Home`
+
+15曲を使用しますが、**15曲＝15ステージではありません。**
+
+`Load road`は移動・休息パートで繰り返し使う曲です。
+
+誤って共有された`Newborn10`はゲームから完全に除外しています。
+
+## 主なキャラクター
+
+### Rei
+17歳。新しく生成された主人公。
+- 細身
+- 少し乱れた黒髪
+- 白〜薄灰色のミニマルな服
+- 青く光るDIVE端末
+- 好奇心が強く、軽い冗談も言う
+- Dr. Reiが「考えてから行動する」のに対し、Reiは「分からなくても動く」
+
+### BIT
+30〜40cm程度の小型工業用支援ロボット。
+- 黄色＋黒/濃灰
+- シンプルなLCD顔
+- 最初は実用機械的
+- 「心が生まれた」と説明させず、行動で愛着や感情らしさを見せる
+
+### Noa
+16歳。City of Dawnの住人。
+- 暖色/オレンジ系
+- オレンジのマフラー
+- 他の住人と違って朝のループを記憶する
+
+### Dr. Rei
+死亡した科学者Dr. Reiを元にした管理AI。
+- 単純な悪役ではない
+- 34年間、生成された存在が苦しむ様子を見続けた結果、CREATEを止めようとしている
+
+## 技術構成
 
 - Next.js
 - React
 - TypeScript
-- data-driven `Scene → Event` structure
-- localStorage save foundation
-- shared audio manager
+- データ駆動 `Scene → Event`
+- localStorageセーブ
+- 共通AudioManager
 
-Key files:
-- `components/GameApp.tsx` — main runtime/UI orchestration
-- `data/scenes.ts` — current scene/dialogue/hotspot data
-- `engine/model.ts` — core types/state
-- `engine/audio.ts` — audio management
-- `engine/saveCore.ts` / `saveClient.ts` — save handling
-- `app/globals.css` — current presentation styles
-- `tests/engine.test.ts` — engine/data validation
+主なファイル:
+- `components/GameApp.tsx` — ゲーム実行・UI統合
+- `data/scenes.ts` — シーン、会話、ホットスポット
+- `engine/model.ts` — 型・GameState
+- `engine/audio.ts` — 音楽管理
+- `engine/saveCore.ts` / `saveClient.ts` — セーブ
+- `app/globals.css` — 現在の描画/UI
+- `tests/engine.test.ts` — エンジン/データ整合性テスト
 
-## Collaboration roles
+## AI分担
 
-### ChatGPT — primary implementation
-Owns architecture, scene implementation, game-state integration, music/visual synchronization, ongoing fixes, and integration of feedback.
+### ChatGPT — メイン開発
+設計、実装、状態管理、シーン追加、音楽同期、ビジュアル統合、レビュー/QA指摘の修正を担当します。
 
-### Claude — code review
-Claude should primarily **review rather than redesign the game**. See [`docs/CLAUDE_REVIEW.md`](docs/CLAUDE_REVIEW.md).
+### Claude — コードレビュー
+原則として**ゲーム設計を勝手に作り直すのではなく、コードレビューを担当**します。
 
-Review priorities:
-1. progression blockers / broken state transitions
-2. save corruption or incompatible state
-3. audio lifecycle / browser autoplay / scene-transition bugs
-4. React state/effect bugs and race conditions
-5. repeated-click / double-trigger issues
-6. TypeScript correctness
-7. maintainability problems that will become costly as chapters grow
-8. accessibility/performance issues with real art/audio assets
+詳細: [`docs/CLAUDE_REVIEW.md`](docs/CLAUDE_REVIEW.md)
 
-Please distinguish `critical`, `medium`, and `minor` findings and avoid large speculative rewrites when a focused fix is enough.
+重点:
+1. 進行不能・状態遷移バグ
+2. セーブ破損・互換性
+3. 音声ライフサイクル・autoplay・曲切替
+4. Reactのstate/effect・race condition
+5. 連打・二重実行
+6. TypeScript
+7. 章追加で悪化する保守性
+8. 実画像・大型音源導入時の性能/アクセシビリティ
 
-### ChatGPT Astra — browser QA / playtesting
-Astra should behave like a player and test the actual browser build. See [`docs/ASTRA_QA.md`](docs/ASTRA_QA.md).
+### ChatGPT Astra — 実ブラウザQA
+実際のプレイヤーとしてブラウザで動作確認します。
 
-Priority is not just "does it run?" but also:
-- can the game become stuck?
-- is it obvious why input is temporarily unavailable?
-- does Listening Phase feel intentional rather than broken?
-- does the music get enough uninterrupted time?
-- do transitions happen at the right moment?
-- do art/dialogue/hotspots remain usable at different viewport sizes?
-- does reload/continue return to a sane state?
+詳細: [`docs/ASTRA_QA.md`](docs/ASTRA_QA.md)
 
-## Definition of done for a milestone
+単に「動くか」だけではなく、以下を評価します。
+- 詰まらないか
+- 操作できない理由が理解できるか
+- Listening Phaseが故障ではなく意図的演出に感じるか
+- 曲を十分に聴けるか
+- 曲の切替や映像同期が自然か
+- リロード/Continueが安全か
+- 画面サイズ変更・連打・タブ切替で壊れないか
 
-A milestone is not done just because the happy path renders. Before moving on:
-- chapter can be played from entry to exit without progression blockers
-- save/reload works at meaningful checkpoints
-- music does not unexpectedly restart/cut out during same-track scene transitions
-- Listening Phase enters/exits clearly
-- repeated clicks cannot double-run progression
-- missing/broken save state fails safely
-- no obvious viewport overflow at desktop and narrow widths
-- tests pass
-- Claude review findings of meaningful severity are addressed
-- Astra playthrough has no unresolved critical blocker
+## マイルストーン完了条件
 
-## Music
+正常ルートが一度動いただけでは完了としません。
 
-Original music by **Takubo29**.
+- 章の入口から出口まで進行不能なし
+- 重要地点でセーブ/リロード可能
+- 同じ曲を継続する場面で不自然な再スタートがない
+- Listening Phaseの開始/終了が明確
+- 連打でイベントが二重発火しない
+- 壊れたセーブは安全にフォールバックする
+- デスクトップ〜狭幅で致命的なレイアウト崩れがない
+- テスト通過
+- Claudeの重要指摘を解消
+- Astraの実プレイで未解決Criticalがない
 
-Expected runtime audio directory: `public/audio/`.
+## 音源
 
-The game uses:
+作曲: **Takubo29**
+
+実行時音源: `public/audio/`
+
 - `sea-of-information.m4a`
 - `city-of-dawn.m4a`
 - `gadget-area.mp3`
@@ -175,6 +237,14 @@ The game uses:
 - `thundercloud.mp3`
 - `space-home.mp3`
 
-## Product goal
+## 最終的な製品目標
 
-Target first playthrough: roughly **3–4 hours**. Prefer a short, polished game over a larger unfinished one. No RPG leveling/equipment/random battles/open world/crafting. The intended form is **cinematic exploration ADV × point-and-click × music-synchronised presentation**.
+初回プレイ約**3〜4時間**。
+
+規模を広げすぎるより、短くても完成度の高いゲームを優先します。
+
+レベル、EXP、装備、ランダム戦闘、クラフト、オープンワールド等は入れません。
+
+ゲーム形式は:
+
+> **Cinematic exploration ADV × point-and-click × music-synchronized presentation**
