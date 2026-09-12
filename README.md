@@ -13,12 +13,15 @@ Claudeのコードレビュー、AstraのQAも、特別な指示がない限り`
 
 ## 現在の開発状況
 
-現在のマイルストーン: **v0.4 → v0.5**
+現在のマイルストーン: **v0.5**
 
 実装済み:
 - タイトル / NEW GAME / CONTINUE
 - `Sea of information` プロローグ
 - `City of Dawn` のループ発見〜AURORA停止〜初めての夜
+- City of Dawn後の`Load road`
+- `Gadget Area`入口〜機械区画復旧〜BIT登場〜99.7%認証
+- 電源・歯車・クレーンの3系統復旧
 - データ駆動の Scene / Event 基盤
 - オートセーブ・設定画面の基盤
 - AudioManager / Music Archiveの基盤
@@ -26,14 +29,15 @@ Claudeのコードレビュー、AstraのQAも、特別な指示がない限り`
 - CSSだけの仮ビジュアルから実イラストへ置き換えるための描画構造
 - `public/audio/` に15曲の実音源を配置
 
-現在進行中:
+現在の重点作業:
 1. **既存シーンを含めて**実キービジュアル・背景・キャラクター絵へ置換する。
-2. `Sea of information` / `City of Dawn` のListening Phaseをさらに分かりやすく磨く。
-3. City of Dawn後の`Load road`を追加する。
-4. `Gadget Area`を実装する。
-5. BITを登場させる。
-6. 歯車・電源・クレーン等を使った環境パズルを追加する。
-7. `IDENTITY MATCH 99.7% / ADMINISTRATOR REI / WELCOME BACK` まで到達させる。
+2. `Sea of information` / `City of Dawn` / `Load road` / `Gadget Area` のListening Phaseをさらに磨く。
+3. Gadget Areaの3系統復旧を、クリック一発より少しゲームらしい短い環境操作へ発展させる。
+4. Claudeのコードレビュー結果を反映する。
+5. Astraで実ブラウザQAする。
+6. QA後に`wish`章へ進む。
+
+最新の作業状況は [`docs/WORK_STATUS.md`](docs/WORK_STATUS.md) も参照してください。
 
 ## 最重要UX: Listening Phase
 
@@ -163,7 +167,8 @@ Dr. Reiの記憶・人格情報、17歳頃のDr. Rei、周囲の人間から見�
 - `engine/model.ts` — 型・GameState
 - `engine/audio.ts` — 音楽管理
 - `engine/saveCore.ts` / `saveClient.ts` — セーブ
-- `app/globals.css` — 現在の描画/UI
+- `app/globals.css` — 基本描画/UI
+- `app/v05.css` — v0.5追加演出
 - `tests/engine.test.ts` — エンジン/データ整合性テスト
 
 ## AI分担
