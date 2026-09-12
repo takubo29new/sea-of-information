@@ -1,0 +1,49 @@
+/* v0.5: Load Road + Gadget Area */
+.art-load-road .sceneArt {
+  background: radial-gradient(circle at 55% 54%, rgba(77,199,255,.17), transparent 22%), linear-gradient(180deg,#03070d 0%,#071624 52%,#06101a 100%);
+}
+.loadRoadLane { position:absolute; left:9%; right:9%; top:53%; height:10%; transform:perspective(700px) rotateX(60deg); transform-origin:center; border-top:1px solid rgba(133,219,255,.5); border-bottom:1px solid rgba(133,219,255,.18); background:linear-gradient(90deg,transparent,rgba(88,196,238,.12),transparent); box-shadow:0 0 70px rgba(73,190,238,.12); }
+.loadRoadLane::after { content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(90deg,transparent,#78d8ff,transparent); box-shadow:0 0 22px rgba(107,216,255,.7); }
+.loadRoadFragments { position:absolute; inset:0; }
+.loadRoadFragments i { position:absolute; width:110px; height:68px; border:1px solid rgba(142,222,255,.18); background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(62,166,211,.08)); animation:float 6s ease-in-out infinite; }
+.loadRoadFragments i:nth-child(1){left:18%;top:25%;transform:rotate(-7deg)}
+.loadRoadFragments i:nth-child(2){right:17%;top:30%;animation-delay:-1.7s}
+.loadRoadFragments i:nth-child(3){left:62%;top:15%;transform:rotate(4deg);animation-delay:-3s}
+.loadRoadFragments i:nth-child(4){left:31%;top:68%;animation-delay:-4.1s}
+
+.art-gadget-entry .sceneArt,.art-gadget-machinery .sceneArt,.art-gadget-bit .sceneArt,.art-gadget-auth .sceneArt {
+  background: radial-gradient(circle at 58% 42%,rgba(238,180,55,.08),transparent 18%), linear-gradient(180deg,#0a0d10,#14191d 60%,#080b0d);
+}
+.gadgetFactoryDepth { position:absolute; inset:8% 5% 10%; background:repeating-linear-gradient(90deg,rgba(255,205,97,.035) 0 2px,transparent 2px 12%),linear-gradient(180deg,transparent,rgba(255,255,255,.025)); border:1px solid rgba(220,208,167,.08); clip-path:polygon(8% 0,92% 0,100% 100%,0 100%); }
+.gadgetFactoryDepth::after { content:""; position:absolute; left:0; right:0; bottom:8%; height:2px; background:linear-gradient(90deg,transparent,rgba(255,190,65,.52),transparent); box-shadow:0 0 24px rgba(255,176,51,.18); }
+.gadgetGear { position:absolute; border:12px dashed #3b4448; border-radius:50%; box-shadow:inset 0 0 0 12px #171c20,0 0 30px rgba(255,190,63,.05); }
+.gadgetGear::after { content:""; position:absolute; inset:31%; border-radius:50%; background:#0b0f12; border:6px solid #596165; }
+.gearA{width:220px;height:220px;left:31%;top:20%;animation:gadgetSpin 18s linear infinite}
+.gearB{width:160px;height:160px;left:48%;top:38%;animation:gadgetSpin 13s linear infinite reverse}
+.gadgetConveyor { position:absolute; left:8%; right:8%; bottom:20%; height:72px; background:repeating-linear-gradient(90deg,#252c30 0 44px,#151a1d 44px 49px); border-top:5px solid #4a5358; transform:perspective(800px) rotateX(57deg); transform-origin:bottom; }
+.gadgetCrane { position:absolute; right:17%; top:10%; width:180px; height:250px; border-top:12px solid #4d5558; border-right:9px solid #31383c; }
+.gadgetCrane::after { content:""; position:absolute; right:-15px; top:108px; width:46px; height:62px; border:5px solid #555f62; border-top:0; border-radius:0 0 12px 12px; }
+.maintenanceBench { position:absolute; left:50%; bottom:19%; width:340px; height:90px; transform:translateX(-50%); background:#20272b; border-top:3px solid #586166; box-shadow:0 14px 0 #0b0f11; }
+.bitFigure { position:absolute; left:54%; bottom:31%; width:88px; height:78px; border-radius:42% 42% 34% 34%; background:linear-gradient(180deg,#e5b833,#a87518); border:5px solid #262c2f; box-shadow:0 0 0 3px #0f1416,0 12px 30px rgba(0,0,0,.4); display:grid; place-items:center; }
+.bitFigure::before,.bitFigure::after{content:"";position:absolute;bottom:-22px;width:18px;height:28px;background:#252c2f;border-radius:5px}
+.bitFigure::before{left:13px}.bitFigure::after{right:13px}
+.bitFigure span{font:700 13px ui-monospace,monospace;color:#151a1d;background:#d7ba58;padding:7px 10px;border-radius:6px;white-space:nowrap}
+.bitFigure.auth{left:auto;right:24%;bottom:18%;transform:scale(.92)}
+.gadgetAuthPanel { position:absolute; left:50%; top:42%; transform:translate(-50%,-50%); width:min(620px,70vw); padding:34px; border:1px solid rgba(125,221,255,.34); background:rgba(4,13,18,.85); box-shadow:0 0 70px rgba(69,202,255,.12); text-align:center; }
+.gadgetAuthPanel span,.gadgetAuthPanel small { display:block; font:11px ui-monospace,monospace; letter-spacing:.24em; color:#8fcfe8; }
+.gadgetAuthPanel strong{display:block;margin:18px 0;font:500 clamp(52px,8vw,100px) ui-monospace,monospace;color:#dff8ff;text-shadow:0 0 28px rgba(116,218,255,.32)}
+.speaker-bit{color:#f0c84e}
+@keyframes gadgetSpin{to{transform:rotate(360deg)}}
+
+.musicFocusGeneratedBackdrop { position:absolute; inset:0; }
+.musicFocus-track-load-road .musicFocusGeneratedBackdrop { background:radial-gradient(circle at 50% 50%,rgba(79,199,255,.2),transparent 24%),linear-gradient(180deg,#02070d,#071827 58%,#03070d); }
+.musicFocus-track-gadget-area .musicFocusGeneratedBackdrop { background:radial-gradient(circle at 50% 44%,rgba(255,191,58,.14),transparent 24%),repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 2px,transparent 2px 20px),linear-gradient(180deg,#080b0d,#171b1c 58%,#080a0b); }
+
+@media(max-width:720px){
+  .gadgetGear.gearA{left:24%;transform:scale(.78)}
+  .gadgetGear.gearB{left:45%;transform:scale(.72)}
+  .gadgetAuthPanel{width:86vw;padding:26px 18px}
+  .bitFigure.auth{right:11%;bottom:12%;transform:scale(.75)}
+}
+
+@media(prefers-reduced-motion:reduce){.gadgetGear{animation:none!important}.loadRoadFragments i{animation:none!important}}
