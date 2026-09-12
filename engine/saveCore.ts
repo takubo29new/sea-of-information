@@ -13,7 +13,7 @@ export function sanitizeGameState(value: unknown): GameState {
     flags: input.flags && typeof input.flags === "object" ? { ...input.flags } : {},
     unlockedMusic: Array.isArray(input.unlockedMusic)
       ? input.unlockedMusic.filter((v): v is GameState["unlockedMusic"][number] =>
-          v === "sea-of-information" || v === "city-of-dawn"
+          v === "sea-of-information" || v === "city-of-dawn" || v === "load-road" || v === "gadget-area"
         )
       : ["sea-of-information"],
     playTimeSeconds: typeof input.playTimeSeconds === "number" && input.playTimeSeconds >= 0
