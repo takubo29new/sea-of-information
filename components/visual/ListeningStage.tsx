@@ -16,7 +16,9 @@ export function ListeningStage({
   position,
   duration,
   unlockAt,
-  phase
+  phase,
+  canSkip,
+  onSkip
 }: {
   track: ListeningTimeline["track"];
   title: string;
@@ -24,6 +26,8 @@ export function ListeningStage({
   duration: number;
   unlockAt: number;
   phase: "listening" | "ready";
+  canSkip?: boolean;
+  onSkip?: () => void;
 }) {
   const timeline = LISTENING_TIMELINES[track];
   const activeCue = getActiveListeningCue(track, position);
@@ -39,6 +43,10 @@ export function ListeningStage({
       <div className="listeningStageArtwork">
         {art && <img src={art} alt="" draggable={false} onError={hideBrokenArt} />}
         <div className="listeningStageAtmosphere" />
+        <div className="listeningStagePulse listeningStagePulse-a" />
+        <div className="listeningStagePulse listeningStagePulse-b" />
+        <div className="listeningStageParticles" />
+        <div className="listeningStageScanlines" />
         <div className="listeningStageGrain" />
       </div>
 
@@ -50,6 +58,10 @@ export function ListeningStage({
             ? "音が、次の場面へつながった。"
             : activeCue?.text ?? timeline.introText}
         </p>
+
+        <div className="listeningStageSpectrum" aria-hidden="true">
+          {Array.from({ length: 24 }, (_, index) => <i key={index} style={{ animationDelay: `${-(index % 7) * .13}s` }} />)}
+        </div>
 
         <div className="listeningStageWave" aria-hidden="true">
           {Array.from({ length: 64 }, (_, index) => (
@@ -68,11 +80,16 @@ export function ListeningStage({
           <span>{formatTime(duration)}</span>
         </div>
 
-        <p className="listeningStageHint">
-          {phase === "ready"
-            ? "このまま次の場面へ戻ります。"
-            : "操作不能ではありません。いまは音楽そのものが物語を進めています。"}
-        </p>
+        <div className="listeningStageFooter">
+          <p className="listeningStageHint">
+            {phase === "ready"
+              ? "次の操作へ戻ります。"
+              : canSkip
+                ? "この区間は一度体験済みです。必要ならスキップできます。"
+                : "いまは音楽そのものが物語を進めています。"}
+          </p>
+          {phase === "listening" && canSkip && onSkip && <button className="listeningSkip" onClick={onSkip}>SKIP LISTENING</button>}
+        </div>
       </div>
     </section>
   );
