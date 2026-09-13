@@ -7,11 +7,12 @@ function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
 
 export function SceneVisual({ artKey }: { artKey: string }) {
   const asset = ART_ASSETS[artKey];
+  const approved = Boolean(asset?.approved);
 
   return (
-    <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}`} aria-hidden="true">
+    <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}${approved ? " sceneVisual-approved" : " sceneVisual-placeholder"}`} aria-hidden="true">
       <div className={`sceneVisualEnvironment sceneVisualEnvironment-${artKey}`} />
-      {asset?.background && (
+      {approved && asset?.background && (
         <img
           className="sceneVisualBackground"
           src={asset.background}
@@ -22,7 +23,7 @@ export function SceneVisual({ artKey }: { artKey: string }) {
       )}
       <div className="sceneVisualParallax sceneVisualParallaxBack" />
       <div className="sceneVisualLight" />
-      {asset?.character && (
+      {approved && asset?.character && (
         <img
           className={`sceneVisualCharacter sceneVisualCharacter-${asset.characterPosition ?? "center"}`}
           src={asset.character}
