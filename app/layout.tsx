@@ -3,6 +3,7 @@ import "./globals.css";
 import "./v05.css";
 import "./v06.css";
 import "./qa-fixes.css";
+import "./visual-fixes.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
