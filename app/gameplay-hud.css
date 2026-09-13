@@ -45,7 +45,8 @@
   margin-top: 11px;
 }
 
-.gameProgressItems span {
+.gameProgressItems span,
+.gameProgressItems button {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -57,6 +58,21 @@
   font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: .08em;
 }
+
+.gameProgressItems button {
+  appearance: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.gameProgressItems button:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255, 212, 128, .35);
+  background: rgba(255, 200, 96, .08);
+}
+
+.gameProgressItems button:disabled { cursor: default; }
 
 .gameProgressItems i {
   display: grid;
@@ -70,13 +86,15 @@
   font-size: 9px;
 }
 
-.gameProgressItems span.done {
+.gameProgressItems span.done,
+.gameProgressItems button.done {
   color: rgba(239, 252, 255, .94);
   border-color: rgba(126, 220, 255, .22);
   background: rgba(126, 220, 255, .07);
 }
 
-.gameProgressItems span.done i {
+.gameProgressItems span.done i,
+.gameProgressItems button.done i {
   color: #d9f8ff;
   border-color: rgba(143, 230, 255, .70);
   box-shadow: 0 0 14px rgba(98, 213, 250, .18);
@@ -103,9 +121,166 @@
 }
 
 .gameProgressHUD-restore {
+  width: min(344px, calc(100vw - 48px));
   border-left-color: rgba(255, 194, 80, .62);
+  pointer-events: auto;
 }
 .gameProgressHUD-restore .gameProgressHeader small { color: #ffc86b; }
+.gameProgressHUD-restore .gameProgressItems { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Original one-click machinery hotspots are replaced by the interactive restoration HUD. */
+.gameScreen.art-gadget-machinery .hotspot[data-puzzle-managed="true"] { display: none !important; }
+
+.gadgetMiniPuzzle {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 205, 112, .16);
+}
+
+.gadgetMiniPuzzle header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gadgetMiniPuzzle header b {
+  color: #ffd58c;
+  font: 650 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .12em;
+}
+
+.gadgetMiniPuzzle header button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.64);
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+}
+
+.gadgetMiniPuzzle > p {
+  display: block;
+  margin: 8px 0 10px;
+  color: rgba(226, 239, 244, .66);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.gadgetMiniPuzzle > small {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255, 211, 132, .64);
+  font: 600 8px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .08em;
+}
+
+.breakerRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.breakerRow button {
+  position: relative;
+  min-height: 48px;
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(236,243,246,.60);
+  background: rgba(255,255,255,.025);
+  font: 650 9px ui-monospace, monospace;
+  cursor: pointer;
+}
+
+.breakerRow button i {
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 18px;
+  height: 3px;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,.10);
+}
+
+.breakerRow button.on {
+  color: #fff2cf;
+  border-color: rgba(255,194,79,.38);
+  background: rgba(255,185,61,.08);
+}
+.breakerRow button.on i { background: #ffc96d; box-shadow: 0 0 12px rgba(255,191,73,.42); }
+
+.gearRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.gearRow button {
+  display: grid;
+  place-items: center;
+  gap: 5px;
+  min-height: 72px;
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,220,153,.82);
+  background: radial-gradient(circle, rgba(255,190,70,.07), transparent 62%);
+  cursor: pointer;
+}
+
+.gearRow button span {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  transition: transform .18s ease;
+}
+
+.gearRow button small { font: 600 8px ui-monospace, monospace; color: rgba(236,245,248,.50); }
+
+.craneTrack {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  gap: 7px;
+  margin: 15px 2px 12px;
+}
+
+.craneTrack::before {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 50%;
+  height: 1px;
+  background: rgba(255,255,255,.12);
+}
+
+.craneTrack i {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  justify-self: center;
+  border: 1px solid rgba(214,232,239,.24);
+  border-radius: 2px;
+  background: #10161a;
+}
+
+.craneTrack i.target { border-color: rgba(255,198,84,.62); box-shadow: 0 0 12px rgba(255,184,51,.20); }
+.craneTrack i.current { background: #d8f7ff; border-color: #d8f7ff; box-shadow: 0 0 12px rgba(124,224,255,.42); }
+.craneTrack i.current.target { background: #ffd177; border-color: #ffd177; box-shadow: 0 0 15px rgba(255,190,66,.52); }
+
+.craneControls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.craneControls button {
+  min-height: 34px;
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(232,243,247,.72);
+  background: rgba(255,255,255,.03);
+  font: 600 9px ui-monospace, monospace;
+  cursor: pointer;
+}
+.craneControls button:disabled { opacity: .28; cursor: default; }
 
 @media (max-width: 900px) {
   .gameProgressHUD {
@@ -118,6 +293,8 @@
   .gameProgressHUD > strong { font-size: 12px; }
   .gameProgressItems { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
   .gameProgressItems span { justify-content: center; padding: 5px 4px; font-size: 8px; }
-  .gameProgressItems i { display: none; }
-  .gameProgressHUD p { display: none; }
+  .gameProgressItems span i { display: none; }
+  .gameProgressHUD:not(.gameProgressHUD-restore) p { display: none; }
+  .gameProgressHUD-restore .gameProgressItems { grid-template-columns: repeat(3, 1fr); }
+  .gameProgressHUD-restore.puzzle-open { top: 54px; }
 }
