@@ -1,6 +1,6 @@
 "use client";
 
-import "@/data/futureScenes";
+import "@/data/registerFutureScenes";
 import type { TrackId } from "./model";
 
 export const TRACK_META: Record<TrackId, { src: string; title: string; duration: number }> = {
