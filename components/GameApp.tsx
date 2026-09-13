@@ -3,10 +3,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AudioManager, TRACK_META } from "@/engine/audio";
 import { deleteSave, loadSave, saveGame } from "@/engine/saveClient";
-import { INITIAL_STATE, type Dialogue, type GameState, type HotspotAction, type SceneId } from "@/engine/model";
+import { INITIAL_STATE, type Dialogue, type GameState, type HotspotAction, type SceneId, type TrackId } from "@/engine/model";
 import { dialogues, scenes } from "@/data/scenes";
 import { SceneVisual } from "@/components/visual/SceneVisual";
 import { ListeningStage } from "@/components/visual/ListeningStage";
+
+const MUSIC_POSITION_PREFIX = "sea-of-information:music-position:";
+
+function musicPositionKey(track: TrackId) {
+  return `${MUSIC_POSITION_PREFIX}${track}`;
+}
 
 function hideBrokenArt(event: React.SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.style.display = "none";
@@ -17,6 +23,8 @@ export function GameApp() {
   const transitionLockRef = useRef(false);
   const dialogueLockRef = useRef(false);
   const pendingPersistRef = useRef(false);
+  const restoreMusicPositionRef = useRef<number | null>(null);
+  const lastMusicPersistRef = useRef(0);
   const [screen, setScreen] = useState<"title" | "game" | "archive">("title");
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const [hasSave, setHasSave] = useState(false);
@@ -47,8 +55,16 @@ export function GameApp() {
   useEffect(() => {
     if (screen !== "game") return;
     const id = window.setInterval(() => {
-      setMusicPosition(audioRef.current?.getPosition() ?? 0);
+      const position = audioRef.current?.getPosition() ?? 0;
+      setMusicPosition(position);
       setMusicDuration(audioRef.current?.getDuration() ?? 0);
+
+      const track = audioRef.current?.getCurrentTrack();
+      const now = Date.now();
+      if (track && now - lastMusicPersistRef.current >= 1000) {
+        lastMusicPersistRef.current = now;
+        window.localStorage.setItem(musicPositionKey(track), String(position));
+      }
     }, 250);
     return () => window.clearInterval(id);
   }, [screen]);
@@ -120,13 +136,17 @@ export function GameApp() {
   useEffect(() => {
     if (!musicFocus || musicFocus.phase !== "listening" || musicPosition < musicFocus.until) return;
     setMusicFocus(current => current ? { ...current, phase: "ready" } : current);
+  }, [musicFocus, musicPosition]);
+
+  useEffect(() => {
+    if (!musicFocus || musicFocus.phase !== "ready") return;
+    const action = musicFocus.action;
     const id = window.setTimeout(() => {
-      const action = musicFocus.action;
       setMusicFocus(null);
       runAction(action);
     }, 1100);
     return () => window.clearTimeout(id);
-  }, [musicFocus, musicPosition, runAction]);
+  }, [musicFocus, runAction]);
 
   const openDialogue = useCallback((id: string) => {
     setDialogue(dialogues[id]);
@@ -135,8 +155,21 @@ export function GameApp() {
 
   useEffect(() => {
     if (screen !== "game") return;
-    if (scene.track) audioRef.current?.play(scene.track, Boolean(scene.trackRestart));
+    let cancelled = false;
+    const startTrack = async () => {
+      if (!scene.track) return;
+      await audioRef.current?.play(scene.track, Boolean(scene.trackRestart));
+      if (cancelled) return;
+      const restorePosition = restoreMusicPositionRef.current;
+      if (restorePosition !== null) {
+        audioRef.current?.seek(restorePosition);
+        setMusicPosition(restorePosition);
+        restoreMusicPositionRef.current = null;
+      }
+    };
+    void startTrack();
     if (scene.enterDialogueId) openDialogue(scene.enterDialogueId);
+    return () => { cancelled = true; };
   }, [screen, scene.id, scene.track, scene.trackRestart, scene.enterDialogueId, openDialogue]);
 
   const advanceDialogue = useCallback(() => {
@@ -169,6 +202,8 @@ export function GameApp() {
     setDialogue(null);
     setLineIndex(0);
     setMusicFocus(null);
+    restoreMusicPositionRef.current = null;
+    (Object.keys(TRACK_META) as TrackId[]).forEach(track => window.localStorage.removeItem(musicPositionKey(track)));
     const next = { ...INITIAL_STATE, updatedAt: new Date().toISOString() };
     setState(next);
     persist(next);
@@ -178,6 +213,13 @@ export function GameApp() {
   const continueGame = () => {
     const existing = loadSave();
     if (!existing) return;
+    const resumeScene = scenes[existing.sceneId];
+    if (resumeScene.track) {
+      const stored = Number(window.localStorage.getItem(musicPositionKey(resumeScene.track)) ?? "0");
+      restoreMusicPositionRef.current = Number.isFinite(stored) && stored > 0 ? stored : null;
+    } else {
+      restoreMusicPositionRef.current = null;
+    }
     setDialogue(null);
     setLineIndex(0);
     setMusicFocus(null);
