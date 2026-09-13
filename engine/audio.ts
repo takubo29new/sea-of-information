@@ -32,9 +32,34 @@ export class AudioManager {
   private analyser: AnalyserNode | null = null;
   private source: MediaElementAudioSourceNode | null = null;
   private frequencyData: Uint8Array<ArrayBuffer> | null = null;
+  private modalObserver: MutationObserver | null = null;
+  private pausedForModal = false;
 
   constructor() {
     activeAudioManager = this;
+    if (typeof document !== "undefined") {
+      this.modalObserver = new MutationObserver(() => this.syncModalPause());
+      this.modalObserver.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
+  private isSettingsOpen() {
+    return typeof document !== "undefined" && Boolean(document.querySelector(".modalBackdrop .settingsPanel"));
+  }
+
+  private syncModalPause() {
+    const modalOpen = this.isSettingsOpen();
+    if (modalOpen) {
+      if (this.audio && !this.audio.paused) {
+        this.pausedForModal = true;
+        this.audio.pause();
+      }
+      return;
+    }
+    if (this.pausedForModal) {
+      this.pausedForModal = false;
+      void this.resume();
+    }
   }
 
   setVolume(value: number) {
@@ -127,6 +152,11 @@ export class AudioManager {
   async play(track: TrackId, restart = false, fadeInMs = 0) {
     if (this.currentTrack === track && this.audio && !restart) {
       await this.resumeContext();
+      if (this.isSettingsOpen()) {
+        this.pausedForModal = true;
+        this.audio.pause();
+        return;
+      }
       if (this.audio.paused) {
         try { await this.audio.play(); } catch { /* user gesture may be required */ }
       }
@@ -148,6 +178,11 @@ export class AudioManager {
 
     this.ensureAudioGraph(next);
     await this.resumeContext();
+
+    if (this.isSettingsOpen()) {
+      this.pausedForModal = true;
+      return;
+    }
 
     try {
       await next.play();
@@ -173,6 +208,11 @@ export class AudioManager {
   }
 
   async resume() {
+    if (this.isSettingsOpen()) {
+      this.pausedForModal = true;
+      this.audio?.pause();
+      return;
+    }
     await this.resumeContext();
     if (!this.audio || !this.audio.paused) return;
     try { await this.audio.play(); } catch { /* no-op */ }
@@ -198,6 +238,8 @@ export class AudioManager {
 
   destroy() {
     this.fadeToken += 1;
+    this.modalObserver?.disconnect();
+    this.modalObserver = null;
     if (activeAudioManager === this) activeAudioManager = null;
     if (this.source) {
       try { this.source.disconnect(); } catch { /* no-op */ }
