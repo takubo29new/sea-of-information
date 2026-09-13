@@ -50,16 +50,15 @@ export function SceneVisual({
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
 
-  const fallbackRei = getReiCharacterForArt(artKey, reiExpression);
   const speakerCharacter = speaker === "REI"
     ? REI_CHARACTER[reiExpression ?? REI_SCENE_EXPRESSION[artKey] ?? "neutral"]
     : (speaker ? SPEAKER_CHARACTER[speaker] : undefined);
-  const sceneCharacter = approved ? asset?.character : undefined;
-  const character = speakerCharacter ?? fallbackRei ?? sceneCharacter;
-  const characterPosition = speakerCharacter || fallbackRei
+  const sceneCharacter = speaker && approved ? asset?.character : undefined;
+  const character = speakerCharacter ?? sceneCharacter;
+  const characterPosition = speakerCharacter
     ? "right"
     : (asset?.characterPosition ?? "center");
-  const isReiCharacter = Boolean(speakerCharacter || fallbackRei);
+  const isReiCharacter = speaker === "REI" && Boolean(speakerCharacter);
 
   return (
     <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}${approved ? " sceneVisual-approved" : " sceneVisual-placeholder"}`} aria-hidden="true">
