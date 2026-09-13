@@ -37,6 +37,22 @@
   object-position: bottom center !important;
 }
 
+/* Sea opening: Rei is a supporting visual, not a giant portrait.
+   Keep the objective on the left readable and leave room for the ADV dialogue box. */
+.sceneVisual-art-sea.sceneVisual-approved .sceneVisualCharacter-right {
+  right: clamp(28px, 5vw, 88px) !important;
+  bottom: clamp(58px, 7vh, 94px) !important;
+  max-width: 31% !important;
+  max-height: 76% !important;
+  opacity: .94;
+  filter:
+    brightness(.88)
+    saturate(.84)
+    drop-shadow(0 20px 38px rgba(0,0,0,.42))
+    drop-shadow(0 0 22px rgba(94,194,230,.08)) !important;
+  animation: none !important;
+}
+
 /* Keep generated environment as subtle ambience behind real art, not as a competing picture. */
 .sceneVisual-approved .sceneVisualEnvironment {
   opacity: .16 !important;
@@ -52,5 +68,23 @@
   .sceneVisual-approved .sceneVisualCharacter {
     max-width: 66% !important;
     max-height: 82% !important;
+  }
+
+  .sceneVisual-art-sea.sceneVisual-approved .sceneVisualCharacter-right {
+    right: 10px !important;
+    bottom: 92px !important;
+    max-width: 42% !important;
+    max-height: 58% !important;
+    opacity: .82;
+  }
+}
+
+@media (max-width: 460px) {
+  .sceneVisual-art-sea.sceneVisual-approved .sceneVisualCharacter-right {
+    right: -8px !important;
+    bottom: 104px !important;
+    max-width: 39% !important;
+    max-height: 50% !important;
+    opacity: .68;
   }
 }
