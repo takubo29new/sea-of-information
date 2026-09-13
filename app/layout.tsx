@@ -8,6 +8,7 @@ import "./visual-fixes.css";
 import "./v08-gamefeel.css";
 import "./gameplay-hud.css";
 import "./v09-player-transition.css";
+import "./art-production.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
