@@ -119,9 +119,9 @@ export const scenes: Record<SceneId, Scene> = {
 
 export const dialogues: Record<string, Dialogue> = {
   awakening: { id: "awakening", lines: [
-    { speaker: "SYSTEM", text: "IDENTITY ........ UNKNOWN" }, { speaker: "SYSTEM", text: "AGE ............. 17" }, { speaker: "SYSTEM", text: "DIVER ID ........ REI" }, { speaker: "REI", text: "……レイ。俺の名前？" }
+    { speaker: "SYSTEM", text: "IDENTITY ........ UNKNOWN" }, { speaker: "SYSTEM", text: "AGE ............. 17" }, { speaker: "SYSTEM", text: "DIVER ID ........ REI" }, { speaker: "REI", text: "……レイ。私の名前？" }
   ] },
-  memory: { id: "memory", lines: [{ text: "知らない家族の食卓が、一瞬だけ光の中に浮かんだ。" }, { speaker: "REI", text: "俺の記憶じゃない。" }] },
+  memory: { id: "memory", lines: [{ text: "知らない家族の食卓が、一瞬だけ光の中に浮かんだ。" }, { speaker: "REI", text: "私の記憶じゃない。" }] },
   memoryVoice: { id: "memoryVoice", lines: [{ text: "『いってきます』――知らない声だけが、波の向こうに残っている。" }, { speaker: "REI", text: "誰の声だ……？" }] },
   memorySky: { id: "memorySky", lines: [{ text: "青空の映像。雲の形だけが、何度も書き換わっていく。" }, { speaker: "REI", text: "記録……なのか？" }] },
   terminal: { id: "terminal", lines: [{ speaker: "REI", text: "あれ……端末？" }] },
@@ -160,7 +160,7 @@ export const dialogues: Record<string, Dialogue> = {
     { text: "三つの記録を重ねると、街の地下へ続く経路が浮かび上がった。" }, { speaker: "SYSTEM", text: "MORNING PRESERVATION SYSTEM / AURORA" }, { speaker: "NOA", text: "朝を……保存？" }
   ] },
   auroraFirst: { id: "auroraFirst", lines: [
-    { speaker: "AURORA", text: "DIVER REI. 管理権限を確認しました。" }, { speaker: "REI", text: "まただ。なんで俺が管理者なんだ。" }, { speaker: "AURORA", text: "回答権限がありません。" }
+    { speaker: "AURORA", text: "DIVER REI. 管理権限を確認しました。" }, { speaker: "REI", text: "まただ。なんで私が管理者なんだ。" }, { speaker: "AURORA", text: "回答権限がありません。" }
   ] },
   auroraReason: { id: "auroraReason", lines: [
     { speaker: "AURORA", text: "08:42以降、都市生存率は急速に低下します。" }, { speaker: "AURORA", text: "よって最も安定した朝を継続保存します。" }, { speaker: "REI", text: "壊れるのが怖くて、時間ごと止めたのか。" }, { speaker: "AURORA", text: "安全です。" }
@@ -169,7 +169,7 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "REI", text: "Noa。止めたら、この先どうなるか分からない。" }, { speaker: "NOA", text: "うん。" }, { speaker: "REI", text: "怖くない？" }, { speaker: "NOA", text: "怖いよ。" }, { speaker: "NOA", text: "でも、怖いって思ったことも、明日になったら変わるかもしれない。" }
   ] },
   dusk: { id: "dusk", lines: [
-    { text: "8時43分。" }, { text: "たった一分が、街にとって初めての未来になった。" }, { speaker: "NOA", text: "……空って、こんな色になるんだ。" }, { speaker: "REI", text: "俺も初めて見た。たぶん。" }
+    { text: "8時43分。" }, { text: "たった一分が、街にとって初めての未来になった。" }, { speaker: "NOA", text: "……空って、こんな色になるんだ。" }, { speaker: "REI", text: "私も初めて見た。たぶん。" }
   ] },
   night: { id: "night", lines: [
     { text: "街に、初めて夜が来た。" }, { speaker: "NOA", text: "レイ。" }, { speaker: "REI", text: "ん？" }, { speaker: "NOA", text: "明日は？" }, { speaker: "REI", text: "知らない。" }, { speaker: "NOA", text: "……そっか。" }, { speaker: "NOA", text: "楽しみ。" }
@@ -228,7 +228,7 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "BIT", text: "……Dr. Rei？" },
     { speaker: "REI", text: "違う。たぶん。" },
     { speaker: "BIT", text: "99.7%一致しています。" },
-    { speaker: "REI", text: "じゃあ0.3%は俺ってことで。" },
+    { speaker: "REI", text: "じゃあ0.3%は私ってことで。" },
     { speaker: "BIT", text: "論理的ではありません。" }
   ] }
 };
