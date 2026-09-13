@@ -9,11 +9,24 @@ export const TRACK_META: Record<TrackId, { src: string; title: string; duration:
   "gadget-area": { src: "/audio/gadget-area.mp3", title: "Gadget area", duration: 211.30 }
 };
 
+export type AudioReactiveLevels = {
+  energy: number;
+  bass: number;
+  mid: number;
+  treble: number;
+};
+
+const ZERO_LEVELS: AudioReactiveLevels = { energy: 0, bass: 0, mid: 0, treble: 0 };
+
 export class AudioManager {
   private audio: HTMLAudioElement | null = null;
   private currentTrack: TrackId | null = null;
   private volume = 0.72;
   private fadeToken = 0;
+  private context: AudioContext | null = null;
+  private analyser: AnalyserNode | null = null;
+  private source: MediaElementAudioSourceNode | null = null;
+  private frequencyData: Uint8Array<ArrayBuffer> | null = null;
 
   setVolume(value: number) {
     this.volume = Math.max(0, Math.min(1, value));
@@ -22,6 +35,64 @@ export class AudioManager {
 
   getVolume() {
     return this.volume;
+  }
+
+  private ensureAudioGraph(audio: HTMLAudioElement) {
+    if (typeof window === "undefined") return;
+    const AudioContextCtor = window.AudioContext;
+    if (!AudioContextCtor) return;
+
+    if (!this.context) this.context = new AudioContextCtor();
+    if (!this.analyser) {
+      this.analyser = this.context.createAnalyser();
+      this.analyser.fftSize = 256;
+      this.analyser.smoothingTimeConstant = 0.82;
+      this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+      this.analyser.connect(this.context.destination);
+    }
+
+    if (this.source) {
+      try { this.source.disconnect(); } catch { /* already disconnected */ }
+      this.source = null;
+    }
+
+    try {
+      this.source = this.context.createMediaElementSource(audio);
+      this.source.connect(this.analyser);
+    } catch {
+      // If a browser refuses a second MediaElement source, playback still works.
+      this.source = null;
+    }
+  }
+
+  private async resumeContext() {
+    if (this.context?.state === "suspended") {
+      try { await this.context.resume(); } catch { /* user gesture may be required */ }
+    }
+  }
+
+  getReactiveLevels(): AudioReactiveLevels {
+    if (!this.analyser || !this.frequencyData || !this.audio || this.audio.paused) return ZERO_LEVELS;
+    this.analyser.getByteFrequencyData(this.frequencyData);
+
+    const bins = this.frequencyData;
+    const average = (start: number, end: number) => {
+      const safeStart = Math.max(0, Math.min(bins.length - 1, start));
+      const safeEnd = Math.max(safeStart + 1, Math.min(bins.length, end));
+      let total = 0;
+      for (let i = safeStart; i < safeEnd; i += 1) total += bins[i];
+      return total / (safeEnd - safeStart) / 255;
+    };
+
+    const bass = average(1, 8);
+    const mid = average(8, 28);
+    const treble = average(28, Math.min(72, bins.length));
+    return {
+      bass,
+      mid,
+      treble,
+      energy: Math.min(1, bass * 0.46 + mid * 0.36 + treble * 0.18)
+    };
   }
 
   private fadeElement(audio: HTMLAudioElement, from: number, to: number, durationMs: number) {
@@ -47,6 +118,7 @@ export class AudioManager {
 
   async play(track: TrackId, restart = false, fadeInMs = 0) {
     if (this.currentTrack === track && this.audio && !restart) {
+      await this.resumeContext();
       if (this.audio.paused) {
         try { await this.audio.play(); } catch { /* user gesture may be required */ }
       }
@@ -65,6 +137,9 @@ export class AudioManager {
       previous.pause();
       previous.src = "";
     }
+
+    this.ensureAudioGraph(next);
+    await this.resumeContext();
 
     try {
       await next.play();
@@ -90,6 +165,7 @@ export class AudioManager {
   }
 
   async resume() {
+    await this.resumeContext();
     if (!this.audio || !this.audio.paused) return;
     try { await this.audio.play(); } catch { /* no-op */ }
   }
@@ -114,10 +190,21 @@ export class AudioManager {
 
   destroy() {
     this.fadeToken += 1;
-    if (!this.audio) return;
-    this.audio.pause();
-    this.audio.src = "";
-    this.audio = null;
+    if (this.source) {
+      try { this.source.disconnect(); } catch { /* no-op */ }
+      this.source = null;
+    }
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = "";
+      this.audio = null;
+    }
+    if (this.context) {
+      void this.context.close().catch(() => undefined);
+      this.context = null;
+    }
+    this.analyser = null;
+    this.frequencyData = null;
     this.currentTrack = null;
   }
 }
