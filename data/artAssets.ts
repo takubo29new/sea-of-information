@@ -7,104 +7,31 @@ export type ArtAsset = {
 };
 
 /**
- * 実イラストをシーンロジックから分離して管理する。
- * Listening Stageは、時刻や波形が画像側に焼き込まれた素材を避け、
- * UIなしのメイン背景を使う。現行キャラ画像は透過素材ではないため、
- * visual-fixes.css側で意図的なポートレートカードとして表示する。
+ * v0.7.2 visual reset
+ *
+ * The first generated art pack contained baked text/UI and opaque character cards.
+ * Those files are intentionally not used at runtime now. SceneVisual renders a clean,
+ * art-direction-specific environment layer until proper clean background/transparent
+ * character assets are produced.
  */
 export const ART_ASSETS: Record<string, ArtAsset> = {
-  title: {
-    background: "/art/title/title-keyvisual.webp",
-    overlay: "sea"
-  },
-  sea: {
-    background: "/art/sea/sea-main.webp",
-    character: "/art/characters/rei/rei-neutral.webp",
-    characterPosition: "right",
-    listeningArt: "/art/sea/sea-main.webp",
-    overlay: "sea"
-  },
-  terminal: {
-    background: "/art/sea/sea-main.webp",
-    character: "/art/characters/rei/rei-neutral.webp",
-    characterPosition: "left",
-    overlay: "sea"
-  },
-  dive: {
-    background: "/art/sea/sea-main.webp",
-    character: "/art/characters/rei/rei-neutral.webp",
-    characterPosition: "right",
-    overlay: "sea"
-  },
-  city: {
-    background: "/art/city/city-morning.webp",
-    overlay: "dawn"
-  },
-  "city-glitch": {
-    background: "/art/city/city-morning.webp",
-    overlay: "dawn"
-  },
-  "city-investigation": {
-    background: "/art/city/city-morning.webp",
-    overlay: "dawn"
-  },
-  noa: {
-    background: "/art/city/city-morning.webp",
-    character: "/art/characters/noa/noa-neutral.webp",
-    characterPosition: "right",
-    listeningArt: "/art/city/city-morning.webp",
-    overlay: "dawn"
-  },
-  "aurora-gate": {
-    background: "/art/city/city-morning.webp",
-    overlay: "night"
-  },
-  aurora: {
-    background: "/art/city/city-morning.webp",
-    overlay: "sea"
-  },
-  dusk: {
-    background: "/art/city/city-morning.webp",
-    character: "/art/characters/noa/noa-neutral.webp",
-    characterPosition: "right",
-    overlay: "dusk"
-  },
-  night: {
-    background: "/art/city/city-morning.webp",
-    overlay: "night"
-  },
-  "load-road": {
-    background: "/art/load-road/load-road-main.webp",
-    listeningArt: "/art/load-road/load-road-main.webp",
-    overlay: "road"
-  },
-  gadget: {
-    background: "/art/gadget/gadget-main.webp",
-    listeningArt: "/art/gadget/gadget-main.webp",
-    overlay: "industrial"
-  },
-  "gadget-entry": {
-    background: "/art/gadget/gadget-main.webp",
-    overlay: "industrial"
-  },
-  "gadget-machinery": {
-    background: "/art/gadget/gadget-main.webp",
-    overlay: "industrial"
-  },
-  "gadget-bit": {
-    background: "/art/gadget/gadget-main.webp",
-    character: "/art/characters/bit/bit-normal.webp",
-    characterPosition: "right",
-    overlay: "industrial"
-  },
-  "gadget-auth": {
-    background: "/art/gadget/gadget-main.webp",
-    character: "/art/characters/bit/bit-normal.webp",
-    characterPosition: "right",
-    overlay: "industrial"
-  },
-  end: {
-    background: "/art/gadget/gadget-main.webp",
-    overlay: "industrial"
-  }
+  title: { overlay: "sea" },
+  sea: { overlay: "sea" },
+  terminal: { overlay: "sea" },
+  dive: { overlay: "sea" },
+  city: { overlay: "dawn" },
+  "city-glitch": { overlay: "dawn" },
+  "city-investigation": { overlay: "dawn" },
+  noa: { overlay: "dawn" },
+  "aurora-gate": { overlay: "night" },
+  aurora: { overlay: "sea" },
+  dusk: { overlay: "dusk" },
+  night: { overlay: "night" },
+  "load-road": { overlay: "road" },
+  gadget: { overlay: "industrial" },
+  "gadget-entry": { overlay: "industrial" },
+  "gadget-machinery": { overlay: "industrial" },
+  "gadget-bit": { overlay: "industrial" },
+  "gadget-auth": { overlay: "industrial" },
+  end: { overlay: "industrial" }
 };
