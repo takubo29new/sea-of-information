@@ -17,6 +17,11 @@ export type AudioReactiveLevels = {
 };
 
 const ZERO_LEVELS: AudioReactiveLevels = { energy: 0, bass: 0, mid: 0, treble: 0 };
+let activeAudioManager: AudioManager | null = null;
+
+export function getActiveAudioReactiveLevels(): AudioReactiveLevels {
+  return activeAudioManager?.getReactiveLevels() ?? ZERO_LEVELS;
+}
 
 export class AudioManager {
   private audio: HTMLAudioElement | null = null;
@@ -27,6 +32,10 @@ export class AudioManager {
   private analyser: AnalyserNode | null = null;
   private source: MediaElementAudioSourceNode | null = null;
   private frequencyData: Uint8Array<ArrayBuffer> | null = null;
+
+  constructor() {
+    activeAudioManager = this;
+  }
 
   setVolume(value: number) {
     this.volume = Math.max(0, Math.min(1, value));
@@ -60,7 +69,6 @@ export class AudioManager {
       this.source = this.context.createMediaElementSource(audio);
       this.source.connect(this.analyser);
     } catch {
-      // If a browser refuses a second MediaElement source, playback still works.
       this.source = null;
     }
   }
@@ -190,6 +198,7 @@ export class AudioManager {
 
   destroy() {
     this.fadeToken += 1;
+    if (activeAudioManager === this) activeAudioManager = null;
     if (this.source) {
       try { this.source.disconnect(); } catch { /* no-op */ }
       this.source = null;
