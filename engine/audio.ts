@@ -7,7 +7,9 @@ export const TRACK_META: Record<TrackId, { src: string; title: string; duration:
   "city-of-dawn": { src: "/audio/city-of-dawn.m4a", title: "City of dawn", duration: 343.0 },
   "load-road": { src: "/audio/load-road.mp3", title: "Load road", duration: 323.79 },
   "gadget-area": { src: "/audio/gadget-area.mp3", title: "Gadget area", duration: 211.30 },
-  wish: { src: "/audio/wish.m4a", title: "wish", duration: 336.897 }
+  wish: { src: "/audio/wish.m4a", title: "wish", duration: 336.897 },
+  fantasy: { src: "/audio/fantasy.m4a", title: "Fantasy", duration: 442.851 },
+  beautiful: { src: "/audio/beautiful.mp3", title: "beautiful", duration: 304.327 }
 };
 
 export type AudioReactiveLevels = {
