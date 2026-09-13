@@ -23,22 +23,22 @@ export const scenes: Record<SceneId, Scene> = {
     hotspots: [{ id: "dive-gate", label: "DIVE", x: 39, y: 30, width: 22, height: 38, action: { type: "setFlagAndAdvance", flag: "prologue.firstDive", to: "city-loop-1" }, requiresTrackTime: 115, lockedLabel: "DIVE SIGNALを同期する" }]
   },
   "city-loop-1": {
-    id: "city-loop-1", chapter: "city-of-dawn", title: "CITY OF DAWN", subtitle: "08:42", art: "city", track: "city-of-dawn", trackRestart: true, onEnterFlags: ["city.loop1Seen"], enterDialogueId: "cityFirst",
+    id: "city-loop-1", chapter: "city-of-dawn", title: "CITY OF DAWN", subtitle: "08:42 / OBSERVE", art: "city", track: "city-of-dawn", trackRestart: true, onEnterFlags: ["city.loop1Seen"], enterDialogueId: "cityFirst",
     hotspots: [
-      { id: "clock", label: "時計塔を見る", x: 72, y: 17, width: 8, height: 15, action: { type: "dialogue", dialogueId: "clock" } },
-      { id: "child", label: "子どもを見る", x: 31, y: 60, width: 8, height: 16, action: { type: "dialogue", dialogueId: "childFirst" } },
-      { id: "birds", label: "鳥の群れを見る", x: 48, y: 22, width: 10, height: 10, action: { type: "dialogue", dialogueId: "birdsFirst" } },
-      { id: "bakery", label: "パン屋を見る", x: 84, y: 52, width: 10, height: 18, action: { type: "dialogue", dialogueId: "bakeryFirst" } },
-      { id: "station", label: "駅へ進む", x: 7, y: 44, width: 18, height: 28, action: { type: "advance", to: "city-loop-2" }, requiresTrackTime: 75, lockedLabel: "朝の街を観察する" }
+      { id: "clock", label: "時計塔を記録する", x: 72, y: 17, width: 8, height: 15, action: { type: "setFlagAndDialogue", flag: "city.observeClock", dialogueId: "clock" } },
+      { id: "child", label: "少年の動きを記録する", x: 31, y: 60, width: 8, height: 16, action: { type: "setFlagAndDialogue", flag: "city.observeChild", dialogueId: "childFirst" } },
+      { id: "birds", label: "鳥の群れを記録する", x: 48, y: 22, width: 10, height: 10, action: { type: "setFlagAndDialogue", flag: "city.observeBirds", dialogueId: "birdsFirst" } },
+      { id: "bakery", label: "パン屋を記録する", x: 84, y: 52, width: 10, height: 18, action: { type: "setFlagAndDialogue", flag: "city.observeBakery", dialogueId: "bakeryFirst" } },
+      { id: "station", label: "駅へ進む", x: 7, y: 44, width: 18, height: 28, action: { type: "advance", to: "city-loop-2" }, visibleWhenAll: ["city.observeClock", "city.observeChild", "city.observeBirds", "city.observeBakery"], requiresTrackTime: 75, lockedLabel: "記録した朝の続きを聴く" }
     ]
   },
   "city-loop-2": {
-    id: "city-loop-2", chapter: "city-of-dawn", art: "city", track: "city-of-dawn", onEnterFlags: ["city.loop2Seen"], enterDialogueId: "citySecond",
+    id: "city-loop-2", chapter: "city-of-dawn", title: "CITY OF DAWN", subtitle: "08:42 / COMPARE", art: "city", track: "city-of-dawn", onEnterFlags: ["city.loop2Seen"], enterDialogueId: "citySecond",
     hotspots: [
-      { id: "clock2", label: "時計塔を見る", x: 72, y: 17, width: 8, height: 15, action: { type: "dialogue", dialogueId: "clockAgain" } },
-      { id: "birds2", label: "鳥を見る", x: 48, y: 22, width: 10, height: 10, action: { type: "dialogue", dialogueId: "birdsAgain" } },
-      { id: "bakery2", label: "パン屋を見る", x: 84, y: 52, width: 10, height: 18, action: { type: "dialogue", dialogueId: "bakeryAgain" } },
-      { id: "child2", label: "転ぶ前に声をかける", x: 31, y: 60, width: 8, height: 16, action: { type: "setFlagAndAdvance", flag: "city.childSaved", to: "city-intervention" }, requiresTrackTime: 155, lockedLabel: "同じ朝をもう少し観察する" }
+      { id: "clock2", label: "時計塔を照合する", x: 72, y: 17, width: 8, height: 15, action: { type: "setFlagAndDialogue", flag: "city.matchClock", dialogueId: "clockAgain" } },
+      { id: "birds2", label: "鳥の群れを照合する", x: 48, y: 22, width: 10, height: 10, action: { type: "setFlagAndDialogue", flag: "city.matchBirds", dialogueId: "birdsAgain" } },
+      { id: "bakery2", label: "パン屋を照合する", x: 84, y: 52, width: 10, height: 18, action: { type: "setFlagAndDialogue", flag: "city.matchBakery", dialogueId: "bakeryAgain" } },
+      { id: "child2", label: "結果を変える：少年に声をかける", x: 31, y: 60, width: 8, height: 16, action: { type: "setFlagAndAdvance", flag: "city.childSaved", to: "city-intervention" }, visibleWhenAll: ["city.matchClock", "city.matchBirds", "city.matchBakery"], requiresTrackTime: 155, lockedLabel: "同じ朝を最後まで確かめる" }
     ]
   },
   "city-intervention": {
@@ -130,16 +130,23 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "SYSTEM", text: "DIVER ACCESS / REI" }, { speaker: "SYSTEM", text: "ADMINISTRATOR DATA DETECTED" }, { speaker: "REI", text: "……管理者？" }
   ], after: { type: "advance", to: "sea-dive" } },
   dive: { id: "dive", lines: [{ speaker: "SYSTEM", text: "ARCHIVE SIGNAL DETECTED" }, { speaker: "REI", text: "行けば、何か分かるかもしれない。" }] },
-  cityFirst: { id: "cityFirst", lines: [{ text: "朝日。駅のベル。パンの匂い。街は、何事もなかったように動いている。" }] },
-  clock: { id: "clock", lines: [{ speaker: "REI", text: "8時42分。" }] },
-  childFirst: { id: "childFirst", lines: [{ text: "少年が石につまずき、膝をついた。三羽の鳥が同時に飛び立つ。" }] },
-  birdsFirst: { id: "birdsFirst", lines: [{ text: "三羽。まるで合図を待っていたように、同時に飛び立った。" }] },
-  bakeryFirst: { id: "bakeryFirst", lines: [{ text: "パン屋の店員が、焼き上がりの札を『8:42』に合わせる。" }] },
-  citySecond: { id: "citySecond", lines: [{ speaker: "REI", text: "……また？" }, { text: "8時42分。少年。三羽の鳥。駅のベル。すべてが同じだ。" }] },
-  clockAgain: { id: "clockAgain", lines: [{ speaker: "REI", text: "時計まで同じ。偶然じゃない。" }] },
-  birdsAgain: { id: "birdsAgain", lines: [{ speaker: "REI", text: "三羽。同じ順番で飛んだ。" }] },
-  bakeryAgain: { id: "bakeryAgain", lines: [{ speaker: "REI", text: "札を出す手の動きまで同じだ。" }] },
-  intervention: { id: "intervention", lines: [{ text: "少年は転ばなかった。" }, { text: "次の瞬間、街の音が一拍だけ欠けた。" }, { speaker: "REI", text: "……止まった？" }] },
+  cityFirst: { id: "cityFirst", lines: [
+    { text: "朝日。駅のベル。パンの匂い。街は、何事もなかったように動いている。" },
+    { speaker: "REI", text: "まずは、この朝を覚えておこう。気になるものを全部。" }
+  ] },
+  clock: { id: "clock", lines: [{ speaker: "SYSTEM", text: "OBSERVE / CLOCK / 08:42" }, { speaker: "REI", text: "8時42分。記録した。" }] },
+  childFirst: { id: "childFirst", lines: [{ text: "少年が石につまずき、膝をついた。" }, { speaker: "SYSTEM", text: "OBSERVE / CHILD / FALL" }] },
+  birdsFirst: { id: "birdsFirst", lines: [{ text: "三羽。まるで合図を待っていたように、同時に飛び立った。" }, { speaker: "SYSTEM", text: "OBSERVE / BIRDS / 3" }] },
+  bakeryFirst: { id: "bakeryFirst", lines: [{ text: "パン屋の店員が、焼き上がりの札を『8:42』に合わせる。" }, { speaker: "SYSTEM", text: "OBSERVE / BAKERY / 08:42" }] },
+  citySecond: { id: "citySecond", lines: [
+    { speaker: "REI", text: "……また8時42分？" },
+    { text: "同じ朝なら、さっき記録したものまで同じはずだ。" },
+    { speaker: "REI", text: "照合してみよう。" }
+  ] },
+  clockAgain: { id: "clockAgain", lines: [{ speaker: "SYSTEM", text: "MATCH / CLOCK / 08:42" }, { speaker: "REI", text: "同じ時刻。秒まで同じ。" }] },
+  birdsAgain: { id: "birdsAgain", lines: [{ speaker: "SYSTEM", text: "MATCH / BIRDS / 3" }, { speaker: "REI", text: "三羽。同じ順番で飛んだ。" }] },
+  bakeryAgain: { id: "bakeryAgain", lines: [{ speaker: "SYSTEM", text: "MATCH / BAKERY / 08:42" }, { speaker: "REI", text: "札を出す手の動きまで同じ。これで偶然じゃない。" }] },
+  intervention: { id: "intervention", lines: [{ text: "少年が石につまずく、その一歩前。" }, { speaker: "REI", text: "危ない！" }, { text: "少年は転ばなかった。" }, { text: "次の瞬間、街の音が一拍だけ欠けた。" }, { speaker: "REI", text: "……変わった。" }] },
   noaFirst: { id: "noaFirst", lines: [
     { text: "少女だけが、止まった街の中でこちらを見ていた。" }, { speaker: "REI", text: "……覚えてる？" }, { speaker: "NOA", text: "うん。" }, { speaker: "NOA", text: "やっと、昨日と違うことが起きた。" },
     { speaker: "NOA", text: "私だけ、ずっとこの朝を覚えてる。" }
