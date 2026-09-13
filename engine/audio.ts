@@ -1,6 +1,5 @@
 "use client";
 
-import "@/data/registerFutureScenes";
 import type { TrackId } from "./model";
 
 export const TRACK_META: Record<TrackId, { src: string; title: string; duration: number }> = {
@@ -39,6 +38,12 @@ export function seekActiveAudio(position: number, track?: TrackId) {
   if (!activeAudioManager) return false;
   if (track && activeAudioManager.getCurrentTrack() !== track) return false;
   activeAudioManager.seek(position);
+  return true;
+}
+
+export function playActiveAudio(track: TrackId, restart = true) {
+  if (!activeAudioManager) return false;
+  void activeAudioManager.play(track, restart);
   return true;
 }
 
