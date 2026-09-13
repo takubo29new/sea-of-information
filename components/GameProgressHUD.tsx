@@ -86,6 +86,7 @@ export function GameProgressHUD() {
         eyebrow: "OBSERVE",
         title: "朝の特徴を記録する",
         hint: "4つ揃うと駅への経路が開く",
+        completeHint: "COMPLETE — 駅への経路を確認",
         items: CITY_OBSERVE,
       };
     }
@@ -94,6 +95,7 @@ export function GameProgressHUD() {
         eyebrow: "COMPARE",
         title: "前の朝と照合する",
         hint: "一致を確認して結果へ介入する",
+        completeHint: "COMPLETE — 少年への介入が可能",
         items: CITY_COMPARE,
       };
     }
@@ -102,6 +104,7 @@ export function GameProgressHUD() {
         eyebrow: "RESTORE",
         title: "機械区画を復旧する",
         hint: "3系統すべてを復旧すると整備室が開く",
+        completeHint: "COMPLETE — 奥の整備室へ進める",
         items: GADGET_SYSTEMS,
       };
     }
@@ -173,7 +176,7 @@ export function GameProgressHUD() {
         })}
       </div>
 
-      {!activeSystem && <p>{complete === config.items.length ? "COMPLETE — 奥の整備室へ進める" : config.hint}</p>}
+      {!activeSystem && <p>{complete === config.items.length ? config.completeHint : config.hint}</p>}
 
       {activeSystem === "power" && !state.flags["gadget.powerRestored"] && (
         <section className="gadgetMiniPuzzle">
