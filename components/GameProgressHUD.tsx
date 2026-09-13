@@ -35,6 +35,12 @@ const WISH_MESSAGES = [
   ["wish.message3", "MESSAGE 03"],
 ] as const;
 
+const FANTASY_SIGNS = [
+  ["fantasy.sky", "SKY"],
+  ["fantasy.bridge", "BRIDGE"],
+  ["fantasy.flowers", "FLOWERS"],
+] as const;
+
 const GEAR_TARGET = [1, 2, 3] as const;
 type GadgetSystem = "power" | "gear" | "crane";
 
@@ -136,6 +142,15 @@ export function GameProgressHUD() {
         hint: "まず3件のメッセージを確かめる",
         completeHint: "COMPLETE — 結果記録を確認できる",
         items: WISH_MESSAGES,
+      };
+    }
+    if (state.sceneId === "fantasy-entry") {
+      return {
+        eyebrow: "TRACE",
+        title: "保存元のない景色を調べる",
+        hint: "3つの違和感を確かめる",
+        completeHint: "COMPLETE — 保存元を照合できる",
+        items: FANTASY_SIGNS,
       };
     }
     return null;
