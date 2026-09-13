@@ -2,6 +2,11 @@ import { GameState, INITIAL_STATE, isSceneId } from "./model";
 
 export const SAVE_KEY = "sea-of-information:auto:v1";
 
+const MUSIC_IDS = new Set([
+  "sea-of-information", "city-of-dawn", "load-road", "gadget-area", "wish", "fantasy", "beautiful",
+  "break", "blavery", "naked", "signal", "spacecraft", "new-create", "thundercloud", "space-home"
+]);
+
 export function sanitizeGameState(value: unknown): GameState {
   if (!value || typeof value !== "object") return { ...INITIAL_STATE };
   const input = value as Partial<GameState>;
@@ -12,9 +17,7 @@ export function sanitizeGameState(value: unknown): GameState {
     sceneId: input.sceneId,
     flags: input.flags && typeof input.flags === "object" ? { ...input.flags } : {},
     unlockedMusic: Array.isArray(input.unlockedMusic)
-      ? input.unlockedMusic.filter((v): v is GameState["unlockedMusic"][number] =>
-          v === "sea-of-information" || v === "city-of-dawn" || v === "load-road" || v === "gadget-area" || v === "wish" || v === "fantasy" || v === "beautiful"
-        )
+      ? input.unlockedMusic.filter((v): v is GameState["unlockedMusic"][number] => typeof v === "string" && MUSIC_IDS.has(v))
       : ["sea-of-information"],
     playTimeSeconds: typeof input.playTimeSeconds === "number" && input.playTimeSeconds >= 0
       ? input.playTimeSeconds
