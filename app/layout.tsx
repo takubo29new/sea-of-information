@@ -12,6 +12,7 @@ import "./v09-player-transition.css";
 import "./art-production.css";
 import "./v10-ux-polish.css";
 import "./v11-novel-ui.css";
+import "./v12-music-cinematic.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
