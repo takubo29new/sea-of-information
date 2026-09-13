@@ -1,205 +1,206 @@
 # 最新作業状況
 
-最終更新: 2026-09-13
+最終更新: 2026-09-14
 
 ## 現在のマイルストーン
 
-**Vertical Slice v0.7 — ビジュアル再設計 / Cityゲーム性改善中**
+**Full Soundtrack Story Route — 15曲の正規ルート実装完了 / グラフィック・QA仕上げフェーズへ移行**
 
-### 実装済み
+## 正規ルート
+
+```text
+Sea of information
+→ City of Dawn
+→ Load Road
+→ Gadget Area
+→ Load Road
+→ wish
+→ Fantasy
+→ beautiful
+→ Break
+→ blavery
+→ Naked
+→ Signal
+→ Spacecraft
+→ New create
+→ Thundercloud
+→ Space Home
+```
+
+`Newborn10` は企画対象外。
+
+## 実装済み
+
+### 前半
+- Sea of information: 3つの記憶断片 → terminal → DIVE
+- City of Dawn: OBSERVE → COMPARE → 介入 → Noa → AURORA → 初めての8:43 / 夜
+- Load Road 1回目
+- Gadget Area: 電源 / 歯車 / クレーン復旧 → BIT → 99.7%認証
+- Load Road 2回目: BIT同行開始
+
+### WISH
+- 普通の人々が未来に向けて残した3メッセージ
+- `OUTCOME RECORD / NOT FOUND`
+- 壊れた4件目をBITが自主的に復旧
+- BITの変化を説明ではなく行動で提示
+
+### Fantasy
+- 保存元の存在しない景色を初めて体験
+- 既存記録の要素から、過去に存在しなかった組み合わせが成立していることを確認
+- SEAが単なる保存庫ではない可能性を提示
+
+### beautiful
+- 変化し続ける生成世界
+- 静止記録は保存できるが、現在状態を完全には戻せない
+- BITの「保存状態へ固定」提案をReiが拒否
+
+### Break / blavery
+- 管理系統が生成領域への書き込みを停止
+- ロールバックで新しい差分が失われることを提示
+- BITが管理命令を受信しながら、Reiとの経路継続を優先
+
+### Naked
+- 99.7%の照合対象を明確化
+- ReiはDr. Rei本人ではないと明言
+- ReiはDr. Rei関連情報を一部に使い、人類アーカイブから新しく生成された存在
+- Rei自身が「レイ」を自分の名前として受け取る
+
+### Signal
+- SEA外部から更新され続けるLIVE信号を受信
+- 地球外の人類由来音声を確認
+
+### Spacecraft
+- 居住船団の地球脱出記録
+- `EARTH CIVILIZATION / TERMINATED` は地球文明の終焉であり、人類全体の絶滅ではないと明確化
+- SEA OF INFORMATIONが未来へ記録を渡す継続ノードであることを確認
+
+### New create
+- 管理AIとして残ったDr. Reiと直接対面
+- Rei / Dr. Reiの関係を再確認
+- `NEW CREATE / GENERATIVE CONTINUITY EXPERIMENT`
+- 保存記録から新しい場所・人を生成する仕組みを明示
+
+### Thundercloud
+- Dr. Reiが34年間見てきた生成世界の苦しみを提示
+- Dr. Reiを単純な敵にしない
+- `RESTORE / DELETE / RESET`
+- Reiが第四の答え `CREATE` を選択
+
+### Space Home
+- `CREATE / RUNNING`
+- 地球外の人類との接続は継続
+- 最終表示:
+
+```text
+WORLD COMPLETION 99.99%
+MISSING DATA
+FUTURE
+```
+
+BIT「100%ではありません。」
+Rei「だからいいんだよ。」
+
+エンディング:
+
+```text
+WEATHER FORECAST
+UNKNOWN
+STATUS
+NORMAL
+```
+
+BIT「明日の天気が分かりません。」
+Rei「明日になれば分かるよ。」
+
+## 音楽
+
+15曲をTrackId / AudioManager / SAVE許可リスト / Listening timelineへ登録済み。
+ユーザー提供の実音源を解析し、後半の主要進行ゲートを曲構造へ合わせている。
+
 - Sea of information
-- City of Dawn 完走
-- City of Dawn後のLoad Road
-- Gadget Area入口〜3系統復旧
-- BIT初登場
-- `IDENTITY SCAN 99.7% / ADMINISTRATOR REI / WELCOME BACK`
-- Music ArchiveへLoad road / Gadget areaを追加
-- 15曲の実音源を`public/audio/`へ配置
-
-## 2026-09-13 方針変更: ビジュアル再設計
-
-ユーザー確認で、初期生成アートに以下の問題が判明したため、完成版素材としての使用を停止した。
-
-- 背景画像そのものにタイトル文字・日本語コピー・MENU・ミニマップ・波形などのUIが焼き込まれていた
-- React側UIと生成画像内UIが二重化していた
-- キャラクター素材が透過立ち絵ではなく、背景付きカード画像だった
-- `cover`表示とズーム演出により背景が過度に拡大されて見えた
-- ホットスポットがWeb UI的で、ゲーム世界と馴染んでいなかった
-
-現在は問題アートをランタイムから外し、CSSによるクリーンな仮背景へ戻している。
-
-今後の画像必須条件:
-- 背景: 16:9、文字なし、ロゴなし、UIなし、MENUなし、ミニマップなし
-- キャラクター: 背景透過、UIなし、文字なし
-- 完成ゲーム画面を1枚画像として生成して背景に使用しない
-- 背景 / キャラクター / UIを必ず別レイヤーとして管理する
-
-## Rei 設定変更
-
-Reiは正式に**17歳の女性主人公**へ変更した。
-
-- 黒〜濃紺の髪
-- 細身
-- 白〜ライトグレーの服
-- 青いDIVEデバイス
-- 一人称は基本「私」
-- 過度に女性的な語尾にはしない
-- Dr. Reiは生前男性のまま
-- 性別・年齢が異なることは、99.7%一致しても同一人物ではないことを視覚的に示す要素として扱う
-
-追加済み:
-- `docs/CHARACTER_BIBLE.md`
-- `scripts/check-rei-dialogue.mjs`
-- `npm run check:rei`
-- Reiの「俺」「僕」混入チェック
-
-## Sea of information 序盤ゲーム性
-
-最初の探索に明確な目的を追加済み。
-
-`3つの記憶断片を復元する → 3/3 → 新しい信号出現 → 次の場所へ`
-
-探索済みポイントは視覚的に沈静化し、Objective側にも進捗を返す。
-
-## City of Dawn ゲーム性改善
-
-最初の2ループを、単なるクリック巡回から**観察 → 比較 → 介入**の短い推理ゲームへ変更。
-
-### 1周目: OBSERVE
-以下4つをすべて記録する。
-- 時計塔 / 08:42
-- 少年 / 転倒
-- 鳥 / 3羽
-- パン屋 / 08:42
-
-4つの観察フラグが揃うまで駅への進行ポイントは出現しない。
-
-保存フラグ:
-- `city.observeClock`
-- `city.observeChild`
-- `city.observeBirds`
-- `city.observeBakery`
-
-### 2周目: COMPARE
-前周の記録と以下3項目を照合する。
-- 時計塔
-- 鳥
-- パン屋
-
-3つすべてが一致して初めて、少年へ介入する選択肢が出現する。
-
-保存フラグ:
-- `city.matchClock`
-- `city.matchBirds`
-- `city.matchBakery`
-
-介入:
-`結果を変える：少年に声をかける`
-
-プレイヤー自身が「これは同じ朝だ」と確認してからループを壊す構造にした。
-
-回帰テストも追加済み:
-- 1周目は4観察必須
-- 2周目は3一致必須
-- 既存の音楽ゲートも維持
-
-## Astra QA 1回目
-
-到達地点:
-- Title
-- Sea of information
-- Sea Listening Stage
 - City of Dawn
-- City Listening Stage
-- 朝の反復
-- 子どもへの介入
-- Noa初登場
+- Load road
+- Gadget area
+- wish
+- Fantasy
+- beautiful
+- Break
+- blavery
+- Naked
+- Signal
+- Spacecraft
+- New create
+- Thundercloud
+- Space Home
 
-利用上限によりGadget Area以降は未検証。
+Music Archiveは既存4曲に加え、解放済み後半曲をGlobalUXから追加表示する。
 
-### Critical
-- 0件
+## シナリオ資料
 
-### Medium指摘と対応
-1. `SCENE UNLOCKED`後もListening Stageから戻らない
-   - 原因: listening→ready切替と復帰タイマーを同じeffectで扱い、phase変更時のcleanupがタイマーを消していた。
-   - 対応: ready遷移と復帰タイマーを別effectへ分離。ready後約1.1秒でaction実行。
+現行ゲーム内テキスト一次資料:
+- `docs/SCENARIO_CURRENT_TEXT.md`
+- `docs/scenario-text/00_COMMON.md`
+- `docs/scenario-text/01_SEA.md`
+- `docs/scenario-text/02_CITY.md`
+- `docs/scenario-text/03_LOAD_ROAD.md`
+- `docs/scenario-text/04_GADGET.md`
+- `docs/scenario-text/05_WISH_ENTRY.md`
+- `docs/scenario-text/06_FANTASY_TO_SPACE_HOME.md`
 
-2. City背景が暗く、ホットスポットを視覚判断しづらい
-   - 旧実画像はランタイムから外し、クリーンな仮背景へ戻した。
-   - ホットスポットは世界内の小さな探索シグナルとして再設計。
+設計基準:
+- `docs/SCENARIO_DIRECTION.md`
+- `docs/SCENARIO_READABILITY.md`
+- `docs/CHARACTER_BIBLE.md`
+- `docs/ART_DIRECTION.md`
 
-3. Reload→Continueで曲が0:00から再開
-   - 再生位置をtrack単位でlocalStorageへ1秒間隔保存。
-   - Continue時に保存位置を読み、AudioManager.seek()で復帰。
-   - NEW GAME時は保存した曲位置をクリア。
+## グラフィック
 
-4. 狭い画面でホットスポットラベルが透明
-   - 900px以下またはpointer: coarseで常時表示へ変更。
+Reiの正式立ち絵のみ承認済み。
+Noa / BIT / 各章背景は別セッションで正式素材を制作中・制作予定。
+未承認素材はランタイムで表示せず、CSSフォールバックを使う。
 
-### Minor指摘と対応
-1. Listening用実画像に焼き込まれた時刻/波形と実UIが重複
-   - 焼き込みUIを含む画像はランタイム不使用。
+今後の重要背景 production target:
+- Fantasy
+- beautiful
+- Break / blavery
+- Naked
+- Signal
+- Spacecraft
+- New Create
+- Thundercloud
+- Space Home
 
-2. Rei立ち絵が長方形のまま背景に重なる
-   - 背景透過の正式素材完成までcharacterレイヤー表示停止。
+## 技術構成
 
-## Claudeレビュー修正済み
-- Listening Phase離脱時の状態リーク対策
-- シーン遷移/会話送りの多重発火対策
-- セーブ処理の安全化
-- 画像欠損時のフォールバック
-- 未定義CSSの補完
-- 表記統一
-- 音楽進捗表示を実音源のduration基準へ変更
+前半の既存シーンは `data/scenes.ts` を維持。
+後半は巨大ファイル化を避けるためモジュール登録方式へ移行:
+- `data/futureScenes.ts` — Fantasy / beautiful
+- `data/lateScenes.ts` — BreakからSpace Home
+- `data/registerFutureScenes.ts` — 登録順管理
 
-## Listening Phase 現在仕様
-
-`通常画面 → Listening Stage → 曲同期の短文/光/カメラ変化 → SCENE UNLOCKED → 約1.1秒 → 通常シーンへ復帰 → 次イベント`
-
-意図:
-- 「入力が壊れている」と誤解させない
-- 「いま音楽そのものが物語を進めている」と明示する
-- 単なる残り時間待機画面にしない
+`GlobalUX.tsx` で後半章レジストリを初期化する。
+エンジンテスト側でも同じレジストリを読み、全遷移先・音楽ゲートを検証する。
 
 ## CI / 自動チェック
 
-追加済み:
 - TypeScript typecheck
 - Rei dialogue consistency check
 - engine/data validation test
 - production build
 
-`npm run check`でローカル確認可能。
+Full soundtrack route実装後のQualityが成功済み。
 
 ## 次の開発順
 
-1. City of DawnのOBSERVE / COMPARE進捗を画面上で分かる小型UIへ反映
-2. Gadget Areaの3系統復旧を「1クリック」から短い実操作へ改善
-3. 正式なゲーム用背景・女性Rei / Noa / BIT透過立ち絵を再制作
-4. Astra利用上限回復後、Title→Gadget Area終端まで再QA
-5. 残るQA指摘を修正
-6. `wish`章へ進む
-
-## 次回Astra QAで重点確認
-- Sea序盤のObjectiveが直感的か
-- City 1周目で4観察を自然に理解できるか
-- City 2周目で3一致→少年への介入という推理の流れが伝わるか
-- `SCENE UNLOCKED`後、約1.1秒で確実に通常画面へ戻る
-- Reload→ContinueでBGMが中断位置付近から再開する
-- 狭い画面でもホットスポットが見える
-- Title→Gadget Area終端まで進行不能がない
-- Gadget Area / BIT / 99.7%認証を最後まで通過できる
+1. 全曲ルートをClaude / 実ブラウザで通しQA
+2. 後半章のListening Stage・ホットスポット位置・待機時間を実プレイで微調整
+3. 別セッションで制作した正式グラフィックを順次承認・組み込み
+4. Noa / BIT / Dr. Reiなど未承認キャラクター素材の統合
+5. 狭幅・SAVE/LOAD・Music Archiveの全曲回帰確認
+6. シナリオ全体を「普通の日本人プレイヤー」視点でもう一度通読レビュー
 
 ## AI分担
-- ChatGPT: メイン実装・統合・修正
-- Claude: コードレビュー＋指摘修正
-- Astra: 実ブラウザQA
 
-詳細:
-- `README.md`
-- `docs/CHARACTER_BIBLE.md`
-- `docs/CLAUDE_REVIEW.md`
-- `docs/ASTRA_QA.md`
-- `docs/ART_DIRECTION.md`
-- `docs/AI_COLLAB.md`
+- ChatGPT: メイン実装・統合・シナリオ設計・修正
+- Claude: コードレビュー＋フル回帰QA
+- Astra: 節目のプレイヤー体験QA
