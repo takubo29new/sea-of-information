@@ -1,5 +1,17 @@
 /* Production art overrides — loaded last. */
 
+/* Approved title art: never crop/zoom the source artwork. */
+.titleOcean {
+  background-color: #02070d !important;
+  background-image:
+    linear-gradient(90deg, rgba(2,7,13,.56), rgba(2,7,13,.10) 58%, rgba(2,7,13,.18)),
+    url('/art/production/title/title-background.webp') !important;
+  background-size: 100% 100%, contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+.titleOcean::before { opacity: .16 !important; }
+
 /* Unapproved assets are never rendered by React. Approved assets may override the old emergency hide rule. */
 .sceneVisual-approved .sceneVisualBackground,
 .sceneVisual-approved .sceneVisualCharacter {
