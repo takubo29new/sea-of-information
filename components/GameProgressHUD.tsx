@@ -29,6 +29,12 @@ const GADGET_SYSTEMS = [
   ["gadget.craneMoved", "CRANE"],
 ] as const;
 
+const WISH_MESSAGES = [
+  ["wish.message1", "MESSAGE 01"],
+  ["wish.message2", "MESSAGE 02"],
+  ["wish.message3", "MESSAGE 03"],
+] as const;
+
 const GEAR_TARGET = [1, 2, 3] as const;
 type GadgetSystem = "power" | "gear" | "crane";
 
@@ -121,6 +127,15 @@ export function GameProgressHUD() {
         hint: "3つすべて動かすと整備室が開く",
         completeHint: "COMPLETE — 奥の整備室へ進める",
         items: GADGET_SYSTEMS,
+      };
+    }
+    if (state.sceneId === "wish-entry") {
+      return {
+        eyebrow: "LISTEN",
+        title: "残されたメッセージを聞く",
+        hint: "まず3件のメッセージを確かめる",
+        completeHint: "COMPLETE — 結果記録を確認できる",
+        items: WISH_MESSAGES,
       };
     }
     return null;
