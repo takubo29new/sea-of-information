@@ -12,8 +12,9 @@
 - `docs/scenario-text/00_COMMON.md` — タイトル・OBJECTIVE・共通UI
 - `docs/scenario-text/01_SEA.md` — Sea of information
 - `docs/scenario-text/02_CITY.md` — City of Dawn
-- `docs/scenario-text/03_LOAD_ROAD.md` — Load road
+- `docs/scenario-text/03_LOAD_ROAD.md` — Load road（1回目 / 2回目）
 - `docs/scenario-text/04_GADGET.md` — Gadget Area / BIT / 99.7%
+- `docs/scenario-text/05_WISH_ENTRY.md` — WISH入口のみ
 
 ## レビュー時の優先資料
 
@@ -24,11 +25,11 @@
 
 ## 未実装章
 
-現時点では、以下の本編台詞はまだ未実装です。
+WISHは入口テキストのみ実装済みで、本編はまだ未実装です。
+以下は本編台詞未実装です。
 
 ```text
-Load road（2回目）
-wish
+wish（本編）
 Fantasy
 beautiful
 Break / blavery
