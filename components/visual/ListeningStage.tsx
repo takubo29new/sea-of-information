@@ -39,10 +39,11 @@ export function ListeningStage({
   const asset = ART_ASSETS[timeline.artKey];
   const art = asset?.approved ? (asset.listeningArt ?? asset.background) : undefined;
   const progress = Math.min(100, Math.max(0, (position / duration) * 100));
+  const showCharacter = Boolean(characterSrc && pvDirection.character !== "hidden");
 
   return (
     <section
-      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningStage-pv-${pvDirection.mood}${characterSrc ? " listeningStage-withCharacter" : ""}`}
+      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningStage-pv-${pvDirection.mood} listeningStage-shot-${pvDirection.shot} listeningStage-character-${pvDirection.character} listeningStage-ui-${pvDirection.ui}${showCharacter ? " listeningStage-withCharacter" : ""}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
@@ -53,7 +54,11 @@ export function ListeningStage({
 
       <AudioReactiveSurface track={track} position={position} strength={1.9} cinematic />
 
-      {characterSrc && (
+      <div className="listeningStageCutLight listeningStageCutLight-a" aria-hidden="true" />
+      <div className="listeningStageCutLight listeningStageCutLight-b" aria-hidden="true" />
+      <div className="listeningStageBlackout" aria-hidden="true" />
+
+      {showCharacter && (
         <img
           className="listeningStageCharacter"
           src={characterSrc}
