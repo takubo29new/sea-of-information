@@ -1,6 +1,7 @@
 import type { SyntheticEvent } from "react";
 import type { DialogueLine } from "@/engine/model";
 import { ART_ASSETS } from "@/data/artAssets";
+import { AudioReactiveSurface } from "@/components/visual/AudioReactiveSurface";
 
 export type ReiExpression = "neutral" | "thinking" | "surprised" | "serious";
 
@@ -77,6 +78,7 @@ export function SceneVisual({
       )}
       <div className="sceneVisualParallax sceneVisualParallaxBack" />
       <div className="sceneVisualLight" />
+      <AudioReactiveSurface position={0} strength={0.55} />
       {character && (
         <img
           key={character}
