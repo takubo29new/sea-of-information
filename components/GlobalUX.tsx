@@ -31,10 +31,35 @@ export function GlobalUX() {
       }, 700);
     };
 
+    const onModalKeyDown = (event: KeyboardEvent) => {
+      const modal = document.querySelector<HTMLElement>(".modalBackdrop");
+      if (!modal) return;
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        const closeButton = modal.querySelector<HTMLButtonElement>(".settingsTitle button");
+        closeButton?.click();
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === " ") {
+        const active = document.activeElement;
+        if (active && !modal.contains(active)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        }
+      }
+    };
+
     window.addEventListener("click", onClick, true);
+    window.addEventListener("keydown", onModalKeyDown, true);
     return () => {
       observer.disconnect();
       window.removeEventListener("click", onClick, true);
+      window.removeEventListener("keydown", onModalKeyDown, true);
     };
   }, []);
 
