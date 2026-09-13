@@ -23,6 +23,13 @@ export function getActiveAudioReactiveLevels(): AudioReactiveLevels {
   return activeAudioManager?.getReactiveLevels() ?? ZERO_LEVELS;
 }
 
+export function seekActiveAudio(position: number, track?: TrackId) {
+  if (!activeAudioManager) return false;
+  if (track && activeAudioManager.getCurrentTrack() !== track) return false;
+  activeAudioManager.seek(position);
+  return true;
+}
+
 export class AudioManager {
   private audio: HTMLAudioElement | null = null;
   private currentTrack: TrackId | null = null;
