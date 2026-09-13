@@ -122,9 +122,18 @@ export const scenes: Record<SceneId, Scene> = {
     ]
   },
   "wish-entry": {
-    id: "wish-entry", chapter: "transit", title: "WISH", subtitle: "NEXT ARCHIVE", art: "load-road", track: "load-road", onEnterFlags: ["story.wishReached"], enterDialogueId: "wishEntry"
+    id: "wish-entry", chapter: "wish", title: "WISH", subtitle: "PERSONAL MESSAGES", art: "wish", track: "wish", trackRestart: true, onEnterFlags: ["story.wishReached"], enterDialogueId: "wishEntry",
+    hotspots: [
+      { id: "wish-message-1", label: "メッセージ 01", x: 18, y: 32, width: 16, height: 18, action: { type: "setFlagAndDialogue", flag: "wish.message1", dialogueId: "wishMessage1" } },
+      { id: "wish-message-2", label: "メッセージ 02", x: 42, y: 48, width: 16, height: 18, action: { type: "setFlagAndDialogue", flag: "wish.message2", dialogueId: "wishMessage2" } },
+      { id: "wish-message-3", label: "メッセージ 03", x: 68, y: 30, width: 16, height: 18, action: { type: "setFlagAndDialogue", flag: "wish.message3", dialogueId: "wishMessage3" } },
+      { id: "wish-outcomes", label: "結果記録を確認する", x: 39, y: 68, width: 22, height: 16, action: { type: "setFlagAndDialogue", flag: "wish.outcomesChecked", dialogueId: "wishOutcome" }, visibleWhenAll: ["wish.message1", "wish.message2", "wish.message3"], requiresTrackTime: 126, lockedLabel: "三つのメッセージを聞く" },
+      { id: "wish-broken", label: "壊れたメッセージを見る", x: 10, y: 62, width: 18, height: 16, action: { type: "setFlagAndDialogue", flag: "wish.brokenFound", dialogueId: "wishBroken" }, visibleWhenAll: ["wish.message1", "wish.message2", "wish.message3", "wish.outcomesChecked"], requiresTrackTime: 194, lockedLabel: "残された声をもう少し聞く" },
+      { id: "wish-bit-repair", label: "BITを見る", x: 72, y: 62, width: 14, height: 18, action: { type: "setFlagAndDialogue", flag: "wish.bitRepaired", dialogueId: "wishBitRepair" }, visibleWhenAll: ["wish.brokenFound"], requiresTrackTime: 227, lockedLabel: "BITの判断を待つ" },
+      { id: "wish-next", label: "次の領域へ", x: 40, y: 22, width: 20, height: 16, action: { type: "advance", to: "vertical-slice-end" }, visibleWhenAll: ["wish.bitRepaired"], requiresTrackTime: 302, lockedLabel: "曲の余韻を聴く" }
+    ]
   },
-  "vertical-slice-end": { id: "vertical-slice-end", chapter: "system", art: "end" }
+  "vertical-slice-end": { id: "vertical-slice-end", chapter: "system", title: "FANTASY", subtitle: "SOURCE RECORD / NOT FOUND", art: "wish", track: "wish", onEnterFlags: ["story.wishCompleted"], enterDialogueId: "fantasyEntry" }
 };
 
 export const dialogues: Record<string, Dialogue> = {
@@ -262,8 +271,54 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "REI", text: "そこは同じでいいでしょ。" }
   ] },
   wishEntry: { id: "wishEntry", lines: [
-    { speaker: "SYSTEM", text: "DESTINATION AVAILABLE" },
-    { speaker: "BIT", text: "次の保存領域です。" },
-    { speaker: "REI", text: "今度は、何が残ってるんだろ。" }
+    { speaker: "SYSTEM", text: "PERSONAL MESSAGES / 4 RECORDS" },
+    { speaker: "REI", text: "メッセージ？" },
+    { speaker: "BIT", text: "音声・文書記録です。" },
+    { speaker: "REI", text: "じゃあ、聞いてみよう。" }
+  ] },
+  wishMessage1: { id: "wishMessage1", lines: [
+    { speaker: "SYSTEM", text: "MESSAGE 01" },
+    { text: "『18歳の私へ。まだ絵、描いてますか。』" },
+    { speaker: "REI", text: "未来の自分宛てか。" }
+  ] },
+  wishMessage2: { id: "wishMessage2", lines: [
+    { speaker: "SYSTEM", text: "MESSAGE 02" },
+    { text: "『退院したら、駅前のラーメン。絶対。』" },
+    { speaker: "REI", text: "……こういうの、いいな。" }
+  ] },
+  wishMessage3: { id: "wishMessage3", lines: [
+    { speaker: "SYSTEM", text: "MESSAGE 03" },
+    { text: "『次の休み、海を見に行こう。今度こそ。』" },
+    { speaker: "BIT", text: "実行結果は付属していません。" },
+    { speaker: "REI", text: "まだ聞かなくていいよ、それ。" }
+  ] },
+  wishOutcome: { id: "wishOutcome", lines: [
+    { speaker: "SYSTEM", text: "OUTCOME RECORD / NOT FOUND" },
+    { speaker: "BIT", text: "3件とも、結果記録がありません。" },
+    { speaker: "REI", text: "起きたことじゃなくて、これからしたかったことなんだ。" }
+  ] },
+  wishBroken: { id: "wishBroken", lines: [
+    { speaker: "SYSTEM", text: "MESSAGE 04 / AUDIO DAMAGED" },
+    { speaker: "SYSTEM", text: "RESTORE NOT REQUIRED" },
+    { speaker: "REI", text: "これは、聞けないか。" },
+    { text: "BITが壊れた音声の前で止まった。" }
+  ] },
+  wishBitRepair: { id: "wishBitRepair", lines: [
+    { speaker: "BIT", text: "補助電源を3.2秒使用します。" },
+    { speaker: "REI", text: "何してるの？" },
+    { speaker: "BIT", text: "音声部のみ復旧します。" },
+    { text: "『来年も、ここに来ようね。』" },
+    { speaker: "REI", text: "……直したんだ。" },
+    { speaker: "REI", text: "それ、必要だった？" },
+    { speaker: "BIT", text: "……移動には不要です。" },
+    { speaker: "REI", text: "そっか。" }
+  ] },
+  fantasyEntry: { id: "fantasyEntry", lines: [
+    { speaker: "SYSTEM", text: "NEXT AREA" },
+    { speaker: "SYSTEM", text: "SOURCE RECORD / NOT FOUND" },
+    { speaker: "BIT", text: "次の領域に、保存元の記録がありません。" },
+    { speaker: "REI", text: "記録にない場所？" },
+    { speaker: "BIT", text: "定義できません。" },
+    { speaker: "REI", text: "……じゃあ、見に行こう。" }
   ] }
 };
