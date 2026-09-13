@@ -4,7 +4,7 @@
 
 ## 現在のマイルストーン
 
-**Vertical Slice v0.7 統合フェーズ**
+**Vertical Slice v0.7 — 実イラスト統合 / QA準備**
 
 ### 実装済み
 - Sea of information
@@ -26,10 +26,8 @@
 - 表記統一
 - 音楽進捗表示を実音源のduration基準へ変更
 
-### ChatGPT統合中
-ブランチ: `chatgpt/v07-integration`
-
-Claude修正版の`dev`を親にして以下を統合した。
+### ChatGPT統合済み
+PR #3を`dev`へ統合済み。
 - `SceneVisual`: 実背景＋立ち絵＋光＋前景＋軽いパララックス
 - `ListeningStage`: ミュージックプレイヤー型の専用音楽フェーズUI
 - `artAssets.ts`: シーンと実イラストの対応表
@@ -55,46 +53,33 @@ Claude修正の以下は維持している。
 - 「いま音楽そのものが物語を進めている」と明示する
 - 単なる残り時間待機画面にしない
 
-## 実イラストの必要ファイル
+## 実イラスト現在状況
 
-`public/art/`へ順次配置する。
+### GitHubへ配置済み
+- `city/city-morning.webp`
+- `characters/noa/noa-neutral.webp`
+- `load-road/load-road-main.webp`
+- `gadget/gadget-main.webp`
 
-優先順:
-1. `title/title-keyvisual.webp`
-2. `sea/sea-main.webp`
-3. `sea/sea-listening.webp`
-4. `sea/sea-terminal.webp`
-5. `sea/sea-dive.webp`
-6. `city/city-morning.webp`
-7. `city/city-loop.webp`
-8. `city/city-investigation.webp`
-9. `city/city-listening.webp`
-10. `city/city-dusk.webp`
-11. `city/city-night.webp`
-12. `city/aurora-gate.webp`
-13. `city/aurora-core.webp`
-14. `characters/noa/noa-neutral.webp`
-15. `characters/noa/noa-smile.webp`
-16. `load-road/load-road-main.webp`
-17. `load-road/load-road-listening.webp`
-18. `gadget/gadget-main.webp`
-19. `gadget/gadget-machinery.webp`
-20. `gadget/gadget-listening.webp`
-21. `gadget/gadget-scan.webp`
-22. `characters/bit/bit-normal.webp`
-23. `characters/bit/bit-warning.webp`
+### 次回追加予定
+- `title/title-keyvisual.webp`
+- `sea/sea-main.webp`
+- `city/city-listening.webp`
+- `load-road/load-road-listening.webp`
+- `gadget/gadget-listening.webp`
+- `characters/bit/bit-normal.webp`
+- `characters/rei/rei-neutral.webp`
 
-画像が未配置でも進行不能にはしない。CSSはフォールバック・補助演出として使用する。
+専用差分がまだない場面は、同章の実画像を再利用して進行不能や黒背景を避けるよう`artAssets.ts`を調整済み。
 
 ## 次の開発順
 
-1. `chatgpt/v07-integration` を`dev`へ統合
-2. 上記実イラストを生成/配置
-3. 既存章をTitleから通しで視覚確認
-4. AstraでブラウザQA
-5. QA修正
-6. Gadget Areaのパズルを「1クリック」から短い環境操作へ改善
-7. 次の`wish`章へ進む
+1. 追加アートを`public/art/`へ配置
+2. Title→Gadget Area終端まで視覚確認
+3. AstraでブラウザQA
+4. QA修正
+5. Gadget Areaのパズルを「1クリック」から短い環境操作へ改善
+6. 次の`wish`章へ進む
 
 ## Astra QAで重点確認
 - Title→Gadget Area終端まで進行不能がない
