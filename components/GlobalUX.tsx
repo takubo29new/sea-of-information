@@ -4,15 +4,42 @@ import { useEffect, useState } from "react";
 
 type Pulse = { id: number; x: number; y: number };
 
+const MODAL_FOCUSABLE = "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])";
+
 export function GlobalUX() {
   const [showTitleNotice, setShowTitleNotice] = useState(false);
   const [pulses, setPulses] = useState<Pulse[]>([]);
 
   useEffect(() => {
-    const syncTitle = () => setShowTitleNotice(Boolean(document.querySelector(".titleScreen")));
-    syncTitle();
+    let activeModal: HTMLElement | null = null;
+    let focusBeforeModal: HTMLElement | null = null;
 
-    const observer = new MutationObserver(syncTitle);
+    const syncUiState = () => {
+      setShowTitleNotice(Boolean(document.querySelector(".titleScreen")));
+
+      const modal = document.querySelector<HTMLElement>(".modalBackdrop");
+      if (modal && !activeModal) {
+        activeModal = modal;
+        focusBeforeModal = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        window.queueMicrotask(() => {
+          const first = modal.querySelector<HTMLElement>(MODAL_FOCUSABLE);
+          first?.focus();
+        });
+        return;
+      }
+
+      if (!modal && activeModal) {
+        activeModal = null;
+        const previous = focusBeforeModal;
+        focusBeforeModal = null;
+        window.queueMicrotask(() => {
+          if (previous?.isConnected) previous.focus();
+        });
+      }
+    };
+    syncUiState();
+
+    const observer = new MutationObserver(syncUiState);
     observer.observe(document.body, { childList: true, subtree: true });
 
     const onClick = (event: MouseEvent) => {
@@ -35,6 +62,9 @@ export function GlobalUX() {
       const modal = document.querySelector<HTMLElement>(".modalBackdrop");
       if (!modal) return;
 
+      const focusables = Array.from(modal.querySelectorAll<HTMLElement>(MODAL_FOCUSABLE));
+      const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
@@ -44,12 +74,41 @@ export function GlobalUX() {
         return;
       }
 
-      if (event.key === "Enter" || event.key === " ") {
-        const active = document.activeElement;
-        if (active && !modal.contains(active)) {
+      if (event.key === "Tab") {
+        if (focusables.length === 0) {
           event.preventDefault();
           event.stopPropagation();
           event.stopImmediatePropagation();
+          return;
+        }
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const isOutside = !active || !modal.contains(active);
+        const shouldWrapBack = event.shiftKey && (isOutside || active === first);
+        const shouldWrapForward = !event.shiftKey && (isOutside || active === last);
+
+        if (shouldWrapBack || shouldWrapForward) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          (shouldWrapBack ? last : first).focus();
+        }
+        return;
+      }
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        if (active instanceof HTMLButtonElement && modal.contains(active) && !active.disabled) {
+          active.click();
+          return;
+        }
+
+        if (!active || !modal.contains(active)) {
+          focusables[0]?.focus();
         }
       }
     };
