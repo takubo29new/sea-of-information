@@ -118,7 +118,7 @@ export type Scene = {
 };
 
 export type DialogueLine = {
-  speaker?: "REI" | "NOA" | "BIT" | "AURORA" | "SYSTEM";
+  speaker?: "REI" | "NOA" | "BIT" | "AURORA" | "DR_REI" | "SYSTEM";
   text: string;
 };
 
