@@ -1,0 +1,119 @@
+/* v0.17 — performance pass, especially LOAD ROAD */
+
+/* LOAD ROAD: keep only the bespoke road layer + one low-cost glow. */
+.audioReactiveSurface-track-load-road {
+  mix-blend-mode: normal !important;
+  isolation: isolate;
+  contain: layout paint style;
+}
+.audioReactiveSurface-track-load-road .audioReactiveGlow-high,
+.audioReactiveSurface-track-load-road .audioReactiveBeams,
+.audioReactiveSurface-track-load-road .audioReactiveParticles,
+.audioReactiveSurface-track-load-road .audioReactiveFlash,
+.audioReactiveSurface-track-load-road .audioReactiveRings,
+.audioReactiveSurface-track-load-road .audioReactiveWater,
+.audioReactiveSurface-track-load-road .audioReactiveStreaks {
+  display: none !important;
+}
+.audioReactiveSurface-track-load-road .audioReactiveGlow-bass {
+  filter: none !important;
+  background: radial-gradient(ellipse at 50% 82%, rgba(91,180,255,.24), transparent 48%) !important;
+  opacity: calc(.08 + var(--audio-energy) * .42) !important;
+  transform: scale(calc(1 + var(--audio-bass) * .08)) !important;
+  transition: transform 110ms linear, opacity 110ms linear !important;
+  will-change: transform, opacity;
+}
+
+/* The stage itself no longer runs the heavy common camera/filter animations. */
+.listeningStage-track-load-road .listeningStageArtwork {
+  animation: loadRoadCameraLite 14s ease-in-out infinite alternate !important;
+  filter: none !important;
+  will-change: transform;
+}
+.listeningStage-track-load-road .listeningStageCharacter {
+  animation: loadRoadCharacterLite 10s ease-in-out infinite alternate !important;
+  filter: none !important;
+  will-change: transform;
+}
+@keyframes loadRoadCameraLite {
+  from { transform: translate3d(0,0,0) scale(1.035); }
+  to { transform: translate3d(-1.2%, -.7%, 0) scale(1.075); }
+}
+@keyframes loadRoadCharacterLite {
+  from { transform: translate3d(0,.5%,0) scale(1); }
+  to { transform: translate3d(-.6%,-.7%,0) scale(1.012); }
+}
+
+/* Rewrite the road grid so it moves only through a compositor transform. */
+.audioReactiveRoad {
+  transform: perspective(760px) rotateX(63deg) translateZ(0) !important;
+  transform-origin: 50% 85%;
+  opacity: calc(.10 + var(--audio-energy) * .58);
+  will-change: opacity;
+}
+.audioReactiveRoad::before {
+  left: 16% !important;
+  right: 16% !important;
+  top: -45% !important;
+  bottom: auto !important;
+  height: 180% !important;
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0 10.8%,
+      rgba(151,220,255,.16) 11% 11.35%,
+      transparent 11.6% 22%),
+    repeating-linear-gradient(0deg,
+      transparent 0 42px,
+      rgba(151,220,255,.10) 43px 44px,
+      transparent 45px 86px) !important;
+  background-position: 0 0 !important;
+  animation: roadGridTransform 2.8s linear infinite !important;
+  will-change: transform !important;
+}
+@keyframes roadGridTransform {
+  from { transform: translate3d(0,-10%,0); }
+  to { transform: translate3d(0,18%,0); }
+}
+
+/* Rush lines: fixed layout position; motion is transform-only. */
+.audioReactiveRoad i {
+  top: 50% !important;
+  bottom: auto !important;
+  left: 50% !important;
+  width: 52% !important;
+  height: 2px !important;
+  opacity: 0;
+  transform: translate3d(-50%,-34vh,0) scaleX(.18);
+  animation: roadRushTransform 2.6s linear infinite !important;
+  will-change: transform, opacity !important;
+}
+.audioReactiveRoad i:nth-child(2) { animation-delay: -.86s !important; }
+.audioReactiveRoad i:nth-child(3) { animation-delay: -1.72s !important; }
+.audioReactiveRoad i:nth-child(4),
+.audioReactiveRoad i:nth-child(5) { display: none !important; }
+@keyframes roadRushTransform {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%,-34vh,0) scaleX(.18);
+  }
+  22% { opacity: calc(.08 + var(--audio-mid) * .46); }
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%,36vh,0) scaleX(1.12);
+  }
+}
+
+/* Avoid unnecessary paint-heavy grain while the road visualizer is active. */
+.listeningStage-track-load-road .listeningStageGrain {
+  opacity: .12 !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listeningStage-track-load-road .listeningStageArtwork,
+  .listeningStage-track-load-road .listeningStageCharacter,
+  .audioReactiveRoad::before,
+  .audioReactiveRoad i {
+    animation: none !important;
+  }
+}
