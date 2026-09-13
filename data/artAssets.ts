@@ -31,9 +31,11 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   sea: {
     background: "/art/production/sea/sea-background.webp",
+    character: "/art/production/characters/rei/rei-neutral.png",
+    characterPosition: "right",
     overlay: "sea",
     approved: true,
-    note: "Approved clean information-sea background. Rei sprite pending."
+    note: "Approved clean information-sea background + transparent Rei candidate."
   },
   terminal: {
     background: "/art/production/sea/sea-terminal.webp",
@@ -44,14 +46,14 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   dive: {
     background: "/art/production/sea/sea-dive.webp",
-    character: "/art/production/characters/rei/rei-neutral.webp",
+    character: "/art/production/characters/rei/rei-neutral.png",
     characterPosition: "left",
     overlay: "sea",
     approved: false
   },
   city: {
     background: "/art/production/city/city-morning.webp",
-    character: "/art/production/characters/rei/rei-neutral.webp",
+    character: "/art/production/characters/rei/rei-neutral.png",
     characterPosition: "left",
     overlay: "dawn",
     approved: false,
@@ -107,7 +109,7 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   "load-road": {
     background: "/art/production/load-road/load-road-background.webp",
-    character: "/art/production/characters/rei/rei-neutral.webp",
+    character: "/art/production/characters/rei/rei-neutral.png",
     characterPosition: "left",
     overlay: "road",
     approved: false
@@ -115,7 +117,7 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   gadget: { overlay: "industrial", approved: false },
   "gadget-entry": {
     background: "/art/production/gadget/gadget-entry.webp",
-    character: "/art/production/characters/rei/rei-neutral.webp",
+    character: "/art/production/characters/rei/rei-neutral.png",
     characterPosition: "left",
     overlay: "industrial",
     approved: false
