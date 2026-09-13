@@ -35,6 +35,8 @@ const validSave = sanitizeGameState({ version: 1, sceneId: "city-loop-2", flags:
 equal(validSave.sceneId, "city-loop-2", "Valid save scene");
 equal(validSave.unlockedMusic.join(","), "sea-of-information,city-of-dawn", "Music whitelist");
 equal(validSave.playTimeSeconds, 42, "Play time preservation");
+const wishSave = sanitizeGameState({ version: 1, sceneId: "wish-entry", flags: {}, unlockedMusic: ["sea-of-information", "wish"], playTimeSeconds: 90, updatedAt: "2026-09-14T00:00:00.000Z" });
+assert(wishSave.unlockedMusic.includes("wish"), "Wish music must survive save sanitization");
 
 assert((scenes["sea-dive"].hotspots?.[0].requiresTrackTime ?? 0) >= 90, "Opening must let Sea of information breathe");
 
@@ -53,6 +55,17 @@ assert(scenes["city-night"].hotspots?.some(h => h.action.type === "advance" && h
 assert((scenes["load-road-1"].hotspots?.find(h => h.id === "load-road-next")?.requiresTrackTime ?? 0) >= 120, "Load Road must have meaningful listening time");
 assert(scenes["gadget-machinery"].hotspots?.find(h => h.id === "gadget-open")?.visibleWhenAll?.length === 3, "Gadget machinery must require all three restoration clues");
 assert((scenes["gadget-auth"].hotspots?.[0].requiresTrackTime ?? 0) >= 175, "Gadget Area should reach the late section of the track before milestone end");
-assert(Object.keys(scenes).length >= 19, "v0.5 should include Load Road and Gadget Area flow");
+
+const wishScene = scenes["wish-entry"];
+const wishOutcome = wishScene.hotspots?.find(h => h.id === "wish-outcomes");
+assert(wishOutcome?.visibleWhenAll?.length === 3, "WISH must require three ordinary messages before checking outcomes");
+assert(["wish.message1", "wish.message2", "wish.message3"].every(flag => wishOutcome?.visibleWhenAll?.includes(flag)), "WISH message flags must gate outcome review");
+assert((wishOutcome?.requiresTrackTime ?? 0) >= 120, "WISH outcome reveal should wait for the first major musical section");
+assert((wishScene.hotspots?.find(h => h.id === "wish-broken")?.requiresTrackTime ?? 0) >= 190, "WISH broken message should align with the later musical section");
+assert((wishScene.hotspots?.find(h => h.id === "wish-bit-repair")?.requiresTrackTime ?? 0) >= 225, "BIT repair should happen after the broken message has time to land");
+assert((wishScene.hotspots?.find(h => h.id === "wish-next")?.requiresTrackTime ?? 0) >= 300, "WISH should keep the player through the final musical section before Fantasy");
+assert(scenes["vertical-slice-end"].enterDialogueId === "fantasyEntry", "WISH must lead into the Fantasy entry dialogue");
+
+assert(Object.keys(scenes).length >= 21, "Current slice should include second Load Road and WISH flow");
 
 console.log(`Engine validation passed: ${Object.keys(scenes).length} scenes, ${Object.keys(dialogues).length} dialogues.`);
