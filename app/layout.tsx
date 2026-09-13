@@ -14,7 +14,6 @@ import "./v10-ux-polish.css";
 import "./v11-novel-ui.css";
 import "./v12-music-cinematic.css";
 import "./v13-pv-amplified.css";
-import "./v14-pv-direction.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
