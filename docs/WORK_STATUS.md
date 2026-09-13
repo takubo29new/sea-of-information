@@ -4,7 +4,7 @@
 
 ## 現在のマイルストーン
 
-**Vertical Slice v0.7 — Astra QA指摘修正中**
+**Vertical Slice v0.7 — ビジュアル再設計 / Cityゲーム性改善中**
 
 ### 実装済み
 - Sea of information
@@ -15,6 +15,93 @@
 - `IDENTITY SCAN 99.7% / ADMINISTRATOR REI / WELCOME BACK`
 - Music ArchiveへLoad road / Gadget areaを追加
 - 15曲の実音源を`public/audio/`へ配置
+
+## 2026-09-13 方針変更: ビジュアル再設計
+
+ユーザー確認で、初期生成アートに以下の問題が判明したため、完成版素材としての使用を停止した。
+
+- 背景画像そのものにタイトル文字・日本語コピー・MENU・ミニマップ・波形などのUIが焼き込まれていた
+- React側UIと生成画像内UIが二重化していた
+- キャラクター素材が透過立ち絵ではなく、背景付きカード画像だった
+- `cover`表示とズーム演出により背景が過度に拡大されて見えた
+- ホットスポットがWeb UI的で、ゲーム世界と馴染んでいなかった
+
+現在は問題アートをランタイムから外し、CSSによるクリーンな仮背景へ戻している。
+
+今後の画像必須条件:
+- 背景: 16:9、文字なし、ロゴなし、UIなし、MENUなし、ミニマップなし
+- キャラクター: 背景透過、UIなし、文字なし
+- 完成ゲーム画面を1枚画像として生成して背景に使用しない
+- 背景 / キャラクター / UIを必ず別レイヤーとして管理する
+
+## Rei 設定変更
+
+Reiは正式に**17歳の女性主人公**へ変更した。
+
+- 黒〜濃紺の髪
+- 細身
+- 白〜ライトグレーの服
+- 青いDIVEデバイス
+- 一人称は基本「私」
+- 過度に女性的な語尾にはしない
+- Dr. Reiは生前男性のまま
+- 性別・年齢が異なることは、99.7%一致しても同一人物ではないことを視覚的に示す要素として扱う
+
+追加済み:
+- `docs/CHARACTER_BIBLE.md`
+- `scripts/check-rei-dialogue.mjs`
+- `npm run check:rei`
+- Reiの「俺」「僕」混入チェック
+
+## Sea of information 序盤ゲーム性
+
+最初の探索に明確な目的を追加済み。
+
+`3つの記憶断片を復元する → 3/3 → 新しい信号出現 → 次の場所へ`
+
+探索済みポイントは視覚的に沈静化し、Objective側にも進捗を返す。
+
+## City of Dawn ゲーム性改善
+
+最初の2ループを、単なるクリック巡回から**観察 → 比較 → 介入**の短い推理ゲームへ変更。
+
+### 1周目: OBSERVE
+以下4つをすべて記録する。
+- 時計塔 / 08:42
+- 少年 / 転倒
+- 鳥 / 3羽
+- パン屋 / 08:42
+
+4つの観察フラグが揃うまで駅への進行ポイントは出現しない。
+
+保存フラグ:
+- `city.observeClock`
+- `city.observeChild`
+- `city.observeBirds`
+- `city.observeBakery`
+
+### 2周目: COMPARE
+前周の記録と以下3項目を照合する。
+- 時計塔
+- 鳥
+- パン屋
+
+3つすべてが一致して初めて、少年へ介入する選択肢が出現する。
+
+保存フラグ:
+- `city.matchClock`
+- `city.matchBirds`
+- `city.matchBakery`
+
+介入:
+`結果を変える：少年に声をかける`
+
+プレイヤー自身が「これは同じ朝だ」と確認してからループを壊す構造にした。
+
+回帰テストも追加済み:
+- 1周目は4観察必須
+- 2周目は3一致必須
+- 既存の音楽ゲートも維持
 
 ## Astra QA 1回目
 
@@ -39,24 +126,23 @@
    - 対応: ready遷移と復帰タイマーを別effectへ分離。ready後約1.1秒でaction実行。
 
 2. City背景が暗く、ホットスポットを視覚判断しづらい
-   - 対応: City画像の存在を確認。QA用CSSで背景明度・dawnビネットを調整。
-   - 狭い画面/タッチではホットスポットラベルと操作輪郭を常時表示。
+   - 旧実画像はランタイムから外し、クリーンな仮背景へ戻した。
+   - ホットスポットは世界内の小さな探索シグナルとして再設計。
 
 3. Reload→Continueで曲が0:00から再開
-   - 対応: 再生位置をtrack単位でlocalStorageへ1秒間隔保存。
+   - 再生位置をtrack単位でlocalStorageへ1秒間隔保存。
    - Continue時に保存位置を読み、AudioManager.seek()で復帰。
    - NEW GAME時は保存した曲位置をクリア。
 
 4. 狭い画面でホットスポットラベルが透明
-   - 対応: 900px以下またはpointer: coarseで常時表示へ変更。
+   - 900px以下またはpointer: coarseで常時表示へ変更。
 
 ### Minor指摘と対応
 1. Listening用実画像に焼き込まれた時刻/波形と実UIが重複
-   - 対応: QAビルドではUIなしのメイン背景をListening Stageにも使用。
-   - 専用Listening画像はクリーン素材へ作り直すまで不使用。
+   - 焼き込みUIを含む画像はランタイム不使用。
 
 2. Rei立ち絵が長方形のまま背景に重なる
-   - 対応: 透過素材を作り直すまでReiの独立characterレイヤー表示を停止。
+   - 背景透過の正式素材完成までcharacterレイヤー表示停止。
 
 ## Claudeレビュー修正済み
 - Listening Phase離脱時の状態リーク対策
@@ -67,16 +153,6 @@
 - 表記統一
 - 音楽進捗表示を実音源のduration基準へ変更
 
-## ChatGPT統合済み
-- `SceneVisual`: 実背景＋立ち絵＋光＋前景＋軽いパララックス
-- `ListeningStage`: ミュージックプレイヤー型の専用音楽フェーズUI
-- `artAssets.ts`: シーンと実イラストの対応表
-- `listeningCues.ts`: 曲中の秒数に応じた短文/ムード/カメラ演出
-- `v06.css`: 上記の視覚演出
-- `qa-fixes.css`: Astra QA由来の視認性/レスポンシブ修正
-- `GameApp.tsx`へSceneVisual / ListeningStageを接続
-- v2アートを実ランタイム参照へ接続
-
 ## Listening Phase 現在仕様
 
 `通常画面 → Listening Stage → 曲同期の短文/光/カメラ変化 → SCENE UNLOCKED → 約1.1秒 → 通常シーンへ復帰 → 次イベント`
@@ -86,39 +162,33 @@
 - 「いま音楽そのものが物語を進めている」と明示する
 - 単なる残り時間待機画面にしない
 
-## 実イラスト現在状況
+## CI / 自動チェック
 
-### GitHubへ配置済み
-- `title/title-keyvisual.webp`
-- `sea/sea-main.webp`
-- `characters/rei/rei-neutral.webp`（現在characterレイヤーでは不使用）
-- `city/city-morning.webp`
-- `city/city-listening.webp`（現在Listening Stageでは不使用）
-- `characters/noa/noa-neutral.webp`
-- `load-road/load-road-main.webp`
-- `load-road/load-road-listening.webp`（現在Listening Stageでは不使用）
-- `gadget/gadget-main.webp`
-- `gadget/gadget-listening.webp`（現在Listening Stageでは不使用）
-- `characters/bit/bit-normal.webp`
+追加済み:
+- TypeScript typecheck
+- Rei dialogue consistency check
+- engine/data validation test
+- production build
 
-専用差分がまだない場面は、同章の実画像を再利用し、overlay / Listening Stage演出で見え方を変える。
+`npm run check`でローカル確認可能。
 
 ## 次の開発順
 
-1. Astra利用上限回復後、修正版でTitle→Gadget Area終端まで再QA
-2. 未到達だったGadget Area / BIT / 99.7%認証を重点確認
-3. 残るQA指摘を修正
-4. Gadget Areaのパズルを「1クリック」から短い環境操作へ改善
-5. 次の`wish`章へ進む
+1. City of DawnのOBSERVE / COMPARE進捗を画面上で分かる小型UIへ反映
+2. Gadget Areaの3系統復旧を「1クリック」から短い実操作へ改善
+3. 正式なゲーム用背景・女性Rei / Noa / BIT透過立ち絵を再制作
+4. Astra利用上限回復後、Title→Gadget Area終端まで再QA
+5. 残るQA指摘を修正
+6. `wish`章へ進む
 
 ## 次回Astra QAで重点確認
+- Sea序盤のObjectiveが直感的か
+- City 1周目で4観察を自然に理解できるか
+- City 2周目で3一致→少年への介入という推理の流れが伝わるか
 - `SCENE UNLOCKED`後、約1.1秒で確実に通常画面へ戻る
 - Reload→ContinueでBGMが中断位置付近から再開する
-- City背景が正常表示される
-- 狭い画面でもホットスポットラベルが見える
-- Listening Stageで時刻/波形が二重表示にならない
+- 狭い画面でもホットスポットが見える
 - Title→Gadget Area終端まで進行不能がない
-- 連打で二重遷移しない
 - Gadget Area / BIT / 99.7%認証を最後まで通過できる
 
 ## AI分担
@@ -128,6 +198,7 @@
 
 詳細:
 - `README.md`
+- `docs/CHARACTER_BIBLE.md`
 - `docs/CLAUDE_REVIEW.md`
 - `docs/ASTRA_QA.md`
 - `docs/ART_DIRECTION.md`
