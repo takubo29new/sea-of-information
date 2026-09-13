@@ -6,7 +6,7 @@ export type ListeningCue = {
 };
 
 export type ListeningTimeline = {
-  track: "sea-of-information" | "city-of-dawn" | "load-road" | "gadget-area" | "wish";
+  track: "sea-of-information" | "city-of-dawn" | "load-road" | "gadget-area" | "wish" | "fantasy" | "beautiful";
   artKey: string;
   introText: string;
   cues: ListeningCue[];
@@ -61,6 +61,26 @@ export const LISTENING_TIMELINES: Record<ListeningTimeline["track"], ListeningTi
       { at: 194, text: "残っているのは、こうなってほしいという声だけ。", mood: "memory", camera: "still" },
       { at: 227, text: "それでも、その声は消えなかった。", mood: "reveal", camera: "slow-in" },
       { at: 302, mood: "calm", camera: "slow-out" }
+    ]
+  },
+  fantasy: {
+    track: "fantasy", artKey: "fantasy", introText: "記録にないのに、景色は確かにここにある。",
+    cues: [
+      { at: 0, mood: "calm", camera: "slow-in" },
+      { at: 54, text: "見覚えのある材料だけで、見たことのない景色ができている。", mood: "memory", camera: "drift-right" },
+      { at: 252, text: "保存元は見つからない。", mood: "calm", camera: "still" },
+      { at: 286, text: "それでも、ここは消えない。", mood: "reveal", camera: "slow-in" },
+      { at: 412, mood: "calm", camera: "slow-out" }
+    ]
+  },
+  beautiful: {
+    track: "beautiful", artKey: "beautiful", introText: "同じ景色なのに、少しずつ形を変えている。",
+    cues: [
+      { at: 0, mood: "warm", camera: "slow-in" },
+      { at: 38, text: "一度だけの色が、目の前を通り過ぎる。", mood: "warm", camera: "drift-left" },
+      { at: 120, text: "保存した瞬間と、今はもう同じではない。", mood: "memory", camera: "still" },
+      { at: 270, text: "戻せないから、見ていたくなる。", mood: "reveal", camera: "slow-out" },
+      { at: 298, mood: "calm", camera: "slow-out" }
     ]
   }
 };
