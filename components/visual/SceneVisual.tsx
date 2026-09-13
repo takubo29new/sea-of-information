@@ -4,6 +4,7 @@ import { ART_ASSETS } from "@/data/artAssets";
 import { AudioReactiveSurface } from "@/components/visual/AudioReactiveSurface";
 
 export type ReiExpression = "neutral" | "thinking" | "surprised" | "serious";
+export type NoaExpression = "neutral" | "worried" | "surprised" | "soft-smile";
 type Speaker = NonNullable<DialogueLine["speaker"]>;
 
 export const REI_CHARACTER: Record<ReiExpression, string> = {
@@ -11,6 +12,13 @@ export const REI_CHARACTER: Record<ReiExpression, string> = {
   thinking: "/art/production/characters/rei/rei-thinking.png",
   surprised: "/art/production/characters/rei/rei-surprised.png",
   serious: "/art/production/characters/rei/rei-serious.png"
+};
+
+export const NOA_CHARACTER: Record<NoaExpression, string> = {
+  neutral: "/art/production/characters/noa/noa-neutral.png",
+  worried: "/art/production/characters/noa/noa-worried.png",
+  surprised: "/art/production/characters/noa/noa-surprised.png",
+  "soft-smile": "/art/production/characters/noa/noa-soft-smile.png"
 };
 
 export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
@@ -37,6 +45,15 @@ export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   "space-home": "neutral"
 };
 
+export const NOA_SCENE_EXPRESSION: Partial<Record<string, NoaExpression>> = {
+  noa: "neutral",
+  "city-investigation": "neutral",
+  "aurora-gate": "worried",
+  aurora: "surprised",
+  dusk: "soft-smile",
+  night: "soft-smile"
+};
+
 const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
   noa: ["REI", "NOA"],
   "city-investigation": ["REI", "NOA"],
@@ -61,7 +78,7 @@ const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
 
 const CHARACTER_APPROVAL: Record<Speaker, boolean> = {
   REI: true,
-  NOA: false,
+  NOA: true,
   BIT: false,
   AURORA: false,
   DR_REI: false,
@@ -72,6 +89,9 @@ function plannedCharacterPath(speaker: Speaker, artKey: string, reiExpression?: 
   if (!CHARACTER_APPROVAL[speaker]) return undefined;
   if (speaker === "REI") {
     return REI_CHARACTER[reiExpression ?? REI_SCENE_EXPRESSION[artKey] ?? "neutral"];
+  }
+  if (speaker === "NOA") {
+    return NOA_CHARACTER[NOA_SCENE_EXPRESSION[artKey] ?? "neutral"];
   }
   return undefined;
 }
