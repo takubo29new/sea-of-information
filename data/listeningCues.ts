@@ -56,9 +56,11 @@ export const LISTENING_TIMELINES: Record<ListeningTimeline["track"], ListeningTi
     track: "wish", artKey: "wish", introText: "ここには、まだ起きていないことを待つ声が残っている。",
     cues: [
       { at: 0, mood: "calm", camera: "slow-in" },
-      { at: 60, text: "誰かが、次の日を待っていた。", mood: "memory", camera: "drift-right" },
-      { at: 120, text: "その先の記録は、ない。", mood: "calm", camera: "slow-out" },
-      { at: 180, text: "残っているのは、こうなってほしいという声だけ。", mood: "reveal", camera: "slow-in" }
+      { at: 47, text: "誰かが、次の日を待っていた。", mood: "memory", camera: "drift-right" },
+      { at: 126, text: "その先の記録は、ない。", mood: "calm", camera: "slow-out" },
+      { at: 194, text: "残っているのは、こうなってほしいという声だけ。", mood: "memory", camera: "still" },
+      { at: 227, text: "それでも、その声は消えなかった。", mood: "reveal", camera: "slow-in" },
+      { at: 302, mood: "calm", camera: "slow-out" }
     ]
   }
 };
