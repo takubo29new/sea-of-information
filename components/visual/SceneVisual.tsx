@@ -13,7 +13,6 @@ export const REI_CHARACTER: Record<ReiExpression, string> = {
   serious: "/art/production/characters/rei/rei-serious.png"
 };
 
-/** Expression direction for the current vertical slice. */
 export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   sea: "neutral",
   terminal: "thinking",
@@ -24,13 +23,20 @@ export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   "gadget-entry": "neutral",
   "gadget-machinery": "thinking",
   "gadget-bit": "surprised",
-  "gadget-auth": "serious"
+  "gadget-auth": "serious",
+  wish: "thinking",
+  fantasy: "surprised",
+  beautiful: "neutral",
+  break: "serious",
+  blavery: "serious",
+  naked: "thinking",
+  signal: "surprised",
+  spacecraft: "serious",
+  "new-create": "serious",
+  thundercloud: "serious",
+  "space-home": "neutral"
 };
 
-/**
- * Dialogue cast direction. The stage can already position multiple actors and dim
- * inactive speakers. Noa/BIT stay disabled until their production sprites are approved.
- */
 const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
   noa: ["REI", "NOA"],
   "city-investigation": ["REI", "NOA"],
@@ -39,7 +45,18 @@ const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
   dusk: ["REI", "NOA"],
   night: ["REI", "NOA"],
   "gadget-bit": ["REI", "BIT"],
-  "gadget-auth": ["REI", "BIT"]
+  "gadget-auth": ["REI", "BIT"],
+  wish: ["REI", "BIT"],
+  fantasy: ["REI", "BIT"],
+  beautiful: ["REI", "BIT"],
+  break: ["REI", "BIT"],
+  blavery: ["REI", "BIT"],
+  naked: ["REI", "BIT"],
+  signal: ["REI", "BIT"],
+  spacecraft: ["REI", "BIT"],
+  "new-create": ["REI", "BIT", "DR_REI"],
+  thundercloud: ["REI", "BIT", "DR_REI"],
+  "space-home": ["REI", "BIT"]
 };
 
 const CHARACTER_APPROVAL: Record<Speaker, boolean> = {
@@ -47,6 +64,7 @@ const CHARACTER_APPROVAL: Record<Speaker, boolean> = {
   NOA: false,
   BIT: false,
   AURORA: false,
+  DR_REI: false,
   SYSTEM: false
 };
 
