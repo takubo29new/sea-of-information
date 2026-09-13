@@ -111,8 +111,18 @@ export const scenes: Record<SceneId, Scene> = {
   "gadget-auth": {
     id: "gadget-auth", chapter: "gadget-area", art: "gadget-auth", track: "gadget-area", onEnterFlags: ["gadget.reiAdminDetected"], enterDialogueId: "gadgetAuth",
     hotspots: [
-      { id: "gadget-auth-end", label: "BITと先へ進む", x: 40, y: 66, width: 20, height: 18, action: { type: "advance", to: "vertical-slice-end" }, requiresTrackTime: 178, lockedLabel: "認証ログを最後まで確認する" }
+      { id: "gadget-auth-end", label: "BITと先へ進む", x: 40, y: 66, width: 20, height: 18, action: { type: "setFlagAndAdvance", flag: "gadget.bitJoined", to: "load-road-2" }, requiresTrackTime: 178, lockedLabel: "認証ログを最後まで確認する" }
     ]
+  },
+  "load-road-2": {
+    id: "load-road-2", chapter: "transit", title: "LOAD ROAD", subtitle: "BETWEEN ARCHIVES / 02", art: "load-road", track: "load-road", trackRestart: true, enterDialogueId: "loadRoadSecond",
+    hotspots: [
+      { id: "load-road-bit", label: "BITに声をかける", x: 18, y: 40, width: 18, height: 22, action: { type: "dialogue", dialogueId: "loadRoadBit" } },
+      { id: "load-road-wish", label: "次の保存領域へ", x: 70, y: 38, width: 16, height: 26, action: { type: "advance", to: "wish-entry" }, requiresTrackTime: 125, lockedLabel: "二人で移動の音を聞く" }
+    ]
+  },
+  "wish-entry": {
+    id: "wish-entry", chapter: "transit", title: "WISH", subtitle: "NEXT ARCHIVE", art: "load-road", track: "load-road", onEnterFlags: ["story.wishReached"], enterDialogueId: "wishEntry"
   },
   "vertical-slice-end": { id: "vertical-slice-end", chapter: "system", art: "end" }
 };
@@ -237,5 +247,23 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "BIT", text: "99.7%一致しています。" },
     { speaker: "REI", text: "じゃあ0.3%は私ってことで。" },
     { speaker: "BIT", text: "論理的ではありません。" }
+  ] },
+  loadRoadSecond: { id: "loadRoadSecond", lines: [
+    { text: "工場の音が遠ざかる。LOAD ROADには、今度はもう一つ小さな足音が続いていた。" },
+    { speaker: "REI", text: "……ついてくるんだ。" },
+    { speaker: "BIT", text: "保守対象の監視です。同行ではありません。" },
+    { speaker: "REI", text: "はいはい。" }
+  ] },
+  loadRoadBit: { id: "loadRoadBit", lines: [
+    { speaker: "REI", text: "目的地、分かる？" },
+    { speaker: "BIT", text: "不明です。" },
+    { speaker: "REI", text: "じゃあ同じだ。" },
+    { speaker: "BIT", text: "私は地図情報を欠損しています。あなたとは理由が異なります。" },
+    { speaker: "REI", text: "そこは同じでいいでしょ。" }
+  ] },
+  wishEntry: { id: "wishEntry", lines: [
+    { speaker: "SYSTEM", text: "DESTINATION AVAILABLE" },
+    { speaker: "BIT", text: "次の保存領域です。" },
+    { speaker: "REI", text: "今度は、何が残ってるんだろ。" }
   ] }
 };
