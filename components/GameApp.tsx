@@ -9,6 +9,7 @@ import { SceneVisual } from "@/components/visual/SceneVisual";
 import { ListeningStage } from "@/components/visual/ListeningStage";
 
 const MUSIC_POSITION_PREFIX = "sea-of-information:music-position:";
+const SEA_MEMORY_IDS = ["memory-light", "memory-voice", "memory-sky"] as const;
 
 function musicPositionKey(track: TrackId) {
   return `${MUSIC_POSITION_PREFIX}${track}`;
@@ -36,6 +37,7 @@ export function GameApp() {
   const [musicPosition, setMusicPosition] = useState(0);
   const [musicDuration, setMusicDuration] = useState(0);
   const [musicFocus, setMusicFocus] = useState<{ until: number; label: string; action: HotspotAction; phase: "listening" | "ready" } | null>(null);
+  const [inspectedHotspots, setInspectedHotspots] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     audioRef.current = new AudioManager();
@@ -51,6 +53,8 @@ export function GameApp() {
   }, []);
 
   const scene = scenes[state.sceneId];
+  const hotspotKey = useCallback((sceneId: SceneId, hotspotId: string) => `${sceneId}:${hotspotId}`, []);
+  const seaMemoryCount = SEA_MEMORY_IDS.reduce((count, id) => count + (inspectedHotspots[hotspotKey("sea-awakening", id)] ? 1 : 0), 0);
 
   useEffect(() => {
     if (screen !== "game") return;
@@ -202,6 +206,7 @@ export function GameApp() {
     setDialogue(null);
     setLineIndex(0);
     setMusicFocus(null);
+    setInspectedHotspots({});
     restoreMusicPositionRef.current = null;
     (Object.keys(TRACK_META) as TrackId[]).forEach(track => window.localStorage.removeItem(musicPositionKey(track)));
     const next = { ...INITIAL_STATE, updatedAt: new Date().toISOString() };
@@ -236,8 +241,9 @@ export function GameApp() {
   const visibleHotspots = useMemo(() => (scene.hotspots ?? []).filter(h => {
     if (h.visibleWhen && Boolean(state.flags[h.visibleWhen.flag]) !== h.visibleWhen.equals) return false;
     if (h.visibleWhenAll && !h.visibleWhenAll.every(flag => Boolean(state.flags[flag]))) return false;
+    if (scene.id === "sea-awakening" && h.id === "terminal-light" && seaMemoryCount < SEA_MEMORY_IDS.length) return false;
     return true;
-  }), [scene.hotspots, state.flags]);
+  }), [scene.hotspots, scene.id, state.flags, seaMemoryCount]);
 
   if (screen === "title") return <main className="titleScreen" onPointerDown={() => audioRef.current?.resume()}>
     <div className="titleOcean" aria-hidden="true"><img src="/art/title/title-keyvisual.webp" alt="" onError={hideBrokenArt} /><div className="titleHorizon" /><div className="dataRain" /></div>
@@ -259,15 +265,19 @@ export function GameApp() {
   return <main className={`gameScreen art-${scene.art}`} onPointerDown={() => audioRef.current?.resume()}>
     <SceneVisual artKey={scene.art} /><div className="cinemaGrain" aria-hidden="true" />
     {scene.title && <div className="chapterCard" key={scene.id}><span>{scene.subtitle}</span><h2>{scene.title}</h2></div>}
+    {scene.id === "sea-awakening" && <section className="prologueObjective"><small>OBJECTIVE</small><strong>3つの記憶断片を復元する</strong><div className="objectiveProgress">{SEA_MEMORY_IDS.map(id => <i key={id} className={inspectedHotspots[hotspotKey("sea-awakening", id)] ? "done" : ""} />)}</div><p>{seaMemoryCount}/3 復元済み{seaMemoryCount === 3 ? " — 新しい信号を検出" : ""}</p></section>}
     {scene.track && <NowPlaying track={scene.track} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} />}
     <button className="menuButton" onClick={() => setSettingsOpen(true)}>MENU</button>
     {!musicFocus && visibleHotspots.map(h => {
+      const key = hotspotKey(scene.id, h.id);
       const locked = typeof h.requiresTrackTime === "number" && musicPosition < h.requiresTrackTime;
       const label = locked ? (h.lockedLabel ?? "音に耳を澄ます") : h.label;
-      return <button key={h.id} className={`hotspot${locked ? " hotspot-locked" : ""}`} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.width}%`, height: `${h.height}%` }} onClick={() => {
+      const inspected = Boolean(inspectedHotspots[key]);
+      return <button key={h.id} className={`hotspot${locked ? " hotspot-locked" : ""}${inspected ? " hotspot-complete" : ""}`} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.width}%`, height: `${h.height}%` }} onClick={() => {
+        setInspectedHotspots(prev => ({ ...prev, [key]: true }));
         if (locked && typeof h.requiresTrackTime === "number") return setMusicFocus({ until: h.requiresTrackTime, label, action: h.action, phase: "listening" });
         runAction(h.action);
-      }}><span>{label}</span></button>;
+      }}><span>{inspected && scene.id === "sea-awakening" ? `✓ ${label}` : label}</span></button>;
     })}
     {scene.id === "vertical-slice-end" && <section className="sliceEnd"><p>VERTICAL SLICE 0.7</p><h2>99.7%は、同じという意味だろうか。</h2><p>CHAPTER 2 — Gadget Area / BIT INTRODUCTION</p><div><button onClick={() => setScreen("title")}>TITLE</button><button onClick={() => { deleteSave(); setHasSave(false); startNewGame(); }}>RESTART</button></div></section>}
     {dialogue && !musicFocus && <DialogueBox dialogue={dialogue} lineIndex={lineIndex} onAdvance={advanceDialogue} />}
