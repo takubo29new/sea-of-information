@@ -2,9 +2,9 @@ import type { SyntheticEvent } from "react";
 import type { DialogueLine } from "@/engine/model";
 import { ART_ASSETS } from "@/data/artAssets";
 
-type ReiExpression = "neutral" | "thinking" | "surprised" | "serious";
+export type ReiExpression = "neutral" | "thinking" | "surprised" | "serious";
 
-const REI_CHARACTER: Record<ReiExpression, string> = {
+export const REI_CHARACTER: Record<ReiExpression, string> = {
   neutral: "/art/production/characters/rei/rei-neutral.png",
   thinking: "/art/production/characters/rei/rei-thinking.png",
   surprised: "/art/production/characters/rei/rei-surprised.png",
@@ -15,12 +15,8 @@ const SPEAKER_CHARACTER: Partial<Record<NonNullable<DialogueLine["speaker"]>, st
   REI: REI_CHARACTER.neutral
 };
 
-/**
- * Expression direction for the current vertical slice.
- * This keeps character art expressive even before dialogue-line-specific
- * expression metadata is introduced.
- */
-const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
+/** Expression direction for the current vertical slice. */
+export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   sea: "neutral",
   terminal: "thinking",
   dive: "serious",
@@ -32,6 +28,11 @@ const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   "gadget-bit": "surprised",
   "gadget-auth": "serious"
 };
+
+export function getReiCharacterForArt(artKey: string, expression?: ReiExpression) {
+  const resolved = expression ?? REI_SCENE_EXPRESSION[artKey];
+  return resolved ? REI_CHARACTER[resolved] : undefined;
+}
 
 function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.style.display = "none";
@@ -49,10 +50,9 @@ export function SceneVisual({
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
 
-  const sceneExpression = reiExpression ?? REI_SCENE_EXPRESSION[artKey];
-  const fallbackRei = sceneExpression ? REI_CHARACTER[sceneExpression] : undefined;
+  const fallbackRei = getReiCharacterForArt(artKey, reiExpression);
   const speakerCharacter = speaker === "REI"
-    ? REI_CHARACTER[reiExpression ?? sceneExpression ?? "neutral"]
+    ? REI_CHARACTER[reiExpression ?? REI_SCENE_EXPRESSION[artKey] ?? "neutral"]
     : (speaker ? SPEAKER_CHARACTER[speaker] : undefined);
   const sceneCharacter = approved ? asset?.character : undefined;
   const character = speakerCharacter ?? fallbackRei ?? sceneCharacter;
