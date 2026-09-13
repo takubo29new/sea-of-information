@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:engine": "tsc -p tsconfig.tests.json && node .test-dist/tests/engine.test.js"
+    "test:engine": "tsc -p tsconfig.tests.json && node .test-dist/tests/engine.test.js",
+    "check:rei": "node scripts/check-rei-dialogue.mjs",
+    "check": "npm run typecheck && npm run check:rei && npm run test:engine"
   },
   "dependencies": {
     "next": "16.0.1",
