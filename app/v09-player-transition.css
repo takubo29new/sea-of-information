@@ -1,0 +1,198 @@
+.sceneFadeOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+  background: #02070d;
+  opacity: 0;
+  transition: opacity .65s ease;
+}
+.gameScreen.scene-fading .sceneFadeOverlay { opacity: 1; }
+
+.trackTransitionBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 7, 13, .64);
+  backdrop-filter: blur(10px);
+}
+.trackTransitionCard {
+  width: min(680px, 92vw);
+  padding: 30px;
+  border: 1px solid rgba(155, 225, 249, .18);
+  border-left: 2px solid rgba(128, 222, 255, .74);
+  background: linear-gradient(180deg, rgba(5, 13, 21, .96), rgba(3, 9, 15, .92));
+  box-shadow: 0 30px 100px rgba(0,0,0,.45), 0 0 70px rgba(69,182,225,.08);
+}
+.trackTransitionCard > small {
+  font: 700 10px ui-monospace, monospace;
+  letter-spacing: .24em;
+  color: #8fdff7;
+}
+.trackTransitionRoute {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 22px;
+  align-items: center;
+  margin-top: 18px;
+}
+.trackTransitionRoute div { min-width: 0; }
+.trackTransitionRoute span {
+  display: block;
+  margin-bottom: 6px;
+  font: 600 9px ui-monospace, monospace;
+  letter-spacing: .18em;
+  color: rgba(220,241,248,.48);
+}
+.trackTransitionRoute strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: clamp(20px, 3vw, 34px);
+  font-weight: 500;
+}
+.trackTransitionRoute i {
+  font-style: normal;
+  color: rgba(142,220,247,.72);
+  font-size: 26px;
+}
+.trackTransitionCard > p {
+  margin: 20px 0 0;
+  color: rgba(222,239,246,.62);
+  font-size: 13px;
+}
+.trackTransitionActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+.trackTransitionActions button {
+  padding: 11px 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(235,248,252,.78);
+  background: rgba(255,255,255,.035);
+}
+.trackTransitionActions button.primary {
+  border-color: rgba(123,219,250,.45);
+  color: white;
+  background: rgba(72,183,224,.13);
+  box-shadow: 0 0 26px rgba(82,195,237,.10);
+}
+.trackTransitionActions button:hover { border-color: rgba(194,239,255,.50); }
+
+.settingsGroup {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.settingsGroup > small {
+  display: block;
+  margin-bottom: 8px;
+  font: 700 9px ui-monospace, monospace;
+  letter-spacing: .17em;
+  color: rgba(161,223,245,.68);
+}
+.settingsRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.settingsRow .settingsAction { margin: 0; }
+.settingsAction:disabled { opacity: .35; cursor: default; }
+.debugGroup { border-top-style: dashed; }
+.debugGroup > small { color: rgba(255,200,104,.76); }
+
+.listeningStagePulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(70vw, 900px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(135,224,255,.11);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  animation: listeningPulse 4.8s ease-out infinite;
+}
+.listeningStagePulse-b { animation-delay: -2.4s; }
+.listeningStageParticles {
+  position: absolute;
+  inset: -20%;
+  opacity: .46;
+  background-image:
+    radial-gradient(circle, rgba(213,248,255,.65) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(92,206,246,.45) 0 1px, transparent 1.6px);
+  background-size: 120px 120px, 190px 190px;
+  animation: listeningParticles 18s linear infinite;
+}
+.listeningStageScanlines {
+  position: absolute;
+  inset: 0;
+  opacity: .15;
+  background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(165,232,255,.055) 3px 4px);
+  animation: listeningScan 9s linear infinite;
+}
+.listeningStageSpectrum {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 4px;
+  height: 58px;
+  margin: 16px auto 10px;
+  max-width: 620px;
+}
+.listeningStageSpectrum i {
+  width: 5px;
+  height: 26%;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, rgba(198,246,255,.88), rgba(74,190,233,.26));
+  box-shadow: 0 0 12px rgba(93,204,242,.16);
+  animation: listeningBar 1.15s ease-in-out infinite alternate;
+}
+.listeningStageSpectrum i:nth-child(3n) { animation-duration: .84s; }
+.listeningStageSpectrum i:nth-child(4n) { animation-duration: 1.42s; }
+.listeningStageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+.listeningStageFooter .listeningStageHint { margin: 0; }
+.listeningSkip {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border: 1px solid rgba(255,214,126,.28);
+  color: #ffd98c;
+  background: rgba(255,196,83,.06);
+  font: 700 9px ui-monospace, monospace;
+  letter-spacing: .12em;
+}
+.listeningSkip:hover { background: rgba(255,196,83,.12); }
+
+@keyframes listeningPulse {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.72); }
+  24% { opacity: .55; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.12); }
+}
+@keyframes listeningParticles {
+  from { transform: translate3d(0,0,0) rotate(0deg); }
+  to { transform: translate3d(-80px,-50px,0) rotate(1deg); }
+}
+@keyframes listeningScan {
+  from { transform: translateY(-20px); }
+  to { transform: translateY(20px); }
+}
+@keyframes listeningBar {
+  from { height: 18%; opacity: .45; }
+  to { height: 96%; opacity: 1; }
+}
+
+@media (max-width: 700px) {
+  .trackTransitionRoute { grid-template-columns: 1fr; gap: 10px; }
+  .trackTransitionRoute i { transform: rotate(90deg); justify-self: center; }
+  .trackTransitionActions { flex-direction: column-reverse; }
+  .trackTransitionActions button { width: 100%; }
+  .settingsRow { grid-template-columns: 1fr; }
+  .listeningStageFooter { align-items: stretch; flex-direction: column; }
+  .listeningSkip { width: 100%; }
+}
