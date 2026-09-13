@@ -15,6 +15,7 @@
 - `docs/scenario-text/03_LOAD_ROAD.md` — Load road（1回目 / 2回目）
 - `docs/scenario-text/04_GADGET.md` — Gadget Area / BIT / 99.7%
 - `docs/scenario-text/05_WISH_ENTRY.md` — WISH本編 / BIT自主復旧 / Fantasy入口
+- `docs/scenario-text/06_FANTASY_TO_SPACE_HOME.md` — FantasyからSpace Homeのエンディングまで
 
 ## レビュー時の優先資料
 
@@ -23,21 +24,31 @@
 3. `docs/SCENARIO_READABILITY.md`
 4. `docs/CHARACTER_BIBLE.md`
 
-## 未実装章
+## 現在の実装範囲
 
-WISH本編は実装済みで、Fantasy入口まで到達可能です。
-以下は本編台詞未実装です。
+収録済みのストーリー用楽曲について、以下の正規ルートを実装済みです。
 
 ```text
-Fantasy（本編）
-beautiful
-Break / blavery
-Naked
-Signal
-Spacecraft
-New create
-Thundercloud
-Space Home
+Sea of information
+→ City of Dawn
+→ Load Road
+→ Gadget Area
+→ Load Road
+→ wish
+→ Fantasy
+→ beautiful
+→ Break
+→ blavery
+→ Naked
+→ Signal
+→ Spacecraft
+→ New create
+→ Thundercloud
+→ Space Home
 ```
 
-実装時は章別資料も同じ作業単位で更新します。
+`Newborn10` は企画対象外です。
+
+後半のグラフィックは production target のみ登録され、正式素材が未承認のものはCSSフォールバックを使用します。
+
+今後のシナリオレビューでは、実装済み台詞の評価にはこの資料群を一次資料として使用してください。
