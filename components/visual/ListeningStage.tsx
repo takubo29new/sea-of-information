@@ -37,16 +37,12 @@ export function ListeningStage({
 
   return (
     <section
-      className={`listeningStage listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningCamera-${activeCue?.camera ?? "still"}${art ? " listeningStage-hasArt" : " listeningStage-placeholder"}`}
+      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
         {art && <img src={art} alt="" draggable={false} onError={hideBrokenArt} />}
         <div className="listeningStageAtmosphere" />
-        <div className="listeningStagePulse listeningStagePulse-a" />
-        <div className="listeningStagePulse listeningStagePulse-b" />
-        <div className="listeningStageParticles" />
-        <div className="listeningStageScanlines" />
         <div className="listeningStageGrain" />
       </div>
 
@@ -58,10 +54,6 @@ export function ListeningStage({
             ? "音が、次の場面へつながった。"
             : activeCue?.text ?? timeline.introText}
         </p>
-
-        <div className="listeningStageSpectrum" aria-hidden="true">
-          {Array.from({ length: 24 }, (_, index) => <i key={index} style={{ animationDelay: `${-(index % 7) * .13}s` }} />)}
-        </div>
 
         <div className="listeningStageWave" aria-hidden="true">
           {Array.from({ length: 64 }, (_, index) => (
