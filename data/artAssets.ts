@@ -18,15 +18,21 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   sea: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "center",
     listeningArt: "/art/sea/sea-main.webp",
     overlay: "sea"
   },
   terminal: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "left",
     overlay: "sea"
   },
   dive: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "center",
     overlay: "sea"
   },
   city: {
@@ -45,7 +51,7 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
     background: "/art/city/city-morning.webp",
     character: "/art/characters/noa/noa-neutral.webp",
     characterPosition: "right",
-    listeningArt: "/art/city/city-morning.webp",
+    listeningArt: "/art/city/city-listening.webp",
     overlay: "dawn"
   },
   "aurora-gate": {
@@ -68,12 +74,12 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   "load-road": {
     background: "/art/load-road/load-road-main.webp",
-    listeningArt: "/art/load-road/load-road-main.webp",
+    listeningArt: "/art/load-road/load-road-listening.webp",
     overlay: "road"
   },
   gadget: {
     background: "/art/gadget/gadget-main.webp",
-    listeningArt: "/art/gadget/gadget-main.webp",
+    listeningArt: "/art/gadget/gadget-listening.webp",
     overlay: "industrial"
   },
   "gadget-entry": {
@@ -86,10 +92,14 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   "gadget-bit": {
     background: "/art/gadget/gadget-main.webp",
+    character: "/art/characters/bit/bit-normal.webp",
+    characterPosition: "right",
     overlay: "industrial"
   },
   "gadget-auth": {
     background: "/art/gadget/gadget-main.webp",
+    character: "/art/characters/bit/bit-normal.webp",
+    characterPosition: "right",
     overlay: "industrial"
   },
   end: {
