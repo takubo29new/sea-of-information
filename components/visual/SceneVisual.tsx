@@ -1,4 +1,4 @@
-import type { SyntheticEvent } from "react";
+import type { CSSProperties, SyntheticEvent } from "react";
 import type { DialogueLine } from "@/engine/model";
 import { ART_ASSETS } from "@/data/artAssets";
 import { AudioReactiveSurface } from "@/components/visual/AudioReactiveSurface";
@@ -78,27 +78,16 @@ export function SceneVisual({
 }) {
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
-
-  // Exploration has no active speaker and therefore no standees at all.
   const directedCast = speaker ? (DIALOGUE_CAST[artKey] ?? [speaker]) : [];
   const visibleActors = directedCast
-    .map(actor => ({
-      speaker: actor,
-      src: plannedCharacterPath(actor, artKey, reiExpression)
-    }))
+    .map(actor => ({ speaker: actor, src: plannedCharacterPath(actor, artKey, reiExpression) }))
     .filter((actor): actor is { speaker: Speaker; src: string } => Boolean(actor.src));
 
   return (
     <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}${approved ? " sceneVisual-approved" : " sceneVisual-placeholder"}`} aria-hidden="true">
       <div className={`sceneVisualEnvironment sceneVisualEnvironment-${artKey}`} />
       {approved && asset?.background && (
-        <img
-          className="sceneVisualBackground"
-          src={asset.background}
-          alt=""
-          draggable={false}
-          onError={hideBrokenArt}
-        />
+        <img className="sceneVisualBackground" src={asset.background} alt="" draggable={false} onError={hideBrokenArt} />
       )}
       <div className="sceneVisualParallax sceneVisualParallaxBack" />
       <div className="sceneVisualLight" />
@@ -112,7 +101,7 @@ export function SceneVisual({
               <img
                 key={`${actor.speaker}-${actor.src}`}
                 className={`dialogueCharacterActor dialogueCharacterActor-${actor.speaker.toLowerCase()} dialogueCharacterActor-${active ? "active" : "inactive"}`}
-                style={{ "--actor-index": index } as React.CSSProperties}
+                style={{ "--actor-index": index } as CSSProperties}
                 src={actor.src}
                 alt=""
                 draggable={false}
