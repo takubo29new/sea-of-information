@@ -47,3 +47,32 @@
 }
 
 @media(prefers-reduced-motion:reduce){.gadgetGear{animation:none!important}.loadRoadFragments i{animation:none!important}}
+
+/* Review fix: scaffolding classes referenced by SceneArt but never styled (invisible no-op divs) */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.seaHorizon { position:absolute; left:0; right:0; top:58%; height:1px; background:linear-gradient(90deg,transparent,rgba(139,220,255,.5),transparent); box-shadow:0 0 40px rgba(120,210,255,.22); }
+
+.memoryCard { position:absolute; z-index:4; width:130px; height:78px; border:1px solid rgba(180,230,255,.22); background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(90,180,220,.09)); animation:float 7s ease-in-out infinite; }
+.memoryCard.m1 { left:20%; top:26%; }
+.memoryCard.m2 { left:64%; top:20%; animation-delay:-2.3s; }
+.memoryCard.m3 { left:40%; top:58%; animation-delay:-4.6s; }
+
+.sun { position:absolute; left:50%; top:16%; width:110px; height:110px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle,#ffe9b0,#ffb454 60%,transparent 72%); box-shadow:0 0 90px rgba(255,190,90,.35); }
+.skyline { position:absolute; left:0; right:0; bottom:0; height:34%; background-repeat:repeat-x; background-position:bottom; }
+.skyline.back { opacity:.55; height:30%; background-image:linear-gradient(0deg,#0c1c28,transparent),repeating-linear-gradient(90deg,rgba(20,45,64,.9) 0 60px,transparent 60px 90px); }
+.skyline.front { background-image:linear-gradient(0deg,#081420,transparent),repeating-linear-gradient(90deg,rgba(9,22,33,.95) 0 80px,transparent 80px 40px); }
+.stationSign { position:absolute; z-index:4; left:6%; bottom:30%; padding:6px 10px; font:11px ui-monospace,monospace; letter-spacing:.16em; color:#dff3ff; background:rgba(3,10,17,.6); border:1px solid rgba(255,255,255,.16); }
+.glitchBand { position:absolute; z-index:4; left:0; right:0; top:38%; height:6%; background:repeating-linear-gradient(90deg,rgba(255,255,255,.14) 0 2px,transparent 2px 14px); mix-blend-mode:screen; opacity:.5; }
+.investigationOverlay { position:absolute; z-index:4; left:6%; top:14%; display:grid; gap:8px; }
+.investigationOverlay span { display:block; font:10px ui-monospace,monospace; letter-spacing:.18em; padding:5px 9px; color:#8bdcff; border:1px solid rgba(139,220,255,.3); background:rgba(3,10,17,.55); }
+
+.duskSun { position:absolute; left:50%; top:32%; width:150px; height:150px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(circle,#ffd9a0,#ff8a5c 55%,transparent 72%); box-shadow:0 0 110px rgba(255,140,90,.4); }
+
+.auroraTunnel { position:absolute; inset:8% 12%; border-radius:50%; background:radial-gradient(circle,rgba(139,220,255,.16),transparent 65%); box-shadow:inset 0 0 120px rgba(139,220,255,.15); }
+.auroraGrid { position:absolute; inset:0; background-image:linear-gradient(rgba(139,220,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(139,220,255,.08) 1px,transparent 1px); background-size:60px 60px; opacity:.4; }
+
+.endGlow { position:absolute; left:50%; top:50%; width:60vw; height:60vw; max-width:640px; max-height:640px; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle,rgba(139,220,255,.18),transparent 70%); }
+
+.noaPortrait { position:absolute; z-index:4; right:24%; bottom:15%; width:60px; height:150px; background:#3a2418; border-radius:38% 38% 8% 8%; }
+.noaPortrait .scarf { position:absolute; left:-6px; right:-6px; top:18%; height:16px; background:#e8763a; border-radius:4px; }

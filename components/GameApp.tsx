@@ -24,6 +24,7 @@ export function GameApp() {
   const [volume, setVolume] = useState(0.72);
   const [savedFlash, setSavedFlash] = useState(false);
   const [musicPosition, setMusicPosition] = useState(0);
+  const [musicDuration, setMusicDuration] = useState(0);
   const [musicFocus, setMusicFocus] = useState<{ until: number; label: string; action: HotspotAction; phase: "listening" | "ready" } | null>(null);
 
   useEffect(() => {
@@ -43,7 +44,10 @@ export function GameApp() {
 
   useEffect(() => {
     if (screen !== "game") return;
-    const id = window.setInterval(() => setMusicPosition(audioRef.current?.getPosition() ?? 0), 250);
+    const id = window.setInterval(() => {
+      setMusicPosition(audioRef.current?.getPosition() ?? 0);
+      setMusicDuration(audioRef.current?.getDuration() ?? 0);
+    }, 250);
     return () => window.clearInterval(id);
   }, [screen]);
 
@@ -211,7 +215,7 @@ export function GameApp() {
   return <main className={`gameScreen art-${scene.art}`} onPointerDown={() => audioRef.current?.resume()}>
     <SceneArt art={scene.art} /><div className="cinemaGrain" aria-hidden="true" />
     {scene.title && <div className="chapterCard" key={scene.id}><span>{scene.subtitle}</span><h2>{scene.title}</h2></div>}
-    {scene.track && <NowPlaying track={scene.track} position={musicPosition} />}
+    {scene.track && <NowPlaying track={scene.track} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} />}
     <button className="menuButton" onClick={() => setSettingsOpen(true)}>MENU</button>
     {!musicFocus && visibleHotspots.map(h => {
       const locked = typeof h.requiresTrackTime === "number" && musicPosition < h.requiresTrackTime;
@@ -223,15 +227,15 @@ export function GameApp() {
     })}
     {scene.id === "vertical-slice-end" && <section className="sliceEnd"><p>VERTICAL SLICE 0.5</p><h2>99.7%は、同じという意味だろうか。</h2><p>CHAPTER 2 — Gadget Area / BIT INTRODUCTION</p><div><button onClick={() => setScreen("title")}>TITLE</button><button onClick={() => { deleteSave(); setHasSave(false); startNewGame(); }}>RESTART</button></div></section>}
     {dialogue && !musicFocus && <DialogueBox dialogue={dialogue} lineIndex={lineIndex} onAdvance={advanceDialogue} />}
-    {musicFocus && scene.track && <MusicFocus track={scene.track} position={musicPosition} until={musicFocus.until} label={musicFocus.label} phase={musicFocus.phase} />}
+    {musicFocus && scene.track && <MusicFocus track={scene.track} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} until={musicFocus.until} label={musicFocus.label} phase={musicFocus.phase} />}
     {savedFlash && <div className="savedFlash">SAVED</div>}
     {settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} onTitle={() => { audioRef.current?.pause(); setSettingsOpen(false); setDialogue(null); setLineIndex(0); setMusicFocus(null); setScreen("title"); }} />}
   </main>;
 }
 
-function MusicFocus({ track, position, until, label, phase }: { track: keyof typeof TRACK_META; position: number; until: number; label: string; phase: "listening" | "ready" }) {
+function MusicFocus({ track, position, duration, until, label, phase }: { track: keyof typeof TRACK_META; position: number; duration: number; until: number; label: string; phase: "listening" | "ready" }) {
   const meta = TRACK_META[track];
-  const progress = Math.min(100, Math.max(0, (position / meta.duration) * 100));
+  const progress = Math.min(100, Math.max(0, (position / duration) * 100));
   const fmt = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
   const art = track === "sea-of-information" ? "/art/sea-music.webp" : track === "city-of-dawn" ? "/art/city-music.webp" : null;
   return <section className={`musicFocus musicFocus-${phase} musicFocus-track-${track}`} aria-live="polite">
@@ -243,15 +247,15 @@ function MusicFocus({ track, position, until, label, phase }: { track: keyof typ
       <p className="musicFocusMessage">{phase === "ready" ? "音が次の場面へつながりました。" : label}</p>
       <div className="musicWave">{Array.from({ length: 48 }, (_, i) => <i key={i} style={{ height: `${18 + ((i * 17) % 52)}%` }} />)}</div>
       <div className="musicFocusProgress"><i style={{ width: `${progress}%` }} /></div>
-      <div className="musicFocusMeta"><span>{fmt(position)}</span><span>次の場面 {fmt(until)}</span><span>{fmt(meta.duration)}</span></div>
+      <div className="musicFocusMeta"><span>{fmt(position)}</span><span>次の場面 {fmt(until)}</span><span>{fmt(duration)}</span></div>
       <p className="musicFocusHint">{phase === "ready" ? "進行可能 — 戻ります" : "操作待ちではありません。音と景色が次の場面を開くまで、そのまま聴いてください。"}</p>
     </div>
   </section>;
 }
 
-function NowPlaying({ track, position }: { track: keyof typeof TRACK_META; position: number }) {
-  const meta = TRACK_META[track]; const progress = Math.min(100, Math.max(0, (position / meta.duration) * 100)); const fmt = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
-  return <div className="nowPlaying"><div className="nowPlayingTitle"><span>♪</span><strong>{meta.title}</strong><small>{fmt(position)} / {fmt(meta.duration)}</small></div><div className="nowPlayingBar"><i style={{ width: `${progress}%` }} /></div></div>;
+function NowPlaying({ track, position, duration }: { track: keyof typeof TRACK_META; position: number; duration: number }) {
+  const meta = TRACK_META[track]; const progress = Math.min(100, Math.max(0, (position / duration) * 100)); const fmt = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
+  return <div className="nowPlaying"><div className="nowPlayingTitle"><span>♪</span><strong>{meta.title}</strong><small>{fmt(position)} / {fmt(duration)}</small></div><div className="nowPlayingBar"><i style={{ width: `${progress}%` }} /></div></div>;
 }
 
 function DialogueBox({ dialogue, lineIndex, onAdvance }: { dialogue: Dialogue; lineIndex: number; onAdvance: () => void }) {
@@ -279,7 +283,7 @@ function SceneArt({ art }: { art: string }) {
     {art === "load-road" && <><div className="loadRoadLane"/><div className="loadRoadFragments"><i/><i/><i/><i/></div><div className="reiSilhouette"/></>}
     {(art === "gadget-entry" || art === "gadget-machinery") && <><div className="gadgetFactoryDepth"/><div className="gadgetGear gearA"/><div className="gadgetGear gearB"/><div className="gadgetConveyor"/><div className="gadgetCrane"/><div className="reiSilhouette left"/></>}
     {art === "gadget-bit" && <><div className="gadgetFactoryDepth"/><div className="maintenanceBench"/><div className="bitFigure"><span>• _ •</span></div><div className="reiSilhouette left"/></>}
-    {art === "gadget-auth" && <><div className="gadgetAuthPanel"><span>IDENTITY MATCH</span><strong>99.7%</strong><small>ADMINISTRATOR / REI</small></div><div className="bitFigure auth"><span>• _ •</span></div><div className="reiSilhouette left"/></>}
+    {art === "gadget-auth" && <><div className="gadgetAuthPanel"><span>IDENTITY SCAN</span><strong>99.7%</strong><small>ADMINISTRATOR / REI</small></div><div className="bitFigure auth"><span>• _ •</span></div><div className="reiSilhouette left"/></>}
     {art === "end" && <div className="endGlow"/>}
   </div>;
 }
