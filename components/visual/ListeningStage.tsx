@@ -51,7 +51,7 @@ export function ListeningStage({
         <div className="listeningStageGrain" />
       </div>
 
-      <AudioReactiveSurface track={track} position={position} strength={1.45} cinematic />
+      <AudioReactiveSurface track={track} position={position} strength={1.9} cinematic />
 
       {characterSrc && (
         <img
