@@ -1,0 +1,160 @@
+/* v0.12 — music-reactive cinematic layer + VN actor staging */
+
+.audioReactiveSurface {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.audioReactiveGlow,
+.audioReactiveBeams,
+.audioReactiveParticles,
+.audioReactiveFlash { position: absolute; inset: 0; pointer-events: none; }
+
+.audioReactiveGlow-bass {
+  background: radial-gradient(circle at 52% 70%, rgba(69,190,255,.34), transparent 34%);
+  opacity: calc(.08 + var(--audio-light) * .72);
+  transform: scale(calc(1 + var(--audio-bass) * .09));
+  filter: blur(calc(14px + var(--audio-bass) * 20px));
+  transition: opacity 90ms linear, transform 90ms linear;
+}
+.audioReactiveGlow-high {
+  background: radial-gradient(circle at 72% 26%, rgba(196,243,255,.30), transparent 24%);
+  opacity: calc(.03 + var(--audio-treble) * .48);
+  filter: blur(10px);
+}
+.audioReactiveBeams {
+  background:
+    linear-gradient(112deg, transparent 38%, rgba(133,224,255,.16) 49%, transparent 58%),
+    linear-gradient(72deg, transparent 42%, rgba(80,184,255,.10) 50%, transparent 57%);
+  opacity: calc(.04 + var(--audio-mid) * .48);
+  transform: translateX(calc((var(--audio-mid) - .5) * 2%));
+}
+.audioReactiveFlash {
+  background: rgba(218,248,255,.28);
+  opacity: calc(max(0, (var(--audio-bass) - .58)) * .44);
+}
+
+.audioReactiveParticles i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(221,248,255,.94);
+  box-shadow: 0 0 10px rgba(113,218,255,.9);
+  opacity: calc(.05 + var(--audio-particles) * .56);
+  animation: audioParticleFloat 6s linear infinite;
+}
+.audioReactiveParticles i:nth-child(3n) { width: 2px; height: 2px; animation-duration: 8s; }
+.audioReactiveParticles i:nth-child(4n) { animation-duration: 5s; }
+.audioReactiveParticles i:nth-child(1) { left: 8%; top: 82%; animation-delay: -1s; }
+.audioReactiveParticles i:nth-child(2) { left: 14%; top: 46%; animation-delay: -3s; }
+.audioReactiveParticles i:nth-child(3) { left: 21%; top: 68%; animation-delay: -5s; }
+.audioReactiveParticles i:nth-child(4) { left: 28%; top: 31%; animation-delay: -2s; }
+.audioReactiveParticles i:nth-child(5) { left: 35%; top: 78%; animation-delay: -4s; }
+.audioReactiveParticles i:nth-child(6) { left: 42%; top: 53%; animation-delay: -6s; }
+.audioReactiveParticles i:nth-child(7) { left: 49%; top: 87%; animation-delay: -2.5s; }
+.audioReactiveParticles i:nth-child(8) { left: 56%; top: 39%; animation-delay: -4.5s; }
+.audioReactiveParticles i:nth-child(9) { left: 63%; top: 72%; animation-delay: -1.5s; }
+.audioReactiveParticles i:nth-child(10) { left: 70%; top: 27%; animation-delay: -5.5s; }
+.audioReactiveParticles i:nth-child(11) { left: 77%; top: 64%; animation-delay: -3.5s; }
+.audioReactiveParticles i:nth-child(12) { left: 84%; top: 42%; animation-delay: -6.5s; }
+.audioReactiveParticles i:nth-child(13) { left: 90%; top: 79%; animation-delay: -2.2s; }
+.audioReactiveParticles i:nth-child(14) { left: 95%; top: 34%; animation-delay: -4.2s; }
+.audioReactiveParticles i:nth-child(n+15) { left: calc((var(--actor-index, 1) * 7%) + 4%); }
+
+.audioReactiveSurface-cinematic { z-index: 6; }
+.audioReactiveSurface-cinematic .audioReactiveGlow-bass {
+  opacity: calc(.12 + var(--audio-light) * .86);
+}
+.audioReactiveSurface-cinematic .audioReactiveBeams {
+  opacity: calc(.08 + var(--audio-mid) * .68);
+}
+.audioReactiveSurface-impact .audioReactiveFlash {
+  opacity: calc(max(0, (var(--audio-bass) - .48)) * .72);
+}
+.audioReactiveSurface-submerged { filter: saturate(.75) brightness(.78); }
+.audioReactiveSurface-rise { filter: saturate(1.12) brightness(1.04); }
+.audioReactiveSurface-impact { filter: saturate(1.24) contrast(1.08); }
+.audioReactiveSurface-afterglow { filter: saturate(.88) brightness(.92); }
+
+@keyframes audioParticleFloat {
+  from { transform: translate3d(0, 22px, 0) scale(.75); }
+  50% { transform: translate3d(14px, -18px, 0) scale(1.25); }
+  to { transform: translate3d(-8px, -64px, 0) scale(.8); opacity: 0; }
+}
+
+/* Listening stage: timeline-directed camera language. */
+.listeningStageArtwork,
+.listeningStageCharacter {
+  transition: transform 1.8s cubic-bezier(.2,.7,.2,1), filter 1.4s ease, opacity 1.2s ease;
+}
+.listeningStage-pv-submerged .listeningStageArtwork { transform: scale(1.015); filter: brightness(.76) saturate(.78); }
+.listeningStage-pv-drift .listeningStageArtwork { transform: scale(1.035) translateX(-.5%); }
+.listeningStage-pv-rise .listeningStageArtwork { transform: scale(1.055) translateX(-1%); filter: brightness(1.05) saturate(1.08); }
+.listeningStage-pv-impact .listeningStageArtwork { transform: scale(1.075) translateX(-1.5%); filter: brightness(1.10) saturate(1.16); }
+.listeningStage-pv-afterglow .listeningStageArtwork { transform: scale(1.025); filter: brightness(.90) saturate(.88); }
+.listeningStage-pv-impact .listeningStageCharacter { transform: translateX(-1.2%) scale(1.025); }
+.listeningStage-pv-rise .listeningStageCharacter { transform: translateX(-.5%) scale(1.012); }
+.listeningStage-pv-afterglow .listeningStageCharacter { opacity: .74; }
+
+/* VN dialogue actor stage */
+.dialogueCharacterStage {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(4px, 3vw, 52px);
+  padding: 0 clamp(16px, 4vw, 70px);
+  overflow: hidden;
+}
+.dialogueCharacterActor {
+  width: auto;
+  height: min(98vh, 1120px);
+  max-width: min(44vw, 620px);
+  object-fit: contain;
+  object-position: bottom center;
+  transform-origin: bottom center;
+  transition: filter .28s ease, opacity .28s ease, transform .28s ease;
+  filter: drop-shadow(0 28px 55px rgba(0,0,0,.44));
+}
+.dialogueCharacterStage-count-1 .dialogueCharacterActor {
+  transform: translateY(4vh) scale(1.03);
+}
+.dialogueCharacterStage-count-2 .dialogueCharacterActor,
+.dialogueCharacterStage-count-3 .dialogueCharacterActor {
+  height: min(90vh, 1030px);
+  max-width: 36vw;
+}
+.dialogueCharacterActor-active {
+  opacity: 1;
+  filter: brightness(1) saturate(1) drop-shadow(0 30px 58px rgba(0,0,0,.48));
+  transform: translateY(2vh) scale(1.025);
+}
+.dialogueCharacterActor-inactive {
+  opacity: .48;
+  filter: brightness(.36) saturate(.48) blur(.2px) drop-shadow(0 20px 42px rgba(0,0,0,.38));
+  transform: translateY(4vh) scale(.95);
+}
+
+/* Old single-character positioning is superseded by dialogueCharacterStage. */
+.gameScreen:has(.dialogueBox) .sceneVisualCharacter-rei,
+.sceneVisualCharacter-rei { display: none !important; }
+
+@media (max-width: 820px) {
+  .dialogueCharacterStage { gap: 0; padding: 0 4vw; }
+  .dialogueCharacterActor { height: 78vh; max-width: 58vw; }
+  .dialogueCharacterStage-count-2 .dialogueCharacterActor { height: 72vh; max-width: 49vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audioReactiveParticles i { animation: none !important; }
+  .audioReactiveGlow, .audioReactiveBeams, .audioReactiveFlash,
+  .listeningStageArtwork, .listeningStageCharacter,
+  .dialogueCharacterActor { transition: none !important; }
+}
