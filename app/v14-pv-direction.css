@@ -1,0 +1,88 @@
+/* v0.14 — directed PV shot composition */
+
+.listeningStageArtwork,
+.listeningStageCharacter,
+.listeningStageChrome,
+.listeningStageCutLight,
+.listeningStageBlackout {
+  transition: transform 1.35s cubic-bezier(.2,.72,.2,1), opacity .85s ease, filter 1.05s ease, left 1.25s ease, right 1.25s ease !important;
+}
+
+.listeningStageCutLight,
+.listeningStageBlackout {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.listeningStageCutLight { z-index: 8; opacity: 0; mix-blend-mode: screen; }
+.listeningStageCutLight-a {
+  background: linear-gradient(106deg, transparent 25%, rgba(139,229,255,.42) 47%, transparent 62%);
+}
+.listeningStageCutLight-b {
+  background: linear-gradient(72deg, transparent 34%, rgba(80,170,255,.28) 52%, transparent 66%);
+}
+.listeningStageBlackout {
+  z-index: 9;
+  background: radial-gradient(circle at center, rgba(1,7,13,.12), rgba(1,5,10,.94));
+  opacity: 0;
+}
+
+.listeningStage-ui-minimal .listeningStageChrome { opacity: .62; transform: translate3d(-1.2vw,1vh,0) scale(.97); }
+.listeningStage-ui-minimal .listeningStageStoryText,
+.listeningStage-ui-minimal .listeningStageWave { opacity: .42; }
+
+.listeningStage-ui-ghost .listeningStageChrome { opacity: .24; transform: translate3d(-2.2vw,1.5vh,0) scale(.95); }
+.listeningStage-ui-ghost .listeningStageStoryText,
+.listeningStage-ui-ghost .listeningStageWave,
+.listeningStage-ui-ghost .listeningStageMode { opacity: .12; }
+.listeningStage-ui-ghost .listeningStageProgress,
+.listeningStage-ui-ghost .listeningStageTimes,
+.listeningStage-ui-ghost .listeningStageFooter { opacity: .36; }
+.listeningStage-ui-ghost .listeningSkip,
+.listeningStage-ui-minimal .listeningSkip { opacity: 1 !important; }
+
+.listeningStageCharacter { z-index: 10 !important; transform-origin: bottom center !important; }
+.listeningStage-character-left .listeningStageCharacter {
+  left: 3vw !important; right: auto !important; bottom: -7vh !important;
+  height: min(96vh,1060px) !important; max-width: 46vw !important;
+}
+.listeningStage-character-center .listeningStageCharacter {
+  left: 57% !important; right: auto !important; bottom: -11vh !important;
+  height: min(110vh,1220px) !important; max-width: 56vw !important;
+  transform: translateX(-50%) scale(1.04) !important;
+}
+.listeningStage-character-right .listeningStageCharacter {
+  left: auto !important; right: -1vw !important; bottom: -7vh !important;
+  height: min(96vh,1060px) !important; max-width: 46vw !important;
+}
+
+.listeningStage-shot-ocean .listeningStageArtwork {
+  transform: scale(1.02) !important;
+  filter: brightness(.66) saturate(.72) contrast(1.05) !important;
+}
+.listeningStage-shot-arrival .listeningStageArtwork {
+  transform: scale(1.10) translate3d(-2vw,-1vh,0) !important;
+  filter: brightness(.90) saturate(.92) !important;
+}
+.listeningStage-shot-wide .listeningStageArtwork {
+  transform: scale(1.13) translate3d(2.8vw,-1.5vh,0) !important;
+  filter: brightness(.98) saturate(1.04) !important;
+}
+.listeningStage-shot-portrait .listeningStageArtwork {
+  transform: scale(1.18) translate3d(-3.4vw,-3vh,0) !important;
+  filter: brightness(1.02) saturate(1.10) contrast(1.03) !important;
+}
+.listeningStage-shot-climax .listeningStageArtwork {
+  transform: scale(1.22) translate3d(-4.5vw,-3.2vh,0) !important;
+  filter: brightness(1.13) saturate(1.24) contrast(1.08) !important;
+}
+.listeningStage-pv-break .listeningStageArtwork {
+  transform: scale(1.01) !important;
+  filter: brightness(.43) saturate(.52) !important;
+}
+.listeningStage-pv-break .listeningStageBlackout { opacity: .62; }
+.listeningStage-shot-outro .listeningStageArtwork {
+  transform: scale(1.07) translate3d(1vw,0,0) !important;
+  filter: brightness(.82) saturate(.78) !important;
+}
