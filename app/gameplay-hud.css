@@ -1,0 +1,123 @@
+.gameProgressHUD {
+  position: fixed;
+  z-index: 36;
+  right: 24px;
+  top: 76px;
+  width: min(310px, calc(100vw - 48px));
+  padding: 14px 16px 13px;
+  color: rgba(239, 250, 255, .94);
+  background: linear-gradient(180deg, rgba(5, 12, 18, .78), rgba(5, 12, 18, .60));
+  border: 1px solid rgba(171, 225, 246, .14);
+  border-left: 2px solid rgba(126, 220, 255, .62);
+  box-shadow: 0 14px 48px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.gameProgressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.gameProgressHeader small,
+.gameProgressHeader b {
+  font: 600 9px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .18em;
+}
+
+.gameProgressHeader small { color: #8fdff7; }
+.gameProgressHeader b { color: rgba(224, 245, 252, .72); letter-spacing: .08em; }
+
+.gameProgressHUD > strong {
+  display: block;
+  margin-top: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.gameProgressItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 11px;
+}
+
+.gameProgressItems span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 6px 7px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: rgba(215, 232, 239, .58);
+  background: rgba(255, 255, 255, .025);
+  font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .08em;
+}
+
+.gameProgressItems i {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(190, 229, 243, .24);
+  font-style: normal;
+  font-size: 9px;
+}
+
+.gameProgressItems span.done {
+  color: rgba(239, 252, 255, .94);
+  border-color: rgba(126, 220, 255, .22);
+  background: rgba(126, 220, 255, .07);
+}
+
+.gameProgressItems span.done i {
+  color: #d9f8ff;
+  border-color: rgba(143, 230, 255, .70);
+  box-shadow: 0 0 14px rgba(98, 213, 250, .18);
+}
+
+.gameProgressHUD p {
+  margin: 10px 0 0;
+  color: rgba(213, 233, 241, .50);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.gameProgressHUD-compare {
+  border-left-color: rgba(255, 207, 116, .70);
+}
+.gameProgressHUD-compare .gameProgressHeader small { color: #ffd485; }
+.gameProgressHUD-compare .gameProgressItems span.done {
+  border-color: rgba(255, 208, 120, .22);
+  background: rgba(255, 208, 120, .06);
+}
+.gameProgressHUD-compare .gameProgressItems span.done i {
+  border-color: rgba(255, 213, 136, .75);
+  box-shadow: 0 0 14px rgba(255, 190, 76, .18);
+}
+
+.gameProgressHUD-restore {
+  border-left-color: rgba(255, 194, 80, .62);
+}
+.gameProgressHUD-restore .gameProgressHeader small { color: #ffc86b; }
+
+@media (max-width: 900px) {
+  .gameProgressHUD {
+    left: 14px;
+    right: 14px;
+    top: 68px;
+    width: auto;
+    padding: 10px 12px;
+  }
+  .gameProgressHUD > strong { font-size: 12px; }
+  .gameProgressItems { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .gameProgressItems span { justify-content: center; padding: 5px 4px; font-size: 8px; }
+  .gameProgressItems i { display: none; }
+  .gameProgressHUD p { display: none; }
+}
