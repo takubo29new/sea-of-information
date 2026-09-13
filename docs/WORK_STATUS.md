@@ -4,7 +4,7 @@
 
 ## 現在のマイルストーン
 
-**Vertical Slice v0.7 — 実イラスト統合 / QA準備**
+**Vertical Slice v0.7 — 実イラスト統合 / Astra QA待ち**
 
 ### 実装済み
 - Sea of information
@@ -27,7 +27,6 @@
 - 音楽進捗表示を実音源のduration基準へ変更
 
 ### ChatGPT統合済み
-PR #3を`dev`へ統合済み。
 - `SceneVisual`: 実背景＋立ち絵＋光＋前景＋軽いパララックス
 - `ListeningStage`: ミュージックプレイヤー型の専用音楽フェーズUI
 - `artAssets.ts`: シーンと実イラストの対応表
@@ -35,6 +34,7 @@ PR #3を`dev`へ統合済み。
 - `v06.css`: 上記の視覚演出
 - `GameApp.tsx`へSceneVisual / ListeningStageを接続
 - 現行Scene.art名とアートマップのキー不一致を修正
+- v2アートを実ランタイム参照へ接続
 
 Claude修正の以下は維持している。
 - 多重発火防止
@@ -55,40 +55,53 @@ Claude修正の以下は維持している。
 
 ## 実イラスト現在状況
 
-### GitHubへ配置済み
-- `city/city-morning.webp`
-- `characters/noa/noa-neutral.webp`
-- `load-road/load-road-main.webp`
-- `gadget/gadget-main.webp`
-
-### 次回追加予定
+### GitHubへ配置済み・参照済み
 - `title/title-keyvisual.webp`
 - `sea/sea-main.webp`
+- `characters/rei/rei-neutral.webp`
+- `city/city-morning.webp`
 - `city/city-listening.webp`
+- `characters/noa/noa-neutral.webp`
+- `load-road/load-road-main.webp`
 - `load-road/load-road-listening.webp`
+- `gadget/gadget-main.webp`
 - `gadget/gadget-listening.webp`
 - `characters/bit/bit-normal.webp`
-- `characters/rei/rei-neutral.webp`
 
-専用差分がまだない場面は、同章の実画像を再利用して進行不能や黒背景を避けるよう`artAssets.ts`を調整済み。
+専用差分がまだない場面は、同章の実画像を再利用し、overlay / Listening Stage演出で見え方を変える。
+
+### 今後の専用差分候補
+- Sea terminal / DIVE
+- City loop glitch
+- City investigation
+- AURORA gate / core
+- City dusk / night
+- Gadget machinery
+- Gadget auth scan
+- BIT warning
+- Noa smile / worried
+
+ただしAstra QA前の必須条件ではない。まず進行・UI・音楽体験を検証する。
 
 ## 次の開発順
 
-1. 追加アートを`public/art/`へ配置
-2. Title→Gadget Area終端まで視覚確認
-3. AstraでブラウザQA
-4. QA修正
-5. Gadget Areaのパズルを「1クリック」から短い環境操作へ改善
-6. 次の`wish`章へ進む
+1. **AstraでTitle→Gadget Area終端までブラウザQA**
+2. QA指摘をChatGPT側で修正
+3. 必要な専用差分アートを追加
+4. Gadget Areaのパズルを「1クリック」から短い環境操作へ改善
+5. 次の`wish`章へ進む
 
 ## Astra QAで重点確認
 - Title→Gadget Area終端まで進行不能がない
 - 連打で二重遷移しない
 - Listening Stageへ入った理由が分かる
+- Listening Stageが単なる待機画面に感じない
 - 曲が十分に耳へ入る
 - `SCENE UNLOCKED`から通常画面への復帰が自然
-- 実画像欠損時でも壊れない
-- リロード/タブ切替/音量変更後も継続できる
+- Title / Sea / City / Load Road / Gadgetで実画像が正しく表示される
+- Noa / Rei / BITの立ち絵がUIやホットスポットを邪魔しない
+- リロード/Continue/タブ切替/音量変更後も継続できる
+- 1366×768付近と狭めのデスクトップ幅で重要UIが画面外へ出ない
 
 ## AI分担
 - ChatGPT: メイン実装・統合・修正
