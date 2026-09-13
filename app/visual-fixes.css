@@ -1,0 +1,129 @@
+/* v0.7.1 visual corrections: show the art as art, make interactions discoverable. */
+
+/* Title key visual is 1920x1080. Never crop it just to fill an unusual viewport. */
+.titleOcean {
+  background: #02070d;
+}
+.titleOcean img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  transform: none !important;
+}
+
+/* Scene backgrounds were being enlarged twice (104% box + scale animation).
+   Keep only a very small cinematic drift so important composition remains visible. */
+.sceneVisualBackground {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  animation: sceneVisualBreathSafe 20s ease-in-out infinite alternate !important;
+}
+@keyframes sceneVisualBreathSafe {
+  from { transform: scale(1.0) translate3d(0, 0, 0); }
+  to { transform: scale(1.012) translate3d(.15%, -.1%, 0); }
+}
+
+/* Current character WebPs are opaque 700x1100 images, not alpha cut-outs.
+   Present them intentionally as cinematic portrait cards until transparent art replaces them. */
+.sceneVisualCharacter {
+  bottom: 7% !important;
+  width: clamp(220px, 25vw, 360px) !important;
+  height: min(68vh, 620px) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  border: 1px solid rgba(215, 240, 250, .22);
+  border-radius: 14px;
+  background: rgba(4, 10, 15, .78);
+  box-shadow: 0 22px 70px rgba(0,0,0,.46), 0 0 0 1px rgba(255,255,255,.035) inset;
+  filter: brightness(.92) saturate(.94) !important;
+  animation: none !important;
+  overflow: hidden;
+}
+.sceneVisualCharacter-left { left: 5% !important; right: auto !important; transform: none !important; }
+.sceneVisualCharacter-center { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
+.sceneVisualCharacter-right { right: 5% !important; left: auto !important; transform: none !important; }
+
+/* Exploration affordance: hotspots must be discoverable before the player guesses where to hover. */
+.hotspot {
+  overflow: visible;
+}
+.hotspot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(222, 248, 255, .95);
+  box-shadow: 0 0 0 5px rgba(112, 212, 248, .12), 0 0 22px rgba(112, 212, 248, .72);
+  pointer-events: none;
+}
+.hotspot::after {
+  content: "";
+  position: absolute !important;
+  inset: auto !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(215, 245, 255, .46) !important;
+  border-radius: 50%;
+  background: rgba(100, 205, 245, .04);
+  box-shadow: 0 0 18px rgba(100, 205, 245, .14);
+  pointer-events: none;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.hotspot span {
+  left: 50% !important;
+  top: calc(50% + 25px) !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  opacity: .86 !important;
+  max-width: min(240px, 72vw);
+  white-space: normal !important;
+  text-align: center;
+  line-height: 1.35;
+  background: rgba(2, 8, 14, .84) !important;
+  border-color: rgba(190, 230, 250, .26) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.26);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.hotspot:hover::after,
+.hotspot:focus-visible::after {
+  transform: translate(-50%, -50%) scale(1.18);
+  border-color: rgba(235, 251, 255, .92) !important;
+  box-shadow: 0 0 28px rgba(120, 220, 255, .52);
+}
+.hotspot:hover span,
+.hotspot:focus-visible span {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(2px) !important;
+}
+.hotspot-locked::before {
+  background: rgba(255, 216, 122, .95);
+  box-shadow: 0 0 0 5px rgba(255, 190, 70, .10), 0 0 22px rgba(255, 190, 70, .55);
+}
+.hotspot-locked span::before { content: "♪ "; }
+
+/* The background is the star. Avoid over-darkening it. */
+.sceneVisualBackground { filter: brightness(.9) saturate(.98) !important; }
+.sceneVisualVignette {
+  box-shadow: inset 0 0 90px rgba(0,0,0,.28) !important;
+  background: linear-gradient(180deg, rgba(0,0,0,.02), transparent 30%, transparent 70%, rgba(0,0,0,.16)) !important;
+}
+
+@media (max-width: 900px) {
+  .sceneVisualCharacter {
+    width: clamp(170px, 34vw, 280px) !important;
+    height: min(56vh, 500px) !important;
+    bottom: 12% !important;
+  }
+  .hotspot span { font-size: 10px; max-width: 180px; }
+}
