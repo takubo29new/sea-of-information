@@ -13,6 +13,7 @@ export class AudioManager {
   private audio: HTMLAudioElement | null = null;
   private currentTrack: TrackId | null = null;
   private volume = 0.72;
+  private fadeToken = 0;
 
   setVolume(value: number) {
     this.volume = Math.max(0, Math.min(1, value));
@@ -23,7 +24,28 @@ export class AudioManager {
     return this.volume;
   }
 
-  async play(track: TrackId, restart = false) {
+  private fadeElement(audio: HTMLAudioElement, from: number, to: number, durationMs: number) {
+    const token = ++this.fadeToken;
+    const started = performance.now();
+    return new Promise<void>(resolve => {
+      const tick = (now: number) => {
+        if (token !== this.fadeToken) return resolve();
+        const ratio = durationMs <= 0 ? 1 : Math.min(1, (now - started) / durationMs);
+        audio.volume = Math.max(0, Math.min(1, from + (to - from) * ratio));
+        if (ratio >= 1) return resolve();
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  async fadeOut(durationMs = 650) {
+    if (!this.audio) return;
+    const audio = this.audio;
+    await this.fadeElement(audio, audio.volume, 0, durationMs);
+  }
+
+  async play(track: TrackId, restart = false, fadeInMs = 0) {
     if (this.currentTrack === track && this.audio && !restart) {
       if (this.audio.paused) {
         try { await this.audio.play(); } catch { /* user gesture may be required */ }
@@ -35,7 +57,7 @@ export class AudioManager {
     const next = new Audio(TRACK_META[track].src);
     next.loop = true;
     next.preload = "auto";
-    next.volume = this.volume;
+    next.volume = fadeInMs > 0 ? 0 : this.volume;
     this.audio = next;
     this.currentTrack = track;
 
@@ -44,11 +66,14 @@ export class AudioManager {
       previous.src = "";
     }
 
-    try { await next.play(); } catch { /* first user gesture will resume */ }
+    try {
+      await next.play();
+      if (fadeInMs > 0) await this.fadeElement(next, 0, this.volume, fadeInMs);
+    } catch { /* first user gesture will resume */ }
   }
 
   seek(position: number) {
-    if (!this.audio || !Number.isFinite(position) || position <= 0) return;
+    if (!this.audio || !Number.isFinite(position) || position < 0) return;
     const target = Math.max(0, position);
     const apply = () => {
       if (!this.audio) return;
@@ -88,6 +113,7 @@ export class AudioManager {
   }
 
   destroy() {
+    this.fadeToken += 1;
     if (!this.audio) return;
     this.audio.pause();
     this.audio.src = "";
