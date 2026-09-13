@@ -51,8 +51,9 @@
   letter-spacing: .12em;
 }
 
-/* Once WISH reaches the FANTASY entry, keep the legacy vertical-slice QA card hidden. */
-.gameScreen.art-wish .sliceEnd {
+/* Future chapter handoffs reuse the old endpoint id but not its QA completion card. */
+.gameScreen.art-wish .sliceEnd,
+.gameScreen.art-beautiful .sliceEnd {
   display: none;
 }
 
