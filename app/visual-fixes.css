@@ -1,129 +1,172 @@
-/* v0.7.1 visual corrections: show the art as art, make interactions discoverable. */
+/* v0.7.2 — visual reset. Clean game-first presentation, no baked-UI art. */
 
-/* Title key visual is 1920x1080. Never crop it just to fill an unusual viewport. */
+/* ---------- Title ---------- */
 .titleOcean {
-  background: #02070d;
+  background:
+    radial-gradient(ellipse at 68% 34%, rgba(78,176,221,.18), transparent 24%),
+    radial-gradient(ellipse at 50% 80%, rgba(36,90,126,.22), transparent 44%),
+    linear-gradient(180deg,#061522 0%,#04101a 48%,#02070d 100%);
 }
-.titleOcean img {
-  object-fit: contain !important;
-  object-position: center center !important;
-  transform: none !important;
+.titleOcean img { display:none !important; }
+.titleOcean::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.5;
+  background:
+    radial-gradient(circle at 14% 22%, rgba(214,245,255,.7) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 72% 28%, rgba(214,245,255,.5) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 54% 62%, rgba(110,212,255,.45) 0 1.5px, transparent 2.2px);
+  background-size:170px 150px,220px 190px,260px 220px;
+}
+.titleOcean::after {
+  background:linear-gradient(90deg,rgba(1,5,9,.78),rgba(1,5,9,.18) 50%,rgba(1,5,9,.42)) !important;
+}
+.titlePanel { padding-top:12vh; }
+.titlePanel h1 { font-size:clamp(46px,7vw,94px); line-height:.92; }
+.titleTagline { max-width:460px; color:rgba(226,242,250,.78); }
+
+/* ---------- Scene environments ---------- */
+.sceneVisual { background:#02070d; }
+.sceneVisualBackground,.sceneVisualCharacter { display:none !important; }
+.sceneVisualEnvironment { position:absolute; inset:0; z-index:0; overflow:hidden; }
+.sceneVisualEnvironment::before,.sceneVisualEnvironment::after { content:""; position:absolute; pointer-events:none; }
+
+/* Sea of information: abstract archive ocean, not a literal illustration with text. */
+.sceneVisualEnvironment-sea,
+.sceneVisualEnvironment-terminal,
+.sceneVisualEnvironment-dive {
+  background:
+    radial-gradient(ellipse at 50% 74%, rgba(67,168,211,.20), transparent 34%),
+    radial-gradient(circle at 78% 18%, rgba(90,199,239,.14), transparent 20%),
+    linear-gradient(180deg,#07182a 0%,#06121f 47%,#02070d 100%);
+}
+.sceneVisualEnvironment-sea::before,
+.sceneVisualEnvironment-terminal::before,
+.sceneVisualEnvironment-dive::before {
+  left:-10%; right:-10%; bottom:11%; height:34%;
+  border-radius:50%;
+  border-top:1px solid rgba(143,226,255,.26);
+  box-shadow:0 -28px 80px rgba(54,170,220,.08), inset 0 32px 90px rgba(78,190,232,.06);
+  transform:perspective(680px) rotateX(64deg);
+}
+.sceneVisualEnvironment-sea::after,
+.sceneVisualEnvironment-terminal::after,
+.sceneVisualEnvironment-dive::after {
+  inset:0;
+  opacity:.52;
+  background-image:
+    radial-gradient(circle,rgba(219,248,255,.72) 0 1px,transparent 1.6px),
+    linear-gradient(105deg,transparent 48%,rgba(94,203,241,.08) 49%,transparent 50%);
+  background-size:90px 90px,260px 100%;
+  animation:dataDrift 20s linear infinite;
+}
+.sceneVisualEnvironment-terminal { background:radial-gradient(circle at 50% 48%,rgba(83,216,255,.14),transparent 12%),linear-gradient(180deg,#051421,#030b13); }
+.sceneVisualEnvironment-terminal::before { left:46%; right:auto; top:25%; bottom:auto; width:8%; height:48%; border:1px solid rgba(154,225,250,.45); border-radius:4px; transform:none; box-shadow:0 0 70px rgba(80,205,245,.13); }
+.sceneVisualEnvironment-dive::before { left:50%; top:50%; bottom:auto; width:min(36vw,420px); height:min(36vw,420px); transform:translate(-50%,-50%); border:1px solid rgba(135,225,255,.55); border-radius:50%; box-shadow:0 0 65px rgba(82,201,244,.18), inset 0 0 50px rgba(82,201,244,.08); }
+
+/* City: clean silhouette + warm dawn, no baked MENU/map. */
+.sceneVisualEnvironment-city,
+.sceneVisualEnvironment-city-glitch,
+.sceneVisualEnvironment-city-investigation,
+.sceneVisualEnvironment-noa,
+.sceneVisualEnvironment-dusk,
+.sceneVisualEnvironment-night,
+.sceneVisualEnvironment-aurora-gate,
+.sceneVisualEnvironment-aurora {
+  background:
+    radial-gradient(circle at 64% 25%,rgba(255,202,126,.32),transparent 20%),
+    linear-gradient(180deg,#4b6f8d 0%,#9d7d70 52%,#171d27 100%);
+}
+.sceneVisualEnvironment-city::before,
+.sceneVisualEnvironment-city-glitch::before,
+.sceneVisualEnvironment-city-investigation::before,
+.sceneVisualEnvironment-noa::before,
+.sceneVisualEnvironment-dusk::before,
+.sceneVisualEnvironment-night::before {
+  left:-2%; right:-2%; bottom:0; height:42%;
+  background:
+    linear-gradient(90deg,transparent 0 4%,#111923 4% 10%,transparent 10% 13%,#17212c 13% 22%,transparent 22% 26%,#111923 26% 37%,transparent 37% 40%,#16202a 40% 55%,transparent 55% 59%,#111923 59% 72%,transparent 72% 75%,#17212c 75% 88%,transparent 88%),
+    linear-gradient(180deg,transparent,#0a1018 76%);
+  clip-path:polygon(0 30%,7% 26%,9% 4%,12% 26%,23% 22%,28% 8%,32% 22%,43% 30%,48% 14%,52% 30%,64% 25%,69% 6%,74% 25%,86% 29%,90% 16%,95% 29%,100% 24%,100% 100%,0 100%);
+}
+.sceneVisualEnvironment-city::after,
+.sceneVisualEnvironment-city-glitch::after,
+.sceneVisualEnvironment-city-investigation::after,
+.sceneVisualEnvironment-noa::after {
+  left:0; right:0; bottom:18%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,218,157,.72),transparent); box-shadow:0 0 26px rgba(255,189,110,.28);
+}
+.sceneVisualEnvironment-city-glitch { filter:saturate(.65) contrast(1.08); }
+.sceneVisualEnvironment-city-glitch::after { height:5%; bottom:42%; background:repeating-linear-gradient(90deg,rgba(134,224,255,.18) 0 2px,transparent 2px 13px); box-shadow:none; }
+.sceneVisualEnvironment-dusk { background:linear-gradient(180deg,#6f5066,#d06e52 48%,#161923); }
+.sceneVisualEnvironment-night { background:radial-gradient(circle at 72% 18%,rgba(96,146,224,.18),transparent 18%),linear-gradient(180deg,#101a30,#07101d 58%,#02070d); }
+.sceneVisualEnvironment-aurora-gate,.sceneVisualEnvironment-aurora { background:radial-gradient(circle at 50% 48%,rgba(92,220,255,.18),transparent 23%),linear-gradient(180deg,#07121b,#02070d); }
+
+/* Transit */
+.sceneVisualEnvironment-load-road {
+  background:radial-gradient(circle at 50% 46%,rgba(74,199,244,.14),transparent 24%),linear-gradient(180deg,#02070d,#061724 58%,#02070d);
+}
+.sceneVisualEnvironment-load-road::before { left:8%; right:8%; top:52%; height:10%; border-top:1px solid rgba(124,223,255,.45); border-bottom:1px solid rgba(124,223,255,.16); transform:perspective(700px) rotateX(62deg); background:linear-gradient(90deg,transparent,rgba(71,189,232,.1),transparent); }
+.sceneVisualEnvironment-load-road::after { inset:0; background:linear-gradient(115deg,transparent 40%,rgba(116,224,255,.08) 50%,transparent 60%); animation:roadSweep 5s linear infinite; }
+
+/* Gadget */
+.sceneVisualEnvironment-gadget-entry,
+.sceneVisualEnvironment-gadget-machinery,
+.sceneVisualEnvironment-gadget-bit,
+.sceneVisualEnvironment-gadget-auth,
+.sceneVisualEnvironment-end {
+  background:radial-gradient(circle at 55% 38%,rgba(237,178,62,.10),transparent 22%),linear-gradient(180deg,#0c1013,#151a1d 56%,#07090b);
+}
+.sceneVisualEnvironment-gadget-entry::before,
+.sceneVisualEnvironment-gadget-machinery::before,
+.sceneVisualEnvironment-gadget-bit::before,
+.sceneVisualEnvironment-gadget-auth::before { inset:9% 7% 12%; border:1px solid rgba(224,206,159,.10); background:repeating-linear-gradient(90deg,rgba(255,209,111,.025) 0 2px,transparent 2px 28px); clip-path:polygon(7% 0,93% 0,100% 100%,0 100%); }
+.sceneVisualEnvironment-gadget-machinery::after { width:230px; height:230px; left:39%; top:25%; border:14px dashed rgba(87,97,101,.78); border-radius:50%; box-shadow:inset 0 0 0 14px #171c20; animation:gadgetSpin 20s linear infinite; }
+.sceneVisualEnvironment-gadget-auth::after { left:50%; top:48%; width:min(48vw,620px); height:220px; transform:translate(-50%,-50%); border:1px solid rgba(111,219,255,.35); background:rgba(3,11,16,.55); box-shadow:0 0 80px rgba(62,202,255,.10); }
+
+.sceneVisualVignette { box-shadow:inset 0 0 110px rgba(0,0,0,.30) !important; background:linear-gradient(180deg,rgba(0,0,0,.02),transparent 26%,transparent 70%,rgba(0,0,0,.22)) !important; }
+.sceneVisualParallaxBack { opacity:.18 !important; }
+.sceneVisualParallaxFront { opacity:.12 !important; }
+
+/* ---------- UI hierarchy ---------- */
+.chapterCard { left:28px !important; top:24px !important; max-width:520px; }
+.chapterCard span { font-size:9px !important; opacity:.65; }
+.chapterCard h2 { margin-top:4px !important; font-size:clamp(25px,3vw,42px) !important; letter-spacing:.04em; text-shadow:0 2px 20px rgba(0,0,0,.45); }
+.menuButton { right:18px !important; top:16px !important; padding:7px 11px !important; font-size:10px; letter-spacing:.1em; opacity:.72; }
+.menuButton:hover { opacity:1; }
+.nowPlaying { left:18px !important; bottom:16px !important; width:min(280px,calc(100vw - 36px)) !important; padding:8px 10px !important; background:rgba(2,8,14,.50) !important; border-color:rgba(255,255,255,.10) !important; }
+.nowPlayingTitle { font-size:10px !important; }
+
+/* Exploration points are small world-space signals, not floating web cards. */
+.hotspot { overflow:visible; outline:none; }
+.hotspot::before { content:""; position:absolute; left:50%; top:50%; width:7px; height:7px; transform:translate(-50%,-50%); border-radius:50%; background:#e5f9ff; box-shadow:0 0 0 4px rgba(106,214,250,.10),0 0 20px rgba(106,214,250,.72); pointer-events:none; }
+.hotspot::after { content:""; position:absolute !important; inset:auto !important; left:50% !important; top:50% !important; width:28px !important; height:28px !important; transform:translate(-50%,-50%); border:1px solid rgba(211,245,255,.40) !important; border-radius:50%; background:transparent !important; box-shadow:none !important; pointer-events:none; animation:hotspotPulse 2.4s ease-in-out infinite; }
+.hotspot span { left:50% !important; top:calc(50% + 21px) !important; bottom:auto !important; transform:translateX(-50%) !important; opacity:.72 !important; max-width:190px; padding:3px 7px !important; white-space:nowrap !important; font-size:9px !important; letter-spacing:.04em; line-height:1.3; color:rgba(235,249,255,.86); background:rgba(1,7,12,.62) !important; border:0 !important; border-radius:3px; box-shadow:none !important; pointer-events:none; }
+.hotspot:hover::after,.hotspot:focus-visible::after { transform:translate(-50%,-50%) scale(1.22); border-color:rgba(235,252,255,.95) !important; box-shadow:0 0 24px rgba(118,220,255,.34) !important; }
+.hotspot:hover span,.hotspot:focus-visible span { opacity:1 !important; color:white; }
+.hotspot-locked::before { background:#ffd987; box-shadow:0 0 0 4px rgba(255,191,75,.10),0 0 20px rgba(255,191,75,.50); }
+.hotspot-locked span::before { content:"♪ "; color:#ffd987; }
+
+/* Dialogue should feel like an ADV layer, not a giant website modal. */
+.dialogueBox { bottom:34px !important; width:min(760px,82vw) !important; min-height:92px !important; padding:20px 28px 24px !important; border:0 !important; border-left:2px solid rgba(142,223,255,.58) !important; background:linear-gradient(90deg,rgba(3,9,15,.94),rgba(3,9,15,.78)) !important; box-shadow:0 20px 65px rgba(0,0,0,.34); backdrop-filter:blur(10px); }
+.dialogueText { font-size:clamp(14px,1.3vw,18px) !important; line-height:1.7 !important; }
+.dialogueHint { opacity:.55; }
+
+/* Explicit short objective: player immediately knows why the scene is interactive. */
+.prologueObjective { position:absolute; z-index:20; left:28px; top:108px; width:270px; padding:12px 14px; background:rgba(2,8,14,.48); border-left:2px solid rgba(128,221,255,.55); backdrop-filter:blur(8px); }
+.prologueObjective small { display:block; font:600 9px ui-monospace,monospace; letter-spacing:.2em; color:#8edcf4; }
+.prologueObjective strong { display:block; margin-top:6px; font-size:13px; font-weight:500; }
+.prologueObjective .objectiveProgress { display:flex; gap:6px; margin-top:10px; }
+.prologueObjective .objectiveProgress i { width:28px; height:3px; background:rgba(255,255,255,.13); }
+.prologueObjective .objectiveProgress i.done { background:#b9efff; box-shadow:0 0 10px rgba(123,219,252,.42); }
+.prologueObjective p { margin:8px 0 0; font-size:10px; color:rgba(220,239,247,.62); }
+
+@keyframes dataDrift { from{transform:translate3d(0,0,0)} to{transform:translate3d(-90px,-22px,0)} }
+@keyframes roadSweep { from{transform:translateX(-32%)} to{transform:translateX(32%)} }
+@keyframes hotspotPulse { 0%,100%{opacity:.42;transform:translate(-50%,-50%) scale(.92)} 50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08)} }
+
+@media(max-width:760px){
+  .chapterCard{left:16px !important;top:14px !important}.chapterCard h2{font-size:26px !important}.prologueObjective{left:16px;top:82px;width:230px}.dialogueBox{width:92vw !important;bottom:20px !important;padding:18px 20px 22px !important}.hotspot span{font-size:8px !important;max-width:150px}.nowPlaying{display:none}.menuButton{top:12px !important;right:12px !important}
 }
 
-/* Scene backgrounds were being enlarged twice (104% box + scale animation).
-   Keep only a very small cinematic drift so important composition remains visible. */
-.sceneVisualBackground {
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  animation: sceneVisualBreathSafe 20s ease-in-out infinite alternate !important;
-}
-@keyframes sceneVisualBreathSafe {
-  from { transform: scale(1.0) translate3d(0, 0, 0); }
-  to { transform: scale(1.012) translate3d(.15%, -.1%, 0); }
-}
-
-/* Current character WebPs are opaque 700x1100 images, not alpha cut-outs.
-   Present them intentionally as cinematic portrait cards until transparent art replaces them. */
-.sceneVisualCharacter {
-  bottom: 7% !important;
-  width: clamp(220px, 25vw, 360px) !important;
-  height: min(68vh, 620px) !important;
-  max-width: none !important;
-  max-height: none !important;
-  object-fit: cover !important;
-  object-position: center top !important;
-  border: 1px solid rgba(215, 240, 250, .22);
-  border-radius: 14px;
-  background: rgba(4, 10, 15, .78);
-  box-shadow: 0 22px 70px rgba(0,0,0,.46), 0 0 0 1px rgba(255,255,255,.035) inset;
-  filter: brightness(.92) saturate(.94) !important;
-  animation: none !important;
-  overflow: hidden;
-}
-.sceneVisualCharacter-left { left: 5% !important; right: auto !important; transform: none !important; }
-.sceneVisualCharacter-center { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
-.sceneVisualCharacter-right { right: 5% !important; left: auto !important; transform: none !important; }
-
-/* Exploration affordance: hotspots must be discoverable before the player guesses where to hover. */
-.hotspot {
-  overflow: visible;
-}
-.hotspot::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: rgba(222, 248, 255, .95);
-  box-shadow: 0 0 0 5px rgba(112, 212, 248, .12), 0 0 22px rgba(112, 212, 248, .72);
-  pointer-events: none;
-}
-.hotspot::after {
-  content: "";
-  position: absolute !important;
-  inset: auto !important;
-  left: 50% !important;
-  top: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(215, 245, 255, .46) !important;
-  border-radius: 50%;
-  background: rgba(100, 205, 245, .04);
-  box-shadow: 0 0 18px rgba(100, 205, 245, .14);
-  pointer-events: none;
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-.hotspot span {
-  left: 50% !important;
-  top: calc(50% + 25px) !important;
-  bottom: auto !important;
-  transform: translateX(-50%) !important;
-  opacity: .86 !important;
-  max-width: min(240px, 72vw);
-  white-space: normal !important;
-  text-align: center;
-  line-height: 1.35;
-  background: rgba(2, 8, 14, .84) !important;
-  border-color: rgba(190, 230, 250, .26) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,.26);
-  pointer-events: none;
-  transition: opacity .18s ease, transform .18s ease;
-}
-.hotspot:hover::after,
-.hotspot:focus-visible::after {
-  transform: translate(-50%, -50%) scale(1.18);
-  border-color: rgba(235, 251, 255, .92) !important;
-  box-shadow: 0 0 28px rgba(120, 220, 255, .52);
-}
-.hotspot:hover span,
-.hotspot:focus-visible span {
-  opacity: 1 !important;
-  transform: translateX(-50%) translateY(2px) !important;
-}
-.hotspot-locked::before {
-  background: rgba(255, 216, 122, .95);
-  box-shadow: 0 0 0 5px rgba(255, 190, 70, .10), 0 0 22px rgba(255, 190, 70, .55);
-}
-.hotspot-locked span::before { content: "♪ "; }
-
-/* The background is the star. Avoid over-darkening it. */
-.sceneVisualBackground { filter: brightness(.9) saturate(.98) !important; }
-.sceneVisualVignette {
-  box-shadow: inset 0 0 90px rgba(0,0,0,.28) !important;
-  background: linear-gradient(180deg, rgba(0,0,0,.02), transparent 30%, transparent 70%, rgba(0,0,0,.16)) !important;
-}
-
-@media (max-width: 900px) {
-  .sceneVisualCharacter {
-    width: clamp(170px, 34vw, 280px) !important;
-    height: min(56vh, 500px) !important;
-    bottom: 12% !important;
-  }
-  .hotspot span { font-size: 10px; max-width: 180px; }
-}
+@media(prefers-reduced-motion:reduce){.sceneVisualEnvironment::after,.hotspot::after{animation:none !important}}
