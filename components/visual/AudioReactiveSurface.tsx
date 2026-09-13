@@ -40,17 +40,17 @@ export function AudioReactiveSurface({
   const bass = Math.min(1, levels.bass * strength);
   const mid = Math.min(1, levels.mid * strength);
   const treble = Math.min(1, levels.treble * strength);
-  const light = (direction?.light ?? 0.45) * (0.35 + energy * 0.95);
-  const particle = (direction?.particles ?? 0.3) * (0.25 + treble * 1.25);
-  const camera = cinematic ? (direction?.camera ?? 0.02) * (0.4 + bass * 0.9) : 0;
+  const light = (direction?.light ?? 0.45) * (0.42 + energy * 1.28);
+  const particle = (direction?.particles ?? 0.3) * (0.35 + treble * 1.65);
+  const camera = cinematic ? (direction?.camera ?? 0.02) * (0.8 + bass * 1.4) : 0;
 
   const style = {
     "--audio-energy": energy.toFixed(3),
     "--audio-bass": bass.toFixed(3),
     "--audio-mid": mid.toFixed(3),
     "--audio-treble": treble.toFixed(3),
-    "--audio-light": Math.min(1.2, light).toFixed(3),
-    "--audio-particles": Math.min(1.2, particle).toFixed(3),
+    "--audio-light": Math.min(1.55, light).toFixed(3),
+    "--audio-particles": Math.min(1.55, particle).toFixed(3),
     "--audio-camera": camera.toFixed(4)
   } as CSSProperties;
 
@@ -63,8 +63,11 @@ export function AudioReactiveSurface({
       <div className="audioReactiveGlow audioReactiveGlow-bass" />
       <div className="audioReactiveGlow audioReactiveGlow-high" />
       <div className="audioReactiveBeams" />
+      <div className="audioReactiveRings"><i /><i /><i /></div>
+      <div className="audioReactiveWater" />
+      <div className="audioReactiveStreaks"><i /><i /><i /><i /><i /><i /></div>
       <div className="audioReactiveParticles">
-        {Array.from({ length: cinematic ? 30 : 14 }, (_, index) => <i key={index} />)}
+        {Array.from({ length: cinematic ? 46 : 18 }, (_, index) => <i key={index} />)}
       </div>
       <div className="audioReactiveFlash" />
     </div>
