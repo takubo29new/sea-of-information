@@ -7,8 +7,7 @@ export const TRACK_META: Record<TrackId, { src: string; title: string; duration:
   "city-of-dawn": { src: "/audio/city-of-dawn.m4a", title: "City of dawn", duration: 343.0 },
   "load-road": { src: "/audio/load-road.mp3", title: "Load road", duration: 323.79 },
   "gadget-area": { src: "/audio/gadget-area.mp3", title: "Gadget area", duration: 211.30 },
-  // Browser metadata replaces this fallback duration as soon as the file loads.
-  wish: { src: "/audio/wish.m4a", title: "wish", duration: 360.0 }
+  wish: { src: "/audio/wish.m4a", title: "wish", duration: 336.897 }
 };
 
 export type AudioReactiveLevels = {
