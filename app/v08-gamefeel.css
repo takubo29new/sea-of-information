@@ -1,0 +1,118 @@
+/* v0.8 — game-feel pass for the opening exploration.
+   The goal is to make Sea of Information read as a game scene, not a web demo. */
+
+/* Keep the chapter title subordinate to the actual objective. */
+.art-sea .chapterCard {
+  opacity: .72;
+}
+
+/* Objective becomes the player's compact mission tracker. */
+.prologueObjective {
+  overflow: hidden;
+  border-radius: 0 8px 8px 0;
+  transition: border-color .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.prologueObjective::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 25%, rgba(139,225,255,.08) 48%, transparent 68%);
+  transform: translateX(-110%);
+}
+.prologueObjective:has(i.done)::after {
+  animation: objectiveScan .7s ease-out;
+}
+.prologueObjective .objectiveProgress i {
+  position: relative;
+  overflow: visible;
+  transition: background .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.prologueObjective .objectiveProgress i.done {
+  transform: scaleY(1.6);
+}
+.prologueObjective .objectiveProgress i.done::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%,-50%);
+  border-radius: 50%;
+  background: #d9f8ff;
+  box-shadow: 0 0 18px rgba(116,224,255,.9);
+  animation: fragmentLock .45s ease-out both;
+}
+.prologueObjective:has(i:nth-child(1).done):has(i:nth-child(2).done):has(i:nth-child(3).done) {
+  border-left-color: #f4db89;
+  background: rgba(6,14,17,.72);
+  box-shadow: 0 0 34px rgba(255,205,101,.12);
+}
+.prologueObjective:has(i:nth-child(1).done):has(i:nth-child(2).done):has(i:nth-child(3).done) small {
+  color: #ffe4a0;
+}
+
+/* Memory points feel collectible: once inspected, they settle instead of continuing to beg for clicks. */
+.art-sea .hotspot-complete::before {
+  width: 5px;
+  height: 5px;
+  background: #9cecff;
+  box-shadow: 0 0 12px rgba(112,221,255,.46);
+}
+.art-sea .hotspot-complete::after {
+  animation: none;
+  opacity: .24;
+  transform: translate(-50%,-50%) scale(.72);
+}
+.art-sea .hotspot-complete span {
+  opacity: .36 !important;
+}
+.art-sea .hotspot-complete:hover span,
+.art-sea .hotspot-complete:focus-visible span {
+  opacity: .78 !important;
+}
+
+/* Uninspected fragments breathe at slightly different rhythms so the scene feels alive. */
+.art-sea .hotspot:not(.hotspot-complete):nth-of-type(2)::before { animation: memoryBreath 2.1s ease-in-out infinite; }
+.art-sea .hotspot:not(.hotspot-complete):nth-of-type(3)::before { animation: memoryBreath 2.6s ease-in-out .35s infinite; }
+.art-sea .hotspot:not(.hotspot-complete):nth-of-type(4)::before { animation: memoryBreath 3s ease-in-out .7s infinite; }
+
+/* The dialogue layer should never obscure most of the playable field. */
+.art-sea .dialogueBox {
+  width: min(700px, 72vw) !important;
+  bottom: 24px !important;
+}
+
+/* A subtle response through the environment makes each inspection feel like restoring data. */
+.art-sea .sceneVisualEnvironment::after {
+  mix-blend-mode: screen;
+}
+.art-sea:has(.hotspot-complete) .sceneVisualLight {
+  opacity: .62;
+  transition: opacity .8s ease;
+}
+
+@keyframes objectiveScan {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(115%); }
+}
+@keyframes fragmentLock {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(2.2); }
+  100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+}
+@keyframes memoryBreath {
+  0%,100% { transform: translate(-50%,-50%) scale(.82); opacity: .72; }
+  50% { transform: translate(-50%,-50%) scale(1.18); opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .prologueObjective {
+    left: 14px;
+    top: 82px;
+    width: min(250px, calc(100vw - 28px));
+  }
+  .art-sea .dialogueBox {
+    width: calc(100vw - 28px) !important;
+  }
+}
