@@ -10,7 +10,15 @@ export const TRACK_META: Record<TrackId, { src: string; title: string; duration:
   "gadget-area": { src: "/audio/gadget-area.mp3", title: "Gadget area", duration: 211.30 },
   wish: { src: "/audio/wish.m4a", title: "wish", duration: 336.897 },
   fantasy: { src: "/audio/fantasy.m4a", title: "Fantasy", duration: 442.851 },
-  beautiful: { src: "/audio/beautiful.mp3", title: "beautiful", duration: 304.327 }
+  beautiful: { src: "/audio/beautiful.mp3", title: "beautiful", duration: 304.327 },
+  break: { src: "/audio/break.m4a", title: "Break", duration: 301.604 },
+  blavery: { src: "/audio/blavery.mp3", title: "blavery", duration: 265.770 },
+  naked: { src: "/audio/naked.mp3", title: "Naked", duration: 340.767 },
+  signal: { src: "/audio/signal.mp3", title: "Signal", duration: 555.050 },
+  spacecraft: { src: "/audio/spacecraft.m4a", title: "Spacecraft", duration: 179.444 },
+  "new-create": { src: "/audio/new-create.mp3", title: "New create", duration: 333.035 },
+  thundercloud: { src: "/audio/thundercloud.mp3", title: "Thundercloud", duration: 252.552 },
+  "space-home": { src: "/audio/space-home.mp3", title: "Space Home", duration: 300.042 }
 };
 
 export type AudioReactiveLevels = {
