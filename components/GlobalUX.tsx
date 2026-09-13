@@ -44,6 +44,18 @@ export function GlobalUX() {
 
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
+      const trackCard = target?.closest?.(".archiveScreen .trackCard") as HTMLButtonElement | null;
+      if (trackCard && !trackCard.disabled) {
+        document.querySelectorAll<HTMLElement>(".archiveScreen .trackCard.is-playing").forEach(card => {
+          card.classList.remove("is-playing");
+          const status = card.querySelector<HTMLElement>("small");
+          if (status) status.textContent = "Takubo29";
+        });
+        trackCard.classList.add("is-playing");
+        const status = trackCard.querySelector<HTMLElement>("small");
+        if (status) status.textContent = "NOW PLAYING";
+      }
+
       const hotspot = target?.closest?.(".hotspot") as HTMLElement | null;
       if (!hotspot) return;
       const rect = hotspot.getBoundingClientRect();
