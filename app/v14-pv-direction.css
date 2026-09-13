@@ -9,80 +9,67 @@
 }
 
 .listeningStageCutLight,
-.listeningStageBlackout {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
+.listeningStageBlackout { position:absolute; inset:0; pointer-events:none; }
+.listeningStageCutLight { z-index:8; opacity:0; mix-blend-mode:screen; }
+.listeningStageCutLight-a { background:linear-gradient(106deg,transparent 25%,rgba(139,229,255,.42) 47%,transparent 62%); }
+.listeningStageCutLight-b { background:linear-gradient(72deg,transparent 34%,rgba(80,170,255,.28) 52%,transparent 66%); }
+.listeningStageBlackout { z-index:9; background:radial-gradient(circle at center,rgba(1,7,13,.12),rgba(1,5,10,.94)); opacity:0; }
 
-.listeningStageCutLight { z-index: 8; opacity: 0; mix-blend-mode: screen; }
-.listeningStageCutLight-a {
-  background: linear-gradient(106deg, transparent 25%, rgba(139,229,255,.42) 47%, transparent 62%);
-}
-.listeningStageCutLight-b {
-  background: linear-gradient(72deg, transparent 34%, rgba(80,170,255,.28) 52%, transparent 66%);
-}
-.listeningStageBlackout {
-  z-index: 9;
-  background: radial-gradient(circle at center, rgba(1,7,13,.12), rgba(1,5,10,.94));
-  opacity: 0;
-}
-
-.listeningStage-ui-minimal .listeningStageChrome { opacity: .62; transform: translate3d(-1.2vw,1vh,0) scale(.97); }
+.listeningStage-ui-minimal .listeningStageChrome { opacity:.62; transform:translate3d(-1.2vw,1vh,0) scale(.97); }
 .listeningStage-ui-minimal .listeningStageStoryText,
-.listeningStage-ui-minimal .listeningStageWave { opacity: .42; }
-
-.listeningStage-ui-ghost .listeningStageChrome { opacity: .24; transform: translate3d(-2.2vw,1.5vh,0) scale(.95); }
+.listeningStage-ui-minimal .listeningStageWave { opacity:.42; }
+.listeningStage-ui-ghost .listeningStageChrome { opacity:.24; transform:translate3d(-2.2vw,1.5vh,0) scale(.95); }
 .listeningStage-ui-ghost .listeningStageStoryText,
 .listeningStage-ui-ghost .listeningStageWave,
-.listeningStage-ui-ghost .listeningStageMode { opacity: .12; }
+.listeningStage-ui-ghost .listeningStageMode { opacity:.12; }
 .listeningStage-ui-ghost .listeningStageProgress,
 .listeningStage-ui-ghost .listeningStageTimes,
-.listeningStage-ui-ghost .listeningStageFooter { opacity: .36; }
+.listeningStage-ui-ghost .listeningStageFooter { opacity:.36; }
 .listeningStage-ui-ghost .listeningSkip,
-.listeningStage-ui-minimal .listeningSkip { opacity: 1 !important; }
+.listeningStage-ui-minimal .listeningSkip { opacity:1 !important; }
 
-.listeningStageCharacter { z-index: 10 !important; transform-origin: bottom center !important; }
-.listeningStage-character-left .listeningStageCharacter {
-  left: 3vw !important; right: auto !important; bottom: -7vh !important;
-  height: min(96vh,1060px) !important; max-width: 46vw !important;
-}
-.listeningStage-character-center .listeningStageCharacter {
-  left: 57% !important; right: auto !important; bottom: -11vh !important;
-  height: min(110vh,1220px) !important; max-width: 56vw !important;
-  transform: translateX(-50%) scale(1.04) !important;
-}
-.listeningStage-character-right .listeningStageCharacter {
-  left: auto !important; right: -1vw !important; bottom: -7vh !important;
-  height: min(96vh,1060px) !important; max-width: 46vw !important;
+.listeningStageCharacter { z-index:10 !important; transform-origin:bottom center !important; }
+.listeningStage-character-left .listeningStageCharacter { left:3vw !important; right:auto !important; bottom:-7vh !important; height:min(96vh,1060px) !important; max-width:46vw !important; }
+.listeningStage-character-center .listeningStageCharacter { left:57% !important; right:auto !important; bottom:-11vh !important; height:min(110vh,1220px) !important; max-width:56vw !important; transform:translateX(-50%) scale(1.04) !important; }
+.listeningStage-character-right .listeningStageCharacter { left:auto !important; right:-1vw !important; bottom:-7vh !important; height:min(96vh,1060px) !important; max-width:46vw !important; }
+
+.listeningStage-shot-ocean .listeningStageArtwork { transform:scale(1.02) !important; filter:brightness(.66) saturate(.72) contrast(1.05) !important; }
+.listeningStage-shot-arrival .listeningStageArtwork { transform:scale(1.10) translate3d(-2vw,-1vh,0) !important; filter:brightness(.90) saturate(.92) !important; }
+.listeningStage-shot-wide .listeningStageArtwork { transform:scale(1.13) translate3d(2.8vw,-1.5vh,0) !important; filter:brightness(.98) saturate(1.04) !important; }
+.listeningStage-shot-portrait .listeningStageArtwork { transform:scale(1.18) translate3d(-3.4vw,-3vh,0) !important; filter:brightness(1.02) saturate(1.10) contrast(1.03) !important; }
+.listeningStage-shot-climax .listeningStageArtwork { transform:scale(1.22) translate3d(-4.5vw,-3.2vh,0) !important; filter:brightness(1.13) saturate(1.24) contrast(1.08) !important; }
+.listeningStage-pv-break .listeningStageArtwork { transform:scale(1.01) !important; filter:brightness(.43) saturate(.52) !important; }
+.listeningStage-pv-break .listeningStageBlackout { opacity:.62; }
+.listeningStage-shot-outro .listeningStageArtwork { transform:scale(1.07) translate3d(1vw,0,0) !important; filter:brightness(.82) saturate(.78) !important; }
+
+.listeningStage-shot-arrival .listeningStageCharacter { animation:pvArrival 5.8s ease-in-out infinite alternate; }
+.listeningStage-shot-wide .listeningStageCutLight-a { opacity:.24; animation:pvLightA 5.2s ease-in-out infinite; }
+.listeningStage-shot-portrait .listeningStageCharacter { height:min(116vh,1300px) !important; animation:pvPortrait 4.4s ease-in-out infinite alternate; }
+.listeningStage-shot-portrait .listeningStageCutLight-b { opacity:.26; animation:pvLightB 4.4s ease-in-out infinite; }
+.listeningStage-shot-cross .listeningStageArtwork { animation:pvCrossPan 8s ease-in-out infinite alternate; }
+.listeningStage-shot-cross .listeningStageCharacter { animation:pvCrossChar 6s ease-in-out infinite alternate; }
+.listeningStage-shot-climax .listeningStageArtwork { animation:pvClimaxCam 4.2s ease-in-out infinite alternate; }
+.listeningStage-shot-climax .listeningStageCharacter { height:min(118vh,1320px) !important; animation:pvClimaxChar 3.6s ease-in-out infinite alternate; }
+.listeningStage-shot-climax .listeningStageCutLight-a { opacity:.55; animation:pvLightA 3.1s ease-in-out infinite; }
+.listeningStage-shot-climax .listeningStageCutLight-b { opacity:.42; animation:pvLightB 2.7s ease-in-out infinite reverse; }
+.listeningStage-shot-outro .listeningStageCharacter { opacity:.72 !important; animation:pvOutro 7s ease-in-out infinite alternate; }
+
+@keyframes pvArrival { from{transform:translate3d(2.5vw,1.4vh,0) scale(.98);opacity:.72} to{transform:translate3d(0,0,0) scale(1.03);opacity:.96} }
+@keyframes pvPortrait { from{transform:translateX(-50%) translateY(1.2vh) scale(1.04)} to{transform:translateX(-50%) translateY(-.8vh) scale(1.085)} }
+@keyframes pvCrossPan { from{transform:scale(1.13) translate3d(4vw,-1vh,0)} to{transform:scale(1.17) translate3d(-2vw,-2vh,0)} }
+@keyframes pvCrossChar { from{transform:translate3d(-2vw,1vh,0) scale(1)} to{transform:translate3d(1.5vw,-.6vh,0) scale(1.055)} }
+@keyframes pvClimaxCam { from{transform:scale(1.17) translate3d(2vw,-1vh,0)} to{transform:scale(1.24) translate3d(-4.5vw,-3.5vh,0)} }
+@keyframes pvClimaxChar { from{transform:translate3d(1.5vw,1.5vh,0) scale(1.03)} to{transform:translate3d(-1vw,-1vh,0) scale(1.09)} }
+@keyframes pvOutro { from{transform:translate3d(0,0,0) scale(.99)} to{transform:translate3d(-1.2vw,-1.2vh,0) scale(1.025)} }
+@keyframes pvLightA { 0%,100%{transform:translateX(-46%) skewX(-10deg);opacity:.12} 48%{transform:translateX(18%) skewX(-6deg);opacity:.66} 62%{transform:translateX(34%) skewX(-4deg);opacity:.24} }
+@keyframes pvLightB { 0%,100%{transform:translateX(40%) skewX(9deg);opacity:.08} 50%{transform:translateX(-16%) skewX(4deg);opacity:.54} }
+
+@media (max-width:820px) {
+  .listeningStage-character-left .listeningStageCharacter,
+  .listeningStage-character-right .listeningStageCharacter { height:78vh !important; max-width:58vw !important; }
+  .listeningStage-character-center .listeningStageCharacter { left:64% !important; height:88vh !important; max-width:68vw !important; }
 }
 
-.listeningStage-shot-ocean .listeningStageArtwork {
-  transform: scale(1.02) !important;
-  filter: brightness(.66) saturate(.72) contrast(1.05) !important;
-}
-.listeningStage-shot-arrival .listeningStageArtwork {
-  transform: scale(1.10) translate3d(-2vw,-1vh,0) !important;
-  filter: brightness(.90) saturate(.92) !important;
-}
-.listeningStage-shot-wide .listeningStageArtwork {
-  transform: scale(1.13) translate3d(2.8vw,-1.5vh,0) !important;
-  filter: brightness(.98) saturate(1.04) !important;
-}
-.listeningStage-shot-portrait .listeningStageArtwork {
-  transform: scale(1.18) translate3d(-3.4vw,-3vh,0) !important;
-  filter: brightness(1.02) saturate(1.10) contrast(1.03) !important;
-}
-.listeningStage-shot-climax .listeningStageArtwork {
-  transform: scale(1.22) translate3d(-4.5vw,-3.2vh,0) !important;
-  filter: brightness(1.13) saturate(1.24) contrast(1.08) !important;
-}
-.listeningStage-pv-break .listeningStageArtwork {
-  transform: scale(1.01) !important;
-  filter: brightness(.43) saturate(.52) !important;
-}
-.listeningStage-pv-break .listeningStageBlackout { opacity: .62; }
-.listeningStage-shot-outro .listeningStageArtwork {
-  transform: scale(1.07) translate3d(1vw,0,0) !important;
-  filter: brightness(.82) saturate(.78) !important;
+@media (prefers-reduced-motion:reduce) {
+  .listeningStageArtwork,.listeningStageCharacter,.listeningStageCutLight-a,.listeningStageCutLight-b { animation:none !important; }
 }
