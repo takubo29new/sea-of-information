@@ -8,22 +8,30 @@
   isolation: isolate;
 }
 
+/*
+ * Production background rule:
+ * Never crop a reviewed 16:9 illustration just to fill the viewport.
+ * Letterboxing is preferable to silently enlarging/cropping the artwork.
+ */
 .sceneVisualBackground {
   position: absolute;
-  inset: -2%;
-  width: 104%;
-  height: 104%;
-  object-fit: cover;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   object-position: center;
-  animation: sceneVisualBreath 18s ease-in-out infinite alternate;
   z-index: 0;
 }
+.sceneVisual-approved .sceneVisualEnvironment { opacity: .22; }
+.sceneVisual-placeholder .sceneVisualEnvironment { opacity: 1; }
 
 .sceneVisualCharacter {
   position: absolute;
-  bottom: -2%;
+  bottom: 0;
   max-height: 94%;
-  max-width: 58%;
+  max-width: 48%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 18px 42px rgba(0,0,0,.38));
@@ -93,10 +101,11 @@
 .listeningStageArtwork img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transform: scale(1.025);
-  transition: transform 5s linear, filter 1.2s ease;
+  object-fit: contain;
+  object-position: center;
+  transition: filter 1.2s ease;
 }
+/* Keep camera movement subtle enough that artwork composition is not destroyed. */
 .listeningCamera-slow-in .listeningStageArtwork img { animation: listeningSlowIn 16s linear forwards; }
 .listeningCamera-slow-out .listeningStageArtwork img { animation: listeningSlowOut 16s linear forwards; }
 .listeningCamera-drift-left .listeningStageArtwork img { animation: listeningDriftLeft 18s ease-in-out infinite alternate; }
@@ -207,19 +216,18 @@
 }
 .listeningStage-ready .listeningStageMode { color: #d8f9ff; text-shadow: 0 0 18px rgba(130,229,255,.72); }
 
-@keyframes sceneVisualBreath { from { transform: scale(1.01) translate3d(-.3%,0,0); } to { transform: scale(1.045) translate3d(.35%,-.2%,0); } }
 @keyframes sceneCharacterBreath { from { transform: translateY(0); } to { transform: translateY(-5px); } }
 @keyframes sceneParticleDrift { from { transform: translate3d(-1%,0,0); } to { transform: translate3d(1.5%,-1%,0); } }
-@keyframes listeningSlowIn { from { transform: scale(1.02); } to { transform: scale(1.09); } }
-@keyframes listeningSlowOut { from { transform: scale(1.09); } to { transform: scale(1.02); } }
-@keyframes listeningDriftLeft { from { transform: scale(1.06) translateX(1.2%); } to { transform: scale(1.06) translateX(-1.2%); } }
-@keyframes listeningDriftRight { from { transform: scale(1.06) translateX(-1.2%); } to { transform: scale(1.06) translateX(1.2%); } }
+@keyframes listeningSlowIn { from { transform: scale(1); } to { transform: scale(1.018); } }
+@keyframes listeningSlowOut { from { transform: scale(1.018); } to { transform: scale(1); } }
+@keyframes listeningDriftLeft { from { transform: scale(1.012) translateX(.35%); } to { transform: scale(1.012) translateX(-.35%); } }
+@keyframes listeningDriftRight { from { transform: scale(1.012) translateX(-.35%); } to { transform: scale(1.012) translateX(.35%); } }
 @keyframes listeningGlitch { 0% { transform: translateX(0); } 50% { transform: translateX(1px); } 100% { transform: translateX(-1px); } }
 @keyframes listeningGrain { from { transform: translate3d(0,0,0); } to { transform: translate3d(3%,2%,0); } }
 @keyframes listeningWave { from { transform: scaleY(.55); opacity: .55; } to { transform: scaleY(1); opacity: 1; } }
 
 @media (max-width: 720px) {
-  .sceneVisualCharacter { max-width: 75%; max-height: 82%; }
+  .sceneVisualCharacter { max-width: 72%; max-height: 82%; }
   .listeningStageChrome { left: 22px; right: 22px; bottom: 28px; }
   .listeningStageStoryText { margin-top: 14px; margin-bottom: 20px; }
   .listeningStageWave { height: 42px; }
@@ -228,7 +236,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sceneVisualBackground,
   .sceneVisualCharacter,
   .sceneVisualParallaxBack,
   .sceneVisualParallaxFront,
