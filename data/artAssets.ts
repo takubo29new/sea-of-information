@@ -8,7 +8,7 @@ export type ArtAsset = {
 
 /**
  * 実イラストをシーンロジックから分離して管理する。
- * 画像が未配置の場合はランタイム側でCSS補助描画へフォールバック可能。
+ * 画像が未配置の場合でもランタイム進行は継続できる。
  */
 export const ART_ASSETS: Record<string, ArtAsset> = {
   title: {
@@ -47,6 +47,14 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
     listeningArt: "/art/city/city-listening.webp",
     overlay: "dawn"
   },
+  "aurora-gate": {
+    background: "/art/city/aurora-gate.webp",
+    overlay: "night"
+  },
+  aurora: {
+    background: "/art/city/aurora-core.webp",
+    overlay: "sea"
+  },
   dusk: {
     background: "/art/city/city-dusk.webp",
     character: "/art/characters/noa/noa-smile.webp",
@@ -62,33 +70,37 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
     listeningArt: "/art/load-road/load-road-listening.webp",
     overlay: "road"
   },
+
+  /* Listening Stage用の共通Gadgetキー */
   gadget: {
     background: "/art/gadget/gadget-main.webp",
     listeningArt: "/art/gadget/gadget-listening.webp",
     overlay: "industrial"
   },
-  "gadget-power": {
-    background: "/art/gadget/gadget-power.webp",
+
+  /* 現在のScene.artと一致するキー */
+  "gadget-entry": {
+    background: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   },
-  "gadget-gears": {
-    background: "/art/gadget/gadget-gears.webp",
+  "gadget-machinery": {
+    background: "/art/gadget/gadget-machinery.webp",
     overlay: "industrial"
   },
-  "gadget-crane": {
-    background: "/art/gadget/gadget-crane.webp",
-    overlay: "industrial"
-  },
-  bit: {
+  "gadget-bit": {
     background: "/art/gadget/gadget-main.webp",
     character: "/art/characters/bit/bit-normal.webp",
     characterPosition: "right",
     overlay: "industrial"
   },
-  "bit-scan": {
+  "gadget-auth": {
     background: "/art/gadget/gadget-scan.webp",
     character: "/art/characters/bit/bit-warning.webp",
     characterPosition: "right",
+    overlay: "industrial"
+  },
+  end: {
+    background: "/art/gadget/gadget-scan.webp",
     overlay: "industrial"
   }
 };
