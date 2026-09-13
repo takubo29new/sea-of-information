@@ -3,7 +3,9 @@ export const SCENE_IDS = [
   "city-intervention", "city-noa", "city-investigation", "city-aurora-gate", "city-aurora",
   "city-dusk", "city-night", "load-road-1", "gadget-entry", "gadget-machinery",
   "gadget-bit", "gadget-auth", "load-road-2", "wish-entry", "fantasy-entry", "fantasy-origin",
-  "beautiful-entry", "vertical-slice-end"
+  "beautiful-entry", "break-entry", "break-lock", "blavery-entry", "naked-entry", "naked-core",
+  "signal-entry", "signal-contact", "spacecraft-entry", "new-create-entry", "new-create-core",
+  "thundercloud-entry", "thundercloud-choice", "space-home-entry", "space-home-final", "vertical-slice-end"
 ] as const;
 
 /**
@@ -18,7 +20,22 @@ export function isSceneId(value: unknown): value is SceneId {
   return typeof value === "string" && (SCENE_IDS as readonly string[]).includes(value);
 }
 
-export type TrackId = "sea-of-information" | "city-of-dawn" | "load-road" | "gadget-area" | "wish" | "fantasy" | "beautiful";
+export type TrackId =
+  | "sea-of-information"
+  | "city-of-dawn"
+  | "load-road"
+  | "gadget-area"
+  | "wish"
+  | "fantasy"
+  | "beautiful"
+  | "break"
+  | "blavery"
+  | "naked"
+  | "signal"
+  | "spacecraft"
+  | "new-create"
+  | "thundercloud"
+  | "space-home";
 
 export type HotspotAction =
   | { type: "advance"; to: SceneId }
@@ -43,7 +60,22 @@ export type Hotspot = {
 
 export type Scene = {
   id: SceneId;
-  chapter: "prologue" | "city-of-dawn" | "transit" | "gadget-area" | "wish" | "fantasy" | "beautiful" | "system";
+  chapter:
+    | "prologue"
+    | "city-of-dawn"
+    | "transit"
+    | "gadget-area"
+    | "wish"
+    | "fantasy"
+    | "beautiful"
+    | "break"
+    | "naked"
+    | "signal"
+    | "spacecraft"
+    | "new-create"
+    | "thundercloud"
+    | "space-home"
+    | "system";
   title?: string;
   subtitle?: string;
   art:
@@ -67,6 +99,14 @@ export type Scene = {
     | "wish"
     | "fantasy"
     | "beautiful"
+    | "break"
+    | "blavery"
+    | "naked"
+    | "signal"
+    | "spacecraft"
+    | "new-create"
+    | "thundercloud"
+    | "space-home"
     | "end";
   track?: TrackId;
   trackRestart?: boolean;
