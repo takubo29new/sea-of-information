@@ -19,20 +19,24 @@ export type SceneId =
   | "gadget-auth"
   | "load-road-2"
   | "wish-entry"
+  | "fantasy-entry"
+  | "fantasy-origin"
+  | "beautiful-entry"
   | "vertical-slice-end";
 
 export const SCENE_IDS: readonly SceneId[] = [
   "title", "sea-awakening", "sea-terminal", "sea-dive", "city-loop-1", "city-loop-2",
   "city-intervention", "city-noa", "city-investigation", "city-aurora-gate", "city-aurora",
   "city-dusk", "city-night", "load-road-1", "gadget-entry", "gadget-machinery",
-  "gadget-bit", "gadget-auth", "load-road-2", "wish-entry", "vertical-slice-end"
+  "gadget-bit", "gadget-auth", "load-road-2", "wish-entry", "fantasy-entry", "fantasy-origin",
+  "beautiful-entry", "vertical-slice-end"
 ];
 
 export function isSceneId(value: unknown): value is SceneId {
   return typeof value === "string" && (SCENE_IDS as readonly string[]).includes(value);
 }
 
-export type TrackId = "sea-of-information" | "city-of-dawn" | "load-road" | "gadget-area" | "wish";
+export type TrackId = "sea-of-information" | "city-of-dawn" | "load-road" | "gadget-area" | "wish" | "fantasy" | "beautiful";
 
 export type HotspotAction =
   | { type: "advance"; to: SceneId }
@@ -57,7 +61,7 @@ export type Hotspot = {
 
 export type Scene = {
   id: SceneId;
-  chapter: "prologue" | "city-of-dawn" | "transit" | "gadget-area" | "wish" | "system";
+  chapter: "prologue" | "city-of-dawn" | "transit" | "gadget-area" | "wish" | "fantasy" | "beautiful" | "system";
   title?: string;
   subtitle?: string;
   art:
@@ -79,6 +83,8 @@ export type Scene = {
     | "gadget-bit"
     | "gadget-auth"
     | "wish"
+    | "fantasy"
+    | "beautiful"
     | "end";
   track?: TrackId;
   trackRestart?: boolean;
