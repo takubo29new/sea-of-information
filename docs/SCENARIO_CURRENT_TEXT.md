@@ -14,7 +14,7 @@
 - `docs/scenario-text/02_CITY.md` — City of Dawn
 - `docs/scenario-text/03_LOAD_ROAD.md` — Load road（1回目 / 2回目）
 - `docs/scenario-text/04_GADGET.md` — Gadget Area / BIT / 99.7%
-- `docs/scenario-text/05_WISH_ENTRY.md` — WISH入口のみ
+- `docs/scenario-text/05_WISH_ENTRY.md` — WISH本編 / BIT自主復旧 / Fantasy入口
 
 ## レビュー時の優先資料
 
@@ -25,12 +25,11 @@
 
 ## 未実装章
 
-WISHは入口テキストのみ実装済みで、本編はまだ未実装です。
+WISH本編は実装済みで、Fantasy入口まで到達可能です。
 以下は本編台詞未実装です。
 
 ```text
-wish（本編）
-Fantasy
+Fantasy（本編）
 beautiful
 Break / blavery
 Naked
