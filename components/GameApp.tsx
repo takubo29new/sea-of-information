@@ -2,17 +2,64 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AudioManager, TRACK_META } from "@/engine/audio";
-import { deleteSave, loadSave, saveGame } from "@/engine/saveClient";
-import { INITIAL_STATE, type Dialogue, type GameState, type HotspotAction, type SceneId, type TrackId } from "@/engine/model";
+import {
+  deleteSave,
+  hasManualSave,
+  loadManualSave,
+  loadSave,
+  saveGame,
+  saveManualGame
+} from "@/engine/saveClient";
+import {
+  INITIAL_STATE,
+  SCENE_IDS,
+  type Dialogue,
+  type GameState,
+  type HotspotAction,
+  type SceneId,
+  type TrackId
+} from "@/engine/model";
 import { dialogues, scenes } from "@/data/scenes";
 import { SceneVisual } from "@/components/visual/SceneVisual";
 import { ListeningStage } from "@/components/visual/ListeningStage";
+import { TrackTransition } from "@/components/TrackTransition";
 
 const MUSIC_POSITION_PREFIX = "sea-of-information:music-position:";
+const MANUAL_MUSIC_POSITION_KEY = "sea-of-information:manual-music-position";
+const MANUAL_MUSIC_TRACK_KEY = "sea-of-information:manual-music-track";
 const SEA_MEMORY_IDS = ["memory-light", "memory-voice", "memory-sky"] as const;
+const SEA_DIVE_MIN_TIME = 165;
+
+type MusicFocusState = {
+  until: number;
+  label: string;
+  action: HotspotAction;
+  phase: "listening" | "ready";
+  checkpointKey: string;
+  canSkip: boolean;
+};
+
+type PendingTrackTransition = {
+  action: HotspotAction;
+  current: TrackId;
+  next: TrackId;
+};
 
 function musicPositionKey(track: TrackId) {
   return `${MUSIC_POSITION_PREFIX}${track}`;
+}
+
+function seenFlag(sceneId: SceneId, hotspotId: string) {
+  return `seen.${sceneId}.${hotspotId}`;
+}
+
+function listenedFlag(sceneId: SceneId, hotspotId: string) {
+  return `listened.${sceneId}.${hotspotId}`;
+}
+
+function requiredTrackTime(sceneId: SceneId, hotspotId: string, original?: number) {
+  if (sceneId === "sea-dive" && hotspotId === "dive-gate") return Math.max(original ?? 0, SEA_DIVE_MIN_TIME);
+  return original;
 }
 
 function hideBrokenArt(event: React.SyntheticEvent<HTMLImageElement>) {
@@ -26,9 +73,12 @@ export function GameApp() {
   const pendingPersistRef = useRef(false);
   const restoreMusicPositionRef = useRef<number | null>(null);
   const lastMusicPersistRef = useRef(0);
+  const fadeInNextTrackRef = useRef(false);
+
   const [screen, setScreen] = useState<"title" | "game" | "archive">("title");
   const [state, setState] = useState<GameState>(INITIAL_STATE);
   const [hasSave, setHasSave] = useState(false);
+  const [hasManual, setHasManual] = useState(false);
   const [dialogue, setDialogue] = useState<Dialogue | null>(null);
   const [lineIndex, setLineIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -36,13 +86,15 @@ export function GameApp() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [musicPosition, setMusicPosition] = useState(0);
   const [musicDuration, setMusicDuration] = useState(0);
-  const [musicFocus, setMusicFocus] = useState<{ until: number; label: string; action: HotspotAction; phase: "listening" | "ready" } | null>(null);
-  const [inspectedHotspots, setInspectedHotspots] = useState<Record<string, boolean>>({});
+  const [musicFocus, setMusicFocus] = useState<MusicFocusState | null>(null);
+  const [pendingTrackTransition, setPendingTrackTransition] = useState<PendingTrackTransition | null>(null);
+  const [sceneFade, setSceneFade] = useState(false);
 
   useEffect(() => {
     audioRef.current = new AudioManager();
     const existing = loadSave();
     setHasSave(Boolean(existing));
+    setHasManual(hasManualSave());
     const rawVolume = window.localStorage.getItem("sea-of-information:volume");
     const parsed = rawVolume ? Number(rawVolume) : 0.72;
     if (Number.isFinite(parsed)) {
@@ -53,8 +105,10 @@ export function GameApp() {
   }, []);
 
   const scene = scenes[state.sceneId];
-  const hotspotKey = useCallback((sceneId: SceneId, hotspotId: string) => `${sceneId}:${hotspotId}`, []);
-  const seaMemoryCount = SEA_MEMORY_IDS.reduce((count, id) => count + (inspectedHotspots[hotspotKey("sea-awakening", id)] ? 1 : 0), 0);
+  const seaMemoryCount = SEA_MEMORY_IDS.reduce(
+    (count, id) => count + (state.flags[seenFlag("sea-awakening", id)] ? 1 : 0),
+    0
+  );
 
   useEffect(() => {
     if (screen !== "game") return;
@@ -78,6 +132,19 @@ export function GameApp() {
     setHasSave(true);
     setSavedFlash(true);
     window.setTimeout(() => setSavedFlash(false), 900);
+  }, []);
+
+  const setPersistentFlag = useCallback((flag: string, value = true) => {
+    setState(prev => {
+      if (Boolean(prev.flags[flag]) === value) return prev;
+      const next = {
+        ...prev,
+        flags: { ...prev.flags, [flag]: value },
+        updatedAt: new Date().toISOString()
+      };
+      pendingPersistRef.current = true;
+      return next;
+    });
   }, []);
 
   useEffect(() => {
@@ -111,7 +178,7 @@ export function GameApp() {
     });
   }, []);
 
-  const runAction = useCallback((action?: HotspotAction) => {
+  const executeAction = useCallback((action?: HotspotAction) => {
     if (!action) return;
     audioRef.current?.resume();
     if (action.type === "advance") return goToScene(action.to);
@@ -122,14 +189,22 @@ export function GameApp() {
     }
     if (action.type === "setFlagAndAdvance") {
       setState(prev => {
-        const next = { ...prev, flags: { ...prev.flags, [action.flag]: true }, updatedAt: new Date().toISOString() };
+        const next = {
+          ...prev,
+          flags: { ...prev.flags, [action.flag]: true },
+          updatedAt: new Date().toISOString()
+        };
         pendingPersistRef.current = true;
         return next;
       });
       return goToScene(action.to);
     }
     setState(prev => {
-      const next = { ...prev, flags: { ...prev.flags, [action.flag]: true }, updatedAt: new Date().toISOString() };
+      const next = {
+        ...prev,
+        flags: { ...prev.flags, [action.flag]: true },
+        updatedAt: new Date().toISOString()
+      };
       pendingPersistRef.current = true;
       return next;
     });
@@ -137,10 +212,27 @@ export function GameApp() {
     setLineIndex(0);
   }, [goToScene]);
 
+  const runAction = useCallback((action?: HotspotAction) => {
+    if (!action) return;
+    if (action.type === "advance" || action.type === "setFlagAndAdvance") {
+      const target = scenes[action.to];
+      if (scene.track && target.track && target.track !== scene.track) {
+        setPendingTrackTransition({
+          action,
+          current: scene.track,
+          next: target.track
+        });
+        return;
+      }
+    }
+    executeAction(action);
+  }, [executeAction, scene.track]);
+
   useEffect(() => {
     if (!musicFocus || musicFocus.phase !== "listening" || musicPosition < musicFocus.until) return;
-    setMusicFocus(current => current ? { ...current, phase: "ready" } : current);
-  }, [musicFocus, musicPosition]);
+    setPersistentFlag(musicFocus.checkpointKey);
+    setMusicFocus(current => current ? { ...current, phase: "ready", canSkip: true } : current);
+  }, [musicFocus, musicPosition, setPersistentFlag]);
 
   useEffect(() => {
     if (!musicFocus || musicFocus.phase !== "ready") return;
@@ -148,9 +240,28 @@ export function GameApp() {
     const id = window.setTimeout(() => {
       setMusicFocus(null);
       runAction(action);
-    }, 1100);
+    }, 850);
     return () => window.clearTimeout(id);
   }, [musicFocus, runAction]);
+
+  const skipListening = useCallback(() => {
+    if (!musicFocus || !musicFocus.canSkip) return;
+    audioRef.current?.seek(musicFocus.until);
+    setMusicPosition(musicFocus.until);
+    setPersistentFlag(musicFocus.checkpointKey);
+    setMusicFocus(current => current ? { ...current, phase: "ready" } : current);
+  }, [musicFocus, setPersistentFlag]);
+
+  const confirmTrackTransition = useCallback(async () => {
+    if (!pendingTrackTransition) return;
+    const action = pendingTrackTransition.action;
+    setPendingTrackTransition(null);
+    setSceneFade(true);
+    await audioRef.current?.fadeOut(650);
+    fadeInNextTrackRef.current = true;
+    executeAction(action);
+    window.setTimeout(() => setSceneFade(false), 1050);
+  }, [pendingTrackTransition, executeAction]);
 
   const openDialogue = useCallback((id: string) => {
     setDialogue(dialogues[id]);
@@ -162,7 +273,9 @@ export function GameApp() {
     let cancelled = false;
     const startTrack = async () => {
       if (!scene.track) return;
-      await audioRef.current?.play(scene.track, Boolean(scene.trackRestart));
+      const fadeInMs = fadeInNextTrackRef.current ? 750 : 0;
+      fadeInNextTrackRef.current = false;
+      await audioRef.current?.play(scene.track, Boolean(scene.trackRestart), fadeInMs);
       if (cancelled) return;
       const restorePosition = restoreMusicPositionRef.current;
       if (restorePosition !== null) {
@@ -192,21 +305,48 @@ export function GameApp() {
     const onKey = (event: KeyboardEvent) => {
       if (screen !== "game") return;
       if (event.key === "Escape") return setSettingsOpen(v => !v);
-      if ((event.key === "Enter" || event.key === " ") && dialogue && !musicFocus) {
+      if ((event.key === "Enter" || event.key === " ") && dialogue && !musicFocus && !pendingTrackTransition) {
         event.preventDefault();
         advanceDialogue();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [screen, dialogue, musicFocus, advanceDialogue]);
+  }, [screen, dialogue, musicFocus, pendingTrackTransition, advanceDialogue]);
+
+  const restoreState = useCallback((existing: GameState, manual = false) => {
+    const resumeScene = scenes[existing.sceneId];
+    let stored = 0;
+    if (resumeScene.track) {
+      if (manual) {
+        const manualTrack = window.localStorage.getItem(MANUAL_MUSIC_TRACK_KEY);
+        const raw = Number(window.localStorage.getItem(MANUAL_MUSIC_POSITION_KEY) ?? "0");
+        if (manualTrack === resumeScene.track && Number.isFinite(raw)) stored = raw;
+      } else {
+        const raw = Number(window.localStorage.getItem(musicPositionKey(resumeScene.track)) ?? "0");
+        if (Number.isFinite(raw)) stored = raw;
+      }
+    }
+    restoreMusicPositionRef.current = stored > 0 ? stored : null;
+    if (stored > 0 && audioRef.current?.getCurrentTrack() === resumeScene.track) {
+      audioRef.current.seek(stored);
+      setMusicPosition(stored);
+      restoreMusicPositionRef.current = null;
+    }
+    setDialogue(null);
+    setLineIndex(0);
+    setMusicFocus(null);
+    setPendingTrackTransition(null);
+    setState(existing);
+    setScreen("game");
+  }, []);
 
   const startNewGame = () => {
     audioRef.current?.resume();
     setDialogue(null);
     setLineIndex(0);
     setMusicFocus(null);
-    setInspectedHotspots({});
+    setPendingTrackTransition(null);
     restoreMusicPositionRef.current = null;
     (Object.keys(TRACK_META) as TrackId[]).forEach(track => window.localStorage.removeItem(musicPositionKey(track)));
     const next = { ...INITIAL_STATE, updatedAt: new Date().toISOString() };
@@ -218,18 +358,46 @@ export function GameApp() {
   const continueGame = () => {
     const existing = loadSave();
     if (!existing) return;
-    const resumeScene = scenes[existing.sceneId];
-    if (resumeScene.track) {
-      const stored = Number(window.localStorage.getItem(musicPositionKey(resumeScene.track)) ?? "0");
-      restoreMusicPositionRef.current = Number.isFinite(stored) && stored > 0 ? stored : null;
-    } else {
-      restoreMusicPositionRef.current = null;
+    restoreState(existing, false);
+  };
+
+  const saveManual = () => {
+    saveManualGame(state);
+    const track = scene.track;
+    if (track) {
+      window.localStorage.setItem(MANUAL_MUSIC_TRACK_KEY, track);
+      window.localStorage.setItem(MANUAL_MUSIC_POSITION_KEY, String(audioRef.current?.getPosition() ?? musicPosition));
     }
-    setDialogue(null);
-    setLineIndex(0);
-    setMusicFocus(null);
-    setState(existing);
-    setScreen("game");
+    setHasManual(true);
+    setSavedFlash(true);
+    window.setTimeout(() => setSavedFlash(false), 900);
+  };
+
+  const loadManual = () => {
+    const existing = loadManualSave();
+    if (!existing) return;
+    setSettingsOpen(false);
+    restoreState(existing, true);
+  };
+
+  const debugNextScene = () => {
+    const index = SCENE_IDS.indexOf(state.sceneId);
+    const next = SCENE_IDS.slice(index + 1).find(id => id !== "title");
+    if (!next) return;
+    setSettingsOpen(false);
+    goToScene(next);
+  };
+
+  const debugNextTrack = () => {
+    const index = SCENE_IDS.indexOf(state.sceneId);
+    const next = SCENE_IDS.slice(index + 1).find(id => {
+      const track = scenes[id].track;
+      return track && track !== scene.track;
+    });
+    if (!next) return;
+    setSettingsOpen(false);
+    fadeInNextTrackRef.current = true;
+    goToScene(next);
   };
 
   const changeVolume = (next: number) => {
@@ -262,28 +430,74 @@ export function GameApp() {
     </main>;
   }
 
-  return <main className={`gameScreen art-${scene.art}`} onPointerDown={() => audioRef.current?.resume()}>
+  return <main className={`gameScreen art-${scene.art}${sceneFade ? " scene-fading" : ""}`} onPointerDown={() => audioRef.current?.resume()}>
     <SceneVisual artKey={scene.art} /><div className="cinemaGrain" aria-hidden="true" />
+    <div className="sceneFadeOverlay" aria-hidden="true" />
     {scene.title && <div className="chapterCard" key={scene.id}><span>{scene.subtitle}</span><h2>{scene.title}</h2></div>}
-    {scene.id === "sea-awakening" && <section className="prologueObjective"><small>OBJECTIVE</small><strong>3つの記憶断片を復元する</strong><div className="objectiveProgress">{SEA_MEMORY_IDS.map(id => <i key={id} className={inspectedHotspots[hotspotKey("sea-awakening", id)] ? "done" : ""} />)}</div><p>{seaMemoryCount}/3 復元済み{seaMemoryCount === 3 ? " — 新しい信号を検出" : ""}</p></section>}
+    {scene.id === "sea-awakening" && <section className="prologueObjective"><small>OBJECTIVE</small><strong>3つの記憶断片を復元する</strong><div className="objectiveProgress">{SEA_MEMORY_IDS.map(id => <i key={id} className={state.flags[seenFlag("sea-awakening", id)] ? "done" : ""} />)}</div><p>{seaMemoryCount}/3 復元済み{seaMemoryCount === 3 ? " — 新しい信号を検出" : ""}</p></section>}
     {scene.track && <NowPlaying track={scene.track} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} />}
     <button className="menuButton" onClick={() => setSettingsOpen(true)}>MENU</button>
-    {!musicFocus && visibleHotspots.map(h => {
-      const key = hotspotKey(scene.id, h.id);
-      const locked = typeof h.requiresTrackTime === "number" && musicPosition < h.requiresTrackTime;
+
+    {!musicFocus && !pendingTrackTransition && visibleHotspots.map(h => {
+      const gateTime = requiredTrackTime(scene.id, h.id, h.requiresTrackTime);
+      const locked = typeof gateTime === "number" && musicPosition < gateTime;
       const label = locked ? (h.lockedLabel ?? "音に耳を澄ます") : h.label;
-      const inspected = Boolean(inspectedHotspots[key]);
+      const inspected = Boolean(state.flags[seenFlag(scene.id, h.id)]);
       return <button key={h.id} className={`hotspot${locked ? " hotspot-locked" : ""}${inspected ? " hotspot-complete" : ""}`} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.width}%`, height: `${h.height}%` }} onClick={() => {
-        setInspectedHotspots(prev => ({ ...prev, [key]: true }));
-        if (locked && typeof h.requiresTrackTime === "number") return setMusicFocus({ until: h.requiresTrackTime, label, action: h.action, phase: "listening" });
+        setPersistentFlag(seenFlag(scene.id, h.id));
+        if (locked && typeof gateTime === "number") {
+          const checkpointKey = listenedFlag(scene.id, h.id);
+          return setMusicFocus({
+            until: gateTime,
+            label,
+            action: h.action,
+            phase: "listening",
+            checkpointKey,
+            canSkip: Boolean(state.flags[checkpointKey])
+          });
+        }
         runAction(h.action);
       }}><span>{inspected && scene.id === "sea-awakening" ? `✓ ${label}` : label}</span></button>;
     })}
-    {scene.id === "vertical-slice-end" && <section className="sliceEnd"><p>VERTICAL SLICE 0.7</p><h2>99.7%は、同じという意味だろうか。</h2><p>CHAPTER 2 — Gadget Area / BIT INTRODUCTION</p><div><button onClick={() => setScreen("title")}>TITLE</button><button onClick={() => { deleteSave(); setHasSave(false); startNewGame(); }}>RESTART</button></div></section>}
-    {dialogue && !musicFocus && <DialogueBox dialogue={dialogue} lineIndex={lineIndex} onAdvance={advanceDialogue} />}
-    {musicFocus && scene.track && <ListeningStage track={scene.track} title={TRACK_META[scene.track].title} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} unlockAt={musicFocus.until} phase={musicFocus.phase} />}
+
+    {scene.id === "vertical-slice-end" && <section className="sliceEnd"><p>VERTICAL SLICE 0.8</p><h2>99.7%は、同じという意味だろうか。</h2><p>CHAPTER 2 — Gadget Area / BIT INTRODUCTION</p><div><button onClick={() => setScreen("title")}>TITLE</button><button onClick={() => { deleteSave(); setHasSave(false); setHasManual(false); startNewGame(); }}>RESTART</button></div></section>}
+    {dialogue && !musicFocus && !pendingTrackTransition && <DialogueBox dialogue={dialogue} lineIndex={lineIndex} onAdvance={advanceDialogue} />}
+    {musicFocus && scene.track && <ListeningStage
+      track={scene.track}
+      title={TRACK_META[scene.track].title}
+      position={musicPosition}
+      duration={musicDuration || TRACK_META[scene.track].duration}
+      unlockAt={musicFocus.until}
+      phase={musicFocus.phase}
+      canSkip={musicFocus.canSkip}
+      onSkip={skipListening}
+    />}
+    {pendingTrackTransition && <TrackTransition
+      current={pendingTrackTransition.current}
+      next={pendingTrackTransition.next}
+      onCancel={() => setPendingTrackTransition(null)}
+      onConfirm={() => { void confirmTrackTransition(); }}
+    />}
     {savedFlash && <div className="savedFlash">SAVED</div>}
-    {settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} onTitle={() => { audioRef.current?.pause(); setSettingsOpen(false); setDialogue(null); setLineIndex(0); setMusicFocus(null); setScreen("title"); }} />}
+    {settingsOpen && <Settings
+      volume={volume}
+      onVolume={changeVolume}
+      onClose={() => setSettingsOpen(false)}
+      onTitle={() => {
+        audioRef.current?.pause();
+        setSettingsOpen(false);
+        setDialogue(null);
+        setLineIndex(0);
+        setMusicFocus(null);
+        setPendingTrackTransition(null);
+        setScreen("title");
+      }}
+      onSave={saveManual}
+      onLoad={loadManual}
+      canLoad={hasManual}
+      onDebugNextScene={debugNextScene}
+      onDebugNextTrack={debugNextTrack}
+    />}
   </main>;
 }
 
@@ -299,10 +513,41 @@ function DialogueBox({ dialogue, lineIndex, onAdvance }: { dialogue: Dialogue; l
   return <button className="dialogueBox" onClick={onAdvance}>{line.speaker && <span className={`speaker speaker-${line.speaker.toLowerCase()}`}>{line.speaker}</span>}<span className="dialogueText">{line.text}</span><span className="dialogueHint">CLICK / ENTER</span></button>;
 }
 
-function Settings({ volume, onVolume, onClose, onTitle }: { volume: number; onVolume: (n: number) => void; onClose: () => void; onTitle?: () => void }) {
+function Settings({
+  volume,
+  onVolume,
+  onClose,
+  onTitle,
+  onSave,
+  onLoad,
+  canLoad,
+  onDebugNextScene,
+  onDebugNextTrack
+}: {
+  volume: number;
+  onVolume: (n: number) => void;
+  onClose: () => void;
+  onTitle?: () => void;
+  onSave?: () => void;
+  onLoad?: () => void;
+  canLoad?: boolean;
+  onDebugNextScene?: () => void;
+  onDebugNextTrack?: () => void;
+}) {
   const fullscreen = async () => {
     if (!document.fullscreenElement) await document.documentElement.requestFullscreen().catch(() => undefined);
     else await document.exitFullscreen().catch(() => undefined);
   };
-  return <div className="modalBackdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}><section className="settingsPanel"><div className="settingsTitle"><span>SETTINGS</span><button onClick={onClose}>×</button></div><label>BGM VOLUME <strong>{Math.round(volume * 100)}</strong><input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => onVolume(Number(e.target.value))} /></label><button className="settingsAction" onClick={fullscreen}>FULLSCREEN</button>{onTitle && <button className="settingsAction" onClick={onTitle}>RETURN TO TITLE</button>}<p>会話送り: クリック / Enter / Space　設定: Esc</p></section></div>;
+
+  return <div className="modalBackdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}>
+    <section className="settingsPanel">
+      <div className="settingsTitle"><span>SETTINGS</span><button onClick={onClose}>×</button></div>
+      <label>BGM VOLUME <strong>{Math.round(volume * 100)}</strong><input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => onVolume(Number(e.target.value))} /></label>
+      <button className="settingsAction" onClick={fullscreen}>FULLSCREEN</button>
+      {onSave && <div className="settingsGroup"><small>SAVE / LOAD</small><div className="settingsRow"><button className="settingsAction" onClick={onSave}>SAVE NOW</button><button className="settingsAction" onClick={onLoad} disabled={!canLoad}>LOAD MANUAL SAVE</button></div></div>}
+      {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK</button></div></div>}
+      {onTitle && <button className="settingsAction" onClick={onTitle}>RETURN TO TITLE</button>}
+      <p>会話送り: クリック / Enter / Space　設定: Esc</p>
+    </section>
+  </div>;
 }
