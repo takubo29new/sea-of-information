@@ -1,10 +1,66 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { loadManualSave } from "@/engine/saveClient";
+import { seekActiveAudio } from "@/engine/audio";
+import type { TrackId } from "@/engine/model";
+import { scenes } from "@/data/scenes";
 
 type Pulse = { id: number; x: number; y: number };
+type ListeningMarker = { sceneId: string; track: TrackId; unlockAt: number };
 
 const MODAL_FOCUSABLE = "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])";
+const MANUAL_LISTENING_MARKER = "sea-of-information:manual-listening-marker";
+const MANUAL_MUSIC_POSITION_KEY = "sea-of-information:manual-music-position";
+const MANUAL_MUSIC_TRACK_KEY = "sea-of-information:manual-music-track";
+
+function parseClock(value: string) {
+  const match = value.match(/(\d+):(\d{2})/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function currentListeningMarker(): ListeningMarker | null {
+  const stage = document.querySelector<HTMLElement>(".listeningStage");
+  const saved = loadManualSave();
+  if (!stage || !saved) return null;
+
+  const trackClass = Array.from(stage.classList).find(name => name.startsWith("listeningStage-track-"));
+  const track = trackClass?.replace("listeningStage-track-", "") as TrackId | undefined;
+  const unlockText = stage.querySelector<HTMLElement>(".listeningStageTimes span:nth-child(2)")?.textContent ?? "";
+  const unlockAt = parseClock(unlockText);
+  if (!track || unlockAt === null) return null;
+  return { sceneId: saved.sceneId, track, unlockAt };
+}
+
+function restoreManualContext(marker: ListeningMarker | null) {
+  const saved = loadManualSave();
+  if (!saved) return;
+
+  const storedTrack = window.localStorage.getItem(MANUAL_MUSIC_TRACK_KEY) as TrackId | null;
+  const storedPosition = Number(window.localStorage.getItem(MANUAL_MUSIC_POSITION_KEY) ?? "0");
+  if (storedTrack && Number.isFinite(storedPosition) && storedPosition > 0) {
+    seekActiveAudio(storedPosition, storedTrack);
+  }
+
+  if (!marker || marker.sceneId !== saved.sceneId || document.querySelector(".listeningStage")) return;
+  const scene = scenes[saved.sceneId];
+  if (!scene || scene.track !== marker.track) return;
+
+  const source = scene.hotspots?.find(hotspot => {
+    if (typeof hotspot.requiresTrackTime !== "number") return false;
+    const unlockAt = scene.id === "sea-dive" && hotspot.id === "dive-gate"
+      ? Math.max(hotspot.requiresTrackTime, 165)
+      : hotspot.requiresTrackTime;
+    return Math.abs(unlockAt - marker.unlockAt) < 0.6;
+  });
+  if (!source) return;
+
+  const expectedLabel = source.lockedLabel ?? source.label;
+  const hotspot = Array.from(document.querySelectorAll<HTMLButtonElement>(".gameScreen .hotspot"))
+    .find(button => (button.textContent ?? "").includes(expectedLabel));
+  hotspot?.click();
+}
 
 export function GlobalUX() {
   const [showTitleNotice, setShowTitleNotice] = useState(false);
@@ -44,6 +100,26 @@ export function GlobalUX() {
 
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null;
+      const button = target?.closest?.("button") as HTMLButtonElement | null;
+      const buttonText = button?.textContent ?? "";
+
+      if (buttonText.includes("SAVE NOW")) {
+        window.setTimeout(() => {
+          const marker = currentListeningMarker();
+          if (marker) window.localStorage.setItem(MANUAL_LISTENING_MARKER, JSON.stringify(marker));
+          else window.localStorage.removeItem(MANUAL_LISTENING_MARKER);
+        }, 0);
+      }
+
+      if (buttonText.includes("LOAD MANUAL SAVE")) {
+        let marker: ListeningMarker | null = null;
+        const raw = window.localStorage.getItem(MANUAL_LISTENING_MARKER);
+        if (raw) {
+          try { marker = JSON.parse(raw) as ListeningMarker; } catch { marker = null; }
+        }
+        [180, 700, 1400].forEach(delay => window.setTimeout(() => restoreManualContext(marker), delay));
+      }
+
       const trackCard = target?.closest?.(".archiveScreen .trackCard") as HTMLButtonElement | null;
       if (trackCard && !trackCard.disabled) {
         document.querySelectorAll<HTMLElement>(".archiveScreen .trackCard.is-playing").forEach(card => {
