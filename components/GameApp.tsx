@@ -329,7 +329,7 @@ export function GameApp() {
     }
     restoreMusicPositionRef.current = stored > 0 ? stored : null;
     if (stored > 0 && audioRef.current?.getCurrentTrack() === resumeScene.track) {
-      audioRef.current.seek(stored);
+      audioRef.current?.seek(stored);
       setMusicPosition(stored);
       restoreMusicPositionRef.current = null;
     }
