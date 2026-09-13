@@ -26,16 +26,14 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   title: {
     background: "/art/production/title/title-background.webp",
     overlay: "sea",
-    approved: false,
-    note: "Clean 16:9 title key visual; no text/UI."
+    approved: true,
+    note: "Approved production title background; UI remains React/CSS."
   },
   sea: {
     background: "/art/production/sea/sea-background.webp",
-    character: "/art/production/characters/rei/rei-neutral.webp",
-    characterPosition: "left",
     overlay: "sea",
-    approved: false,
-    note: "Clean information-sea background + transparent Rei."
+    approved: true,
+    note: "Approved clean information-sea background. Rei sprite pending."
   },
   terminal: {
     background: "/art/production/sea/sea-terminal.webp",
