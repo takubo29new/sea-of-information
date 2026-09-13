@@ -47,6 +47,23 @@ export class AudioManager {
     try { await next.play(); } catch { /* first user gesture will resume */ }
   }
 
+  seek(position: number) {
+    if (!this.audio || !Number.isFinite(position) || position <= 0) return;
+    const target = Math.max(0, position);
+    const apply = () => {
+      if (!this.audio) return;
+      const duration = Number.isFinite(this.audio.duration) ? this.audio.duration : undefined;
+      this.audio.currentTime = duration ? Math.min(target, Math.max(0, duration - 0.05)) : target;
+    };
+    if (this.audio.readyState >= 1) {
+      try { apply(); } catch { /* metadata may still be unavailable */ }
+      return;
+    }
+    this.audio.addEventListener("loadedmetadata", () => {
+      try { apply(); } catch { /* no-op */ }
+    }, { once: true });
+  }
+
   async resume() {
     if (!this.audio || !this.audio.paused) return;
     try { await this.audio.play(); } catch { /* no-op */ }
