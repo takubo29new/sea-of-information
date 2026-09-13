@@ -8,7 +8,8 @@ export type ArtAsset = {
 
 /**
  * 実イラストをシーンロジックから分離して管理する。
- * 画像が未配置の場合でもランタイム進行は継続できる。
+ * 専用差分が未配置の場面は、同章の実画像を再利用し、
+ * overlay / Listening Stage 側の演出で見え方を変える。
  */
 export const ART_ASSETS: Record<string, ArtAsset> = {
   title: {
@@ -17,15 +18,15 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   sea: {
     background: "/art/sea/sea-main.webp",
-    listeningArt: "/art/sea/sea-listening.webp",
+    listeningArt: "/art/sea/sea-main.webp",
     overlay: "sea"
   },
   terminal: {
-    background: "/art/sea/sea-terminal.webp",
+    background: "/art/sea/sea-main.webp",
     overlay: "sea"
   },
   dive: {
-    background: "/art/sea/sea-dive.webp",
+    background: "/art/sea/sea-main.webp",
     overlay: "sea"
   },
   city: {
@@ -33,74 +34,66 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
     overlay: "dawn"
   },
   "city-glitch": {
-    background: "/art/city/city-loop.webp",
+    background: "/art/city/city-morning.webp",
     overlay: "dawn"
   },
   "city-investigation": {
-    background: "/art/city/city-investigation.webp",
+    background: "/art/city/city-morning.webp",
     overlay: "dawn"
   },
   noa: {
     background: "/art/city/city-morning.webp",
     character: "/art/characters/noa/noa-neutral.webp",
     characterPosition: "right",
-    listeningArt: "/art/city/city-listening.webp",
+    listeningArt: "/art/city/city-morning.webp",
     overlay: "dawn"
   },
   "aurora-gate": {
-    background: "/art/city/aurora-gate.webp",
+    background: "/art/city/city-morning.webp",
     overlay: "night"
   },
   aurora: {
-    background: "/art/city/aurora-core.webp",
+    background: "/art/city/city-morning.webp",
     overlay: "sea"
   },
   dusk: {
-    background: "/art/city/city-dusk.webp",
-    character: "/art/characters/noa/noa-smile.webp",
+    background: "/art/city/city-morning.webp",
+    character: "/art/characters/noa/noa-neutral.webp",
     characterPosition: "right",
     overlay: "dusk"
   },
   night: {
-    background: "/art/city/city-night.webp",
+    background: "/art/city/city-morning.webp",
     overlay: "night"
   },
   "load-road": {
     background: "/art/load-road/load-road-main.webp",
-    listeningArt: "/art/load-road/load-road-listening.webp",
+    listeningArt: "/art/load-road/load-road-main.webp",
     overlay: "road"
   },
-
-  /* Listening Stage用の共通Gadgetキー */
   gadget: {
     background: "/art/gadget/gadget-main.webp",
-    listeningArt: "/art/gadget/gadget-listening.webp",
+    listeningArt: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   },
-
-  /* 現在のScene.artと一致するキー */
   "gadget-entry": {
     background: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   },
   "gadget-machinery": {
-    background: "/art/gadget/gadget-machinery.webp",
+    background: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   },
   "gadget-bit": {
     background: "/art/gadget/gadget-main.webp",
-    character: "/art/characters/bit/bit-normal.webp",
-    characterPosition: "right",
     overlay: "industrial"
   },
   "gadget-auth": {
-    background: "/art/gadget/gadget-scan.webp",
-    character: "/art/characters/bit/bit-warning.webp",
-    characterPosition: "right",
+    background: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   },
   end: {
-    background: "/art/gadget/gadget-scan.webp",
+    background: "/art/gadget/gadget-main.webp",
     overlay: "industrial"
   }
 };
