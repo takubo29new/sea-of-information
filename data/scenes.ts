@@ -20,7 +20,7 @@ export const scenes: Record<SceneId, Scene> = {
   },
   "sea-dive": {
     id: "sea-dive", chapter: "prologue", art: "dive", track: "sea-of-information", enterDialogueId: "dive",
-    hotspots: [{ id: "dive-gate", label: "DIVE", x: 39, y: 30, width: 22, height: 38, action: { type: "setFlagAndAdvance", flag: "prologue.firstDive", to: "city-loop-1" }, requiresTrackTime: 115, lockedLabel: "DIVE SIGNALを同期する" }]
+    hotspots: [{ id: "dive-gate", label: "DIVE", x: 39, y: 30, width: 22, height: 38, action: { type: "setFlagAndAdvance", flag: "prologue.firstDive", to: "city-loop-1" }, requiresTrackTime: 115, lockedLabel: "届いている信号に耳を澄ます" }]
   },
   "city-loop-1": {
     id: "city-loop-1", chapter: "city-of-dawn", title: "CITY OF DAWN", subtitle: "08:42 / OBSERVE", art: "city", track: "city-of-dawn", trackRestart: true, onEnterFlags: ["city.loop1Seen"], enterDialogueId: "cityFirst",
@@ -86,7 +86,7 @@ export const scenes: Record<SceneId, Scene> = {
     ]
   },
   "gadget-entry": {
-    id: "gadget-entry", chapter: "gadget-area", title: "GADGET AREA", subtitle: "ARCHIVE 02", art: "gadget-entry", track: "gadget-area", trackRestart: true, onEnterFlags: ["gadget.entered"], enterDialogueId: "gadgetEntry",
+    id: "gadget-entry", chapter: "gadget-area", title: "GADGET AREA", subtitle: "AREA 02", art: "gadget-entry", track: "gadget-area", trackRestart: true, onEnterFlags: ["gadget.entered"], enterDialogueId: "gadgetEntry",
     hotspots: [
       { id: "gadget-sign", label: "停止した案内板", x: 16, y: 34, width: 14, height: 20, action: { type: "dialogue", dialogueId: "gadgetSign" } },
       { id: "gadget-machinery-path", label: "機械区画へ進む", x: 66, y: 44, width: 18, height: 25, action: { type: "advance", to: "gadget-machinery" }, requiresTrackTime: 42, lockedLabel: "工場のリズムを観察する" }
@@ -95,9 +95,9 @@ export const scenes: Record<SceneId, Scene> = {
   "gadget-machinery": {
     id: "gadget-machinery", chapter: "gadget-area", art: "gadget-machinery", track: "gadget-area", enterDialogueId: "gadgetMachinery",
     hotspots: [
-      { id: "gadget-power", label: "主電源を迂回接続", x: 12, y: 52, width: 15, height: 22, action: { type: "setFlagAndDialogue", flag: "gadget.powerRestored", dialogueId: "gadgetPower" } },
-      { id: "gadget-gear", label: "歯車の位相を合わせる", x: 40, y: 28, width: 18, height: 27, action: { type: "setFlagAndDialogue", flag: "gadget.gearAligned", dialogueId: "gadgetGear" } },
-      { id: "gadget-crane", label: "クレーンを退避させる", x: 72, y: 31, width: 16, height: 27, action: { type: "setFlagAndDialogue", flag: "gadget.craneMoved", dialogueId: "gadgetCrane" } },
+      { id: "gadget-power", label: "電源をつなぎ直す", x: 12, y: 52, width: 15, height: 22, action: { type: "setFlagAndDialogue", flag: "gadget.powerRestored", dialogueId: "gadgetPower" } },
+      { id: "gadget-gear", label: "歯車の印を合わせる", x: 40, y: 28, width: 18, height: 27, action: { type: "setFlagAndDialogue", flag: "gadget.gearAligned", dialogueId: "gadgetGear" } },
+      { id: "gadget-crane", label: "クレーンをどかす", x: 72, y: 31, width: 16, height: 27, action: { type: "setFlagAndDialogue", flag: "gadget.craneMoved", dialogueId: "gadgetCrane" } },
       { id: "gadget-open", label: "奥の整備室へ", x: 42, y: 66, width: 17, height: 18, action: { type: "advance", to: "gadget-bit" }, visibleWhenAll: ["gadget.powerRestored", "gadget.gearAligned", "gadget.craneMoved"], requiresTrackTime: 92, lockedLabel: "復旧した機械の音を確認する" }
     ]
   },
@@ -119,7 +119,7 @@ export const scenes: Record<SceneId, Scene> = {
 
 export const dialogues: Record<string, Dialogue> = {
   awakening: { id: "awakening", lines: [
-    { speaker: "SYSTEM", text: "IDENTITY ........ UNKNOWN" }, { speaker: "SYSTEM", text: "AGE ............. 17" }, { speaker: "SYSTEM", text: "DIVER ID ........ REI" }, { speaker: "REI", text: "……レイ。私の名前？" }
+    { speaker: "SYSTEM", text: "IDENTITY ........ UNKNOWN" }, { speaker: "SYSTEM", text: "AGE ............. 17" }, { speaker: "SYSTEM", text: "NAME ............ REI" }, { speaker: "REI", text: "……レイ。私の名前？" }
   ] },
   memory: { id: "memory", lines: [{ text: "知らない家族の食卓が、一瞬だけ光の中に浮かんだ。" }, { speaker: "REI", text: "私の記憶じゃない。" }] },
   memoryVoice: { id: "memoryVoice", lines: [{ text: "『いってきます』――知らない声だけが、波の向こうに残っている。" }, { speaker: "REI", text: "誰の声だ……？" }] },
@@ -127,9 +127,9 @@ export const dialogues: Record<string, Dialogue> = {
   terminal: { id: "terminal", lines: [{ speaker: "REI", text: "あれ……端末？" }] },
   terminalEcho: { id: "terminalEcho", lines: [{ text: "端末の足元には、読めない日付のログが無数に積み重なっている。" }, { speaker: "REI", text: "ずっと動いてたのか。ここ。" }] },
   terminalInspect: { id: "terminalInspect", lines: [
-    { speaker: "SYSTEM", text: "DIVER ACCESS / REI" }, { speaker: "SYSTEM", text: "ADMINISTRATOR DATA DETECTED" }, { speaker: "REI", text: "……管理者？" }
+    { speaker: "SYSTEM", text: "DIVER ACCESS / REI" }, { speaker: "REI", text: "DIVER……ここに入る人の呼び方か。" }, { speaker: "SYSTEM", text: "ADMINISTRATOR DATA DETECTED" }, { speaker: "REI", text: "……管理者？　それは違う気がする。" }
   ], after: { type: "advance", to: "sea-dive" } },
-  dive: { id: "dive", lines: [{ speaker: "SYSTEM", text: "ARCHIVE SIGNAL DETECTED" }, { speaker: "REI", text: "行けば、何か分かるかもしれない。" }] },
+  dive: { id: "dive", lines: [{ speaker: "SYSTEM", text: "SIGNAL DETECTED / DESTINATION AVAILABLE" }, { speaker: "REI", text: "あの光の先に、別の場所がある。……行ってみよう。" }] },
   cityFirst: { id: "cityFirst", lines: [
     { text: "朝日。駅のベル。パンの匂い。街は、何事もなかったように動いている。" },
     { speaker: "REI", text: "まずは、この朝を覚えておこう。気になるものを全部。" }
@@ -191,7 +191,7 @@ export const dialogues: Record<string, Dialogue> = {
   ] },
   gadgetEntry: { id: "gadgetEntry", lines: [
     { text: "次の世界は、朝の街とは正反対だった。巨大な歯車と搬送路が、暗闇の中で停止している。" },
-    { speaker: "SYSTEM", text: "GADGET AREA / MAINTENANCE ARCHIVE" },
+    { speaker: "SYSTEM", text: "GADGET AREA / MAINTENANCE ZONE" },
     { speaker: "REI", text: "今度は工場か。……動いてないけど。" }
   ] },
   gadgetSign: { id: "gadgetSign", lines: [
@@ -199,19 +199,19 @@ export const dialogues: Record<string, Dialogue> = {
     { speaker: "REI", text: "サービスユニット……誰かいるのか？" }
   ] },
   gadgetMachinery: { id: "gadgetMachinery", lines: [
-    { text: "三つの系統だけが独立して残っている。電源、歯車、天井クレーン。" },
-    { speaker: "REI", text: "順番に戻せば、奥まで行けそうだ。" }
+    { text: "動かせそうなのは三つ。電源、歯車、天井クレーン。" },
+    { speaker: "REI", text: "一つずつ戻せば、奥まで行けそうだ。" }
   ] },
   gadgetPower: { id: "gadgetPower", lines: [
-    { text: "非常電源を迂回させると、床下を青白い光が走った。" },
+    { text: "電源をつなぎ直すと、床下を青白い光が走った。" },
     { speaker: "SYSTEM", text: "AUXILIARY POWER / ONLINE" }
   ] },
   gadgetGear: { id: "gadgetGear", lines: [
-    { text: "噛み合っていなかった歯車の印を重ねる。低い駆動音が曲のリズムに重なった。" },
+    { text: "歯車の印が揃う。低い駆動音が、曲のリズムに重なった。" },
     { speaker: "REI", text: "……ちょっと気持ちいいな、これ。" }
   ] },
   gadgetCrane: { id: "gadgetCrane", lines: [
-    { text: "クレーンが軋みながら横へ退き、封鎖されていた整備室が現れた。" },
+    { text: "クレーンが軋みながら横へ動き、塞がれていた整備室が現れた。" },
     { speaker: "SYSTEM", text: "MAINTENANCE PATH / OPEN" }
   ] },
   bitFirst: { id: "bitFirst", lines: [
