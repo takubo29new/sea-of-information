@@ -51,6 +51,11 @@
   letter-spacing: .12em;
 }
 
+/* Once WISH reaches the FANTASY entry, keep the legacy vertical-slice QA card hidden. */
+.gameScreen.art-wish .sliceEnd {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .gameProgressHUD-observe,
   .gameProgressHUD-compare {
