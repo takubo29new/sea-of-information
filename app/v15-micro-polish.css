@@ -1,0 +1,186 @@
+/* v0.15 — restrained micro interactions. Keep the composition stable. */
+
+/* Progress/checklist: preserve the successful scan language and add a tiny lock-in response. */
+.gameProgressItems .done {
+  animation: progressItemLock .34s cubic-bezier(.2,.75,.25,1) both;
+}
+.gameProgressItems .done i {
+  animation: progressDotLock .48s ease-out both;
+}
+.gameProgressHUD > strong {
+  transition: color .25s ease, text-shadow .25s ease;
+}
+.gameProgressHUD:has(.gameProgressItems .done) > strong {
+  text-shadow: 0 0 16px rgba(113,218,255,.12);
+}
+
+/* Investigation points: responsive, but no large spatial movement. */
+.hotspot::before,
+.hotspot::after {
+  transition: width .16s ease, height .16s ease, opacity .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+}
+.hotspot:not(.hotspot-complete):hover::before,
+.hotspot:not(.hotspot-complete):focus-visible::before {
+  animation: hotspotFocusBreath .9s ease-in-out infinite;
+}
+.hotspot span {
+  transition: opacity .15s ease, border-color .15s ease, background .15s ease, transform .15s ease !important;
+}
+.hotspot-complete::before {
+  animation: hotspotCompleteSettle .42s ease-out both;
+}
+
+/* Dialogue: speaker label and next marker feel alive while the stage itself stays fixed. */
+.dialogueBox .speaker {
+  animation: speakerTagIn .22s ease-out both;
+}
+.dialogueBox:hover .dialogueNext {
+  text-shadow: 0 0 20px rgba(150,232,255,.95);
+}
+.dialogueText {
+  animation: dialogueTextIn .18s ease-out both;
+}
+
+/* Now Playing: small breathing details instead of moving the whole panel. */
+.nowPlayingTitle > span {
+  display: inline-block;
+  animation: nowPlayingNote 2.2s ease-in-out infinite;
+}
+.nowPlayingBar {
+  position: relative;
+  overflow: visible !important;
+}
+.nowPlayingBar > i {
+  position: relative;
+  box-shadow: 0 0 10px rgba(112,221,255,.20);
+}
+.nowPlayingBar > i::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #dffaff;
+  box-shadow: 0 0 10px rgba(112,221,255,.78);
+  transform: translateY(-50%);
+  animation: playheadBreath 1.15s ease-in-out infinite;
+}
+
+/* Listening screen: details react without relocating Rei or reframing the shot. */
+.listeningStageWave i {
+  transform-origin: bottom center;
+  animation: listeningBarBreath 1.8s ease-in-out infinite alternate;
+}
+.listeningStageWave i:nth-child(3n) { animation-delay: -.45s; }
+.listeningStageWave i:nth-child(4n) { animation-delay: -.8s; }
+.listeningStageProgress > b {
+  animation: unlockMarkerBreath 1.35s ease-in-out infinite;
+}
+.listeningStageMode::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  vertical-align: middle;
+  animation: statusDot 1.6s ease-in-out infinite;
+}
+
+/* Save feedback: short, crisp acknowledgement. */
+.savedFlash {
+  animation: savedMicroConfirm .72s cubic-bezier(.2,.75,.25,1) both !important;
+}
+
+/* Machinery controls get tactile feedback without moving layout. */
+.breakerRow button:not(:disabled):active,
+.gearRow button:not(:disabled):active,
+.craneControls button:not(:disabled):active,
+.settingsAction:not(:disabled):active {
+  transform: scale(.975);
+}
+.breakerRow button.on i,
+.craneTrack i.current {
+  animation: machineryLamp 1.7s ease-in-out infinite;
+}
+.gearRow button:hover span {
+  transform: rotate(12deg) scale(1.06);
+}
+
+@keyframes progressItemLock {
+  0% { filter: brightness(1.7); }
+  100% { filter: brightness(1); }
+}
+@keyframes progressDotLock {
+  0% { transform: scale(.4); opacity: .25; box-shadow: 0 0 24px rgba(116,224,255,.95); }
+  65% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes hotspotFocusBreath {
+  0%,100% { filter: brightness(1); }
+  50% { filter: brightness(1.35); }
+}
+@keyframes hotspotCompleteSettle {
+  0% { filter: brightness(2); }
+  100% { filter: brightness(1); }
+}
+@keyframes speakerTagIn {
+  from { opacity: .2; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes dialogueTextIn {
+  from { opacity: .45; }
+  to { opacity: 1; }
+}
+@keyframes nowPlayingNote {
+  0%,100% { opacity: .62; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-1px); }
+}
+@keyframes playheadBreath {
+  0%,100% { opacity: .45; transform: translateY(-50%) scale(.75); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.25); }
+}
+@keyframes listeningBarBreath {
+  from { opacity: .40; transform: scaleY(.90); }
+  to { opacity: .82; transform: scaleY(1.04); }
+}
+@keyframes unlockMarkerBreath {
+  0%,100% { opacity: .45; box-shadow: 0 0 4px rgba(255,255,255,.08); }
+  50% { opacity: .95; box-shadow: 0 0 12px rgba(183,235,255,.38); }
+}
+@keyframes statusDot {
+  0%,100% { opacity: .35; transform: scale(.78); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes savedMicroConfirm {
+  0% { opacity: 0; transform: translateY(5px) scale(.96); filter: brightness(1.7); }
+  22% { opacity: 1; transform: translateY(0) scale(1.02); }
+  72% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-3px) scale(.99); }
+}
+@keyframes machineryLamp {
+  0%,100% { filter: brightness(.9); }
+  50% { filter: brightness(1.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gameProgressItems .done,
+  .gameProgressItems .done i,
+  .hotspot::before,
+  .dialogueBox .speaker,
+  .dialogueText,
+  .nowPlayingTitle > span,
+  .nowPlayingBar > i::after,
+  .listeningStageWave i,
+  .listeningStageProgress > b,
+  .listeningStageMode::before,
+  .savedFlash,
+  .breakerRow button.on i,
+  .craneTrack i.current {
+    animation: none !important;
+  }
+}
