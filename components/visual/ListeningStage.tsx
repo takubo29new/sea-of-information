@@ -18,7 +18,8 @@ export function ListeningStage({
   unlockAt,
   phase,
   canSkip,
-  onSkip
+  onSkip,
+  characterSrc
 }: {
   track: ListeningTimeline["track"];
   title: string;
@@ -28,6 +29,7 @@ export function ListeningStage({
   phase: "listening" | "ready";
   canSkip?: boolean;
   onSkip?: () => void;
+  characterSrc?: string;
 }) {
   const timeline = LISTENING_TIMELINES[track];
   const activeCue = getActiveListeningCue(track, position);
@@ -37,7 +39,7 @@ export function ListeningStage({
 
   return (
     <section
-      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"}`}
+      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"}${characterSrc ? " listeningStage-withCharacter" : ""}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
@@ -45,6 +47,17 @@ export function ListeningStage({
         <div className="listeningStageAtmosphere" />
         <div className="listeningStageGrain" />
       </div>
+
+      {characterSrc && (
+        <img
+          className="listeningStageCharacter"
+          src={characterSrc}
+          alt=""
+          draggable={false}
+          onError={hideBrokenArt}
+          aria-hidden="true"
+        />
+      )}
 
       <div className="listeningStageChrome">
         <p className="listeningStageMode">{phase === "ready" ? "SCENE UNLOCKED" : "NOW LISTENING"}</p>
