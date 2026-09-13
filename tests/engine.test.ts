@@ -1,3 +1,4 @@
+import "../data/futureScenes";
 import { scenes, dialogues } from "../data/scenes";
 import { INITIAL_STATE } from "../engine/model";
 import { sanitizeGameState } from "../engine/saveCore";
@@ -35,8 +36,10 @@ const validSave = sanitizeGameState({ version: 1, sceneId: "city-loop-2", flags:
 equal(validSave.sceneId, "city-loop-2", "Valid save scene");
 equal(validSave.unlockedMusic.join(","), "sea-of-information,city-of-dawn", "Music whitelist");
 equal(validSave.playTimeSeconds, 42, "Play time preservation");
-const wishSave = sanitizeGameState({ version: 1, sceneId: "wish-entry", flags: {}, unlockedMusic: ["sea-of-information", "wish"], playTimeSeconds: 90, updatedAt: "2026-09-14T00:00:00.000Z" });
-assert(wishSave.unlockedMusic.includes("wish"), "Wish music must survive save sanitization");
+const futureSave = sanitizeGameState({ version: 1, sceneId: "beautiful-entry", flags: {}, unlockedMusic: ["sea-of-information", "wish", "fantasy", "beautiful"], playTimeSeconds: 90, updatedAt: "2026-09-14T00:00:00.000Z" });
+assert(futureSave.unlockedMusic.includes("wish"), "Wish music must survive save sanitization");
+assert(futureSave.unlockedMusic.includes("fantasy"), "Fantasy music must survive save sanitization");
+assert(futureSave.unlockedMusic.includes("beautiful"), "Beautiful music must survive save sanitization");
 
 assert((scenes["sea-dive"].hotspots?.[0].requiresTrackTime ?? 0) >= 90, "Opening must let Sea of information breathe");
 
@@ -63,9 +66,27 @@ assert(["wish.message1", "wish.message2", "wish.message3"].every(flag => wishOut
 assert((wishOutcome?.requiresTrackTime ?? 0) >= 120, "WISH outcome reveal should wait for the first major musical section");
 assert((wishScene.hotspots?.find(h => h.id === "wish-broken")?.requiresTrackTime ?? 0) >= 190, "WISH broken message should align with the later musical section");
 assert((wishScene.hotspots?.find(h => h.id === "wish-bit-repair")?.requiresTrackTime ?? 0) >= 225, "BIT repair should happen after the broken message has time to land");
-assert((wishScene.hotspots?.find(h => h.id === "wish-next")?.requiresTrackTime ?? 0) >= 300, "WISH should keep the player through the final musical section before Fantasy");
-assert(scenes["vertical-slice-end"].enterDialogueId === "fantasyEntry", "WISH must lead into the Fantasy entry dialogue");
+const wishNext = wishScene.hotspots?.find(h => h.id === "wish-next");
+assert((wishNext?.requiresTrackTime ?? 0) >= 300, "WISH should keep the player through the final musical section before Fantasy");
+assert(wishNext?.action.type === "advance" && wishNext.action.to === "fantasy-entry", "WISH must flow into Fantasy");
 
-assert(Object.keys(scenes).length >= 21, "Current slice should include second Load Road and WISH flow");
+const fantasyScene = scenes["fantasy-entry"];
+const fantasyOrigin = fantasyScene.hotspots?.find(h => h.id === "fantasy-origin");
+assert(fantasyOrigin?.visibleWhenAll?.length === 3, "Fantasy must require three impossible details before source lookup");
+assert(["fantasy.sky", "fantasy.bridge", "fantasy.flowers"].every(flag => fantasyOrigin?.visibleWhenAll?.includes(flag)), "Fantasy clue flags must gate source lookup");
+assert((fantasyOrigin?.requiresTrackTime ?? 0) >= 250, "Fantasy source lookup should align with the late middle section");
+assert((scenes["fantasy-origin"].hotspots?.find(h => h.id === "fantasy-question")?.requiresTrackTime ?? 0) >= 280, "Fantasy generation question must follow source lookup");
+const fantasyNext = scenes["fantasy-origin"].hotspots?.find(h => h.id === "fantasy-next");
+assert((fantasyNext?.requiresTrackTime ?? 0) >= 410, "Fantasy should preserve its long musical arc");
+assert(fantasyNext?.action.type === "advance" && fantasyNext.action.to === "beautiful-entry", "Fantasy must flow into Beautiful");
+
+const beautifulScene = scenes["beautiful-entry"];
+assert((beautifulScene.hotspots?.find(h => h.id === "beautiful-capture")?.requiresTrackTime ?? 0) >= 35, "Beautiful capture should wait for the first visual change");
+assert((beautifulScene.hotspots?.find(h => h.id === "beautiful-compare")?.requiresTrackTime ?? 0) >= 115, "Beautiful comparison needs time for the scene to change");
+assert((beautifulScene.hotspots?.find(h => h.id === "beautiful-fix")?.requiresTrackTime ?? 0) >= 265, "Beautiful fixed-state choice belongs near the late section");
+assert((beautifulScene.hotspots?.find(h => h.id === "beautiful-next")?.requiresTrackTime ?? 0) >= 295, "Beautiful should reach its final musical section");
+assert(scenes["vertical-slice-end"].enterDialogueId === "breakSignal", "Beautiful must hand off to the Break control signal");
+
+assert(Object.keys(scenes).length >= 24, "Current flow should include Fantasy and Beautiful");
 
 console.log(`Engine validation passed: ${Object.keys(scenes).length} scenes, ${Object.keys(dialogues).length} dialogues.`);
