@@ -17,13 +17,15 @@ export type SceneId =
   | "gadget-machinery"
   | "gadget-bit"
   | "gadget-auth"
+  | "load-road-2"
+  | "wish-entry"
   | "vertical-slice-end";
 
 export const SCENE_IDS: readonly SceneId[] = [
   "title", "sea-awakening", "sea-terminal", "sea-dive", "city-loop-1", "city-loop-2",
   "city-intervention", "city-noa", "city-investigation", "city-aurora-gate", "city-aurora",
   "city-dusk", "city-night", "load-road-1", "gadget-entry", "gadget-machinery",
-  "gadget-bit", "gadget-auth", "vertical-slice-end"
+  "gadget-bit", "gadget-auth", "load-road-2", "wish-entry", "vertical-slice-end"
 ];
 
 export function isSceneId(value: unknown): value is SceneId {
