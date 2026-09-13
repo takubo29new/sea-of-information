@@ -1,36 +1,18 @@
-export type SceneId =
-  | "title"
-  | "sea-awakening"
-  | "sea-terminal"
-  | "sea-dive"
-  | "city-loop-1"
-  | "city-loop-2"
-  | "city-intervention"
-  | "city-noa"
-  | "city-investigation"
-  | "city-aurora-gate"
-  | "city-aurora"
-  | "city-dusk"
-  | "city-night"
-  | "load-road-1"
-  | "gadget-entry"
-  | "gadget-machinery"
-  | "gadget-bit"
-  | "gadget-auth"
-  | "load-road-2"
-  | "wish-entry"
-  | "fantasy-entry"
-  | "fantasy-origin"
-  | "beautiful-entry"
-  | "vertical-slice-end";
-
-export const SCENE_IDS: readonly SceneId[] = [
+export const SCENE_IDS = [
   "title", "sea-awakening", "sea-terminal", "sea-dive", "city-loop-1", "city-loop-2",
   "city-intervention", "city-noa", "city-investigation", "city-aurora-gate", "city-aurora",
   "city-dusk", "city-night", "load-road-1", "gadget-entry", "gadget-machinery",
   "gadget-bit", "gadget-auth", "load-road-2", "wish-entry", "fantasy-entry", "fantasy-origin",
   "beautiful-entry", "vertical-slice-end"
-];
+] as const;
+
+/**
+ * Scene ids are runtime-whitelisted by SCENE_IDS. The open string tail lets later
+ * chapters register themselves from small chapter modules instead of forcing the
+ * original scenes.ts object literal to contain every future chapter at once.
+ * Engine validation still verifies every transition target and save id.
+ */
+export type SceneId = (typeof SCENE_IDS)[number] | (string & {});
 
 export function isSceneId(value: unknown): value is SceneId {
   return typeof value === "string" && (SCENE_IDS as readonly string[]).includes(value);
