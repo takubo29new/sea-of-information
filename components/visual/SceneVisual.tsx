@@ -2,22 +2,36 @@ import type { SyntheticEvent } from "react";
 import type { DialogueLine } from "@/engine/model";
 import { ART_ASSETS } from "@/data/artAssets";
 
-const REI_NEUTRAL = "/art/production/characters/rei/rei-neutral.png";
+type ReiExpression = "neutral" | "thinking" | "surprised" | "serious";
 
-const SPEAKER_CHARACTER: Partial<Record<NonNullable<DialogueLine["speaker"]>, string>> = {
-  REI: REI_NEUTRAL
+const REI_CHARACTER: Record<ReiExpression, string> = {
+  neutral: "/art/production/characters/rei/rei-neutral.png",
+  thinking: "/art/production/characters/rei/rei-thinking.png",
+  surprised: "/art/production/characters/rei/rei-surprised.png",
+  serious: "/art/production/characters/rei/rei-serious.png"
 };
 
-const REI_SCENE_ART_KEYS = new Set([
-  "sea",
-  "terminal",
-  "dive",
-  "city",
-  "city-glitch",
-  "load-road",
-  "gadget-entry",
-  "gadget-machinery"
-]);
+const SPEAKER_CHARACTER: Partial<Record<NonNullable<DialogueLine["speaker"]>, string>> = {
+  REI: REI_CHARACTER.neutral
+};
+
+/**
+ * Expression direction for the current vertical slice.
+ * This keeps character art expressive even before dialogue-line-specific
+ * expression metadata is introduced.
+ */
+const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
+  sea: "neutral",
+  terminal: "thinking",
+  dive: "serious",
+  city: "neutral",
+  "city-glitch": "surprised",
+  "load-road": "neutral",
+  "gadget-entry": "neutral",
+  "gadget-machinery": "thinking",
+  "gadget-bit": "surprised",
+  "gadget-auth": "serious"
+};
 
 function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.style.display = "none";
@@ -25,19 +39,27 @@ function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
 
 export function SceneVisual({
   artKey,
-  speaker
+  speaker,
+  reiExpression
 }: {
   artKey: string;
   speaker?: DialogueLine["speaker"];
+  reiExpression?: ReiExpression;
 }) {
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
-  const speakerCharacter = speaker ? SPEAKER_CHARACTER[speaker] : undefined;
+
+  const sceneExpression = reiExpression ?? REI_SCENE_EXPRESSION[artKey];
+  const fallbackRei = sceneExpression ? REI_CHARACTER[sceneExpression] : undefined;
+  const speakerCharacter = speaker === "REI"
+    ? REI_CHARACTER[reiExpression ?? sceneExpression ?? "neutral"]
+    : (speaker ? SPEAKER_CHARACTER[speaker] : undefined);
   const sceneCharacter = approved ? asset?.character : undefined;
-  const fallbackRei = REI_SCENE_ART_KEYS.has(artKey) ? REI_NEUTRAL : undefined;
-  const character = speakerCharacter ?? sceneCharacter ?? fallbackRei;
-  const characterPosition = speakerCharacter || fallbackRei ? "right" : (asset?.characterPosition ?? "center");
-  const isFallbackCharacter = Boolean(fallbackRei && !sceneCharacter && !speakerCharacter);
+  const character = speakerCharacter ?? fallbackRei ?? sceneCharacter;
+  const characterPosition = speakerCharacter || fallbackRei
+    ? "right"
+    : (asset?.characterPosition ?? "center");
+  const isReiCharacter = Boolean(speakerCharacter || fallbackRei);
 
   return (
     <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}${approved ? " sceneVisual-approved" : " sceneVisual-placeholder"}`} aria-hidden="true">
@@ -55,7 +77,8 @@ export function SceneVisual({
       <div className="sceneVisualLight" />
       {character && (
         <img
-          className={`sceneVisualCharacter sceneVisualCharacter-${characterPosition}${speakerCharacter ? " sceneVisualCharacter-speaker" : ""}${isFallbackCharacter ? " sceneVisualCharacter-fallback" : ""}`}
+          key={character}
+          className={`sceneVisualCharacter sceneVisualCharacter-${characterPosition}${isReiCharacter ? " sceneVisualCharacter-rei" : ""}`}
           src={character}
           alt=""
           draggable={false}
