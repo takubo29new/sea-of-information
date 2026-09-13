@@ -20,7 +20,7 @@ import {
   type TrackId
 } from "@/engine/model";
 import { dialogues, scenes } from "@/data/scenes";
-import { SceneVisual } from "@/components/visual/SceneVisual";
+import { getReiCharacterForArt, SceneVisual } from "@/components/visual/SceneVisual";
 import { ListeningStage } from "@/components/visual/ListeningStage";
 import { TrackTransition } from "@/components/TrackTransition";
 
@@ -105,6 +105,8 @@ export function GameApp() {
   }, []);
 
   const scene = scenes[state.sceneId];
+  const currentDialogueLine = dialogue?.lines[lineIndex];
+  const listeningCharacterSrc = getReiCharacterForArt(scene.art);
   const seaMemoryCount = SEA_MEMORY_IDS.reduce(
     (count, id) => count + (state.flags[seenFlag("sea-awakening", id)] ? 1 : 0),
     0
@@ -380,12 +382,25 @@ export function GameApp() {
     restoreState(existing, true);
   };
 
+  const requestDebugScene = (next: SceneId) => {
+    const target = scenes[next];
+    setSettingsOpen(false);
+    if (scene.track && target.track && target.track !== scene.track) {
+      setPendingTrackTransition({
+        action: { type: "advance", to: next },
+        current: scene.track,
+        next: target.track
+      });
+      return;
+    }
+    goToScene(next);
+  };
+
   const debugNextScene = () => {
     const index = SCENE_IDS.indexOf(state.sceneId);
     const next = SCENE_IDS.slice(index + 1).find(id => id !== "title");
     if (!next) return;
-    setSettingsOpen(false);
-    goToScene(next);
+    requestDebugScene(next);
   };
 
   const debugNextTrack = () => {
@@ -395,9 +410,7 @@ export function GameApp() {
       return track && track !== scene.track;
     });
     if (!next) return;
-    setSettingsOpen(false);
-    fadeInNextTrackRef.current = true;
-    goToScene(next);
+    requestDebugScene(next);
   };
 
   const changeVolume = (next: number) => {
@@ -414,7 +427,7 @@ export function GameApp() {
   }), [scene.hotspots, scene.id, state.flags, seaMemoryCount]);
 
   if (screen === "title") return <main className="titleScreen" onPointerDown={() => audioRef.current?.resume()}>
-    <div className="titleOcean" aria-hidden="true"><img src="/art/title/title-keyvisual.webp" alt="" onError={hideBrokenArt} /><div className="titleHorizon" /><div className="dataRain" /></div>
+    <div className="titleOcean" aria-hidden="true"><img src="/art/production/characters/rei/rei-neutral.png" alt="" onError={hideBrokenArt} /><div className="titleHorizon" /><div className="dataRain" /></div>
     <section className="titlePanel"><p className="eyebrow">TAKUBO29 PRESENTS</p><h1>SEA OF<br />INFORMATION</h1><p className="titleTagline">過去は保存できる。未来は保存できない。</p>
       <nav className="titleMenu"><button onClick={startNewGame}>NEW GAME</button><button onClick={continueGame} disabled={!hasSave}>CONTINUE</button><button onClick={() => setScreen("archive")}>MUSIC ARCHIVE</button><button onClick={() => setSettingsOpen(true)}>SETTINGS</button></nav>
     </section>{settingsOpen && <Settings volume={volume} onVolume={changeVolume} onClose={() => setSettingsOpen(false)} />}
@@ -431,7 +444,7 @@ export function GameApp() {
   }
 
   return <main className={`gameScreen art-${scene.art}${sceneFade ? " scene-fading" : ""}`} onPointerDown={() => audioRef.current?.resume()}>
-    <SceneVisual artKey={scene.art} /><div className="cinemaGrain" aria-hidden="true" />
+    <SceneVisual artKey={scene.art} speaker={currentDialogueLine?.speaker} /><div className="cinemaGrain" aria-hidden="true" />
     <div className="sceneFadeOverlay" aria-hidden="true" />
     {scene.title && <div className="chapterCard" key={scene.id}><span>{scene.subtitle}</span><h2>{scene.title}</h2></div>}
     {scene.id === "sea-awakening" && <section className="prologueObjective"><small>OBJECTIVE</small><strong>3つの記憶断片を復元する</strong><div className="objectiveProgress">{SEA_MEMORY_IDS.map(id => <i key={id} className={state.flags[seenFlag("sea-awakening", id)] ? "done" : ""} />)}</div><p>{seaMemoryCount}/3 復元済み{seaMemoryCount === 3 ? " — 新しい信号を検出" : ""}</p></section>}
@@ -471,6 +484,7 @@ export function GameApp() {
       phase={musicFocus.phase}
       canSkip={musicFocus.canSkip}
       onSkip={skipListening}
+      characterSrc={listeningCharacterSrc}
     />}
     {pendingTrackTransition && <TrackTransition
       current={pendingTrackTransition.current}
@@ -510,7 +524,12 @@ function NowPlaying({ track, position, duration }: { track: keyof typeof TRACK_M
 
 function DialogueBox({ dialogue, lineIndex, onAdvance }: { dialogue: Dialogue; lineIndex: number; onAdvance: () => void }) {
   const line = dialogue.lines[lineIndex];
-  return <button className="dialogueBox" onClick={onAdvance}>{line.speaker && <span className={`speaker speaker-${line.speaker.toLowerCase()}`}>{line.speaker}</span>}<span className="dialogueText">{line.text}</span><span className="dialogueHint">CLICK / ENTER</span></button>;
+  return <button className="dialogueBox" onClick={onAdvance} aria-label="次のメッセージへ">
+    {line.speaker && <span className={`speaker speaker-${line.speaker.toLowerCase()}`}>{line.speaker}</span>}
+    <span className="dialogueText">{line.text}</span>
+    <span className="dialogueHint">クリック / Enter</span>
+    <span className="dialogueNext" aria-hidden="true">▼</span>
+  </button>;
 }
 
 function Settings({
@@ -545,7 +564,7 @@ function Settings({
       <label>BGM VOLUME <strong>{Math.round(volume * 100)}</strong><input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => onVolume(Number(e.target.value))} /></label>
       <button className="settingsAction" onClick={fullscreen}>FULLSCREEN</button>
       {onSave && <div className="settingsGroup"><small>SAVE / LOAD</small><div className="settingsRow"><button className="settingsAction" onClick={onSave}>SAVE NOW</button><button className="settingsAction" onClick={onLoad} disabled={!canLoad}>LOAD MANUAL SAVE</button></div></div>}
-      {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK</button></div></div>}
+      {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK (CONFIRM)</button></div></div>}
       {onTitle && <button className="settingsAction" onClick={onTitle}>RETURN TO TITLE</button>}
       <p>会話送り: クリック / Enter / Space　設定: Esc</p>
     </section>
