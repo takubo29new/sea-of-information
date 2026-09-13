@@ -9,7 +9,8 @@ export type ArtAsset = {
 /**
  * 実イラストをシーンロジックから分離して管理する。
  * Listening Stageは、時刻や波形が画像側に焼き込まれた素材を避け、
- * UIなしのメイン背景を使う。専用差分はクリーンな素材へ置換後に戻す。
+ * UIなしのメイン背景を使う。現行キャラ画像は透過素材ではないため、
+ * visual-fixes.css側で意図的なポートレートカードとして表示する。
  */
 export const ART_ASSETS: Record<string, ArtAsset> = {
   title: {
@@ -18,15 +19,21 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   sea: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "right",
     listeningArt: "/art/sea/sea-main.webp",
     overlay: "sea"
   },
   terminal: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "left",
     overlay: "sea"
   },
   dive: {
     background: "/art/sea/sea-main.webp",
+    character: "/art/characters/rei/rei-neutral.webp",
+    characterPosition: "right",
     overlay: "sea"
   },
   city: {
