@@ -4,6 +4,7 @@ import "./v05.css";
 import "./v06.css";
 import "./qa-fixes.css";
 import "./visual-fixes.css";
+import "./v08-gamefeel.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
