@@ -37,7 +37,16 @@ equal(validSave.unlockedMusic.join(","), "sea-of-information,city-of-dawn", "Mus
 equal(validSave.playTimeSeconds, 42, "Play time preservation");
 
 assert((scenes["sea-dive"].hotspots?.[0].requiresTrackTime ?? 0) >= 90, "Opening must let Sea of information breathe");
-assert((scenes["city-loop-2"].hotspots?.find(h => h.id === "child2")?.requiresTrackTime ?? 0) >= 150, "City intervention must not happen before the track develops");
+
+const cityLoop1Station = scenes["city-loop-1"].hotspots?.find(h => h.id === "station");
+assert(cityLoop1Station?.visibleWhenAll?.length === 4, "City first loop must require four observations before leaving");
+assert(["city.observeClock", "city.observeChild", "city.observeBirds", "city.observeBakery"].every(flag => cityLoop1Station?.visibleWhenAll?.includes(flag)), "City first loop observation flags must gate the station");
+
+const cityLoop2Intervention = scenes["city-loop-2"].hotspots?.find(h => h.id === "child2");
+assert(cityLoop2Intervention?.visibleWhenAll?.length === 3, "City second loop must require three matches before intervention");
+assert(["city.matchClock", "city.matchBirds", "city.matchBakery"].every(flag => cityLoop2Intervention?.visibleWhenAll?.includes(flag)), "City second loop comparison flags must gate intervention");
+assert((cityLoop2Intervention?.requiresTrackTime ?? 0) >= 150, "City intervention must not happen before the track develops");
+
 assert((scenes["city-investigation"].hotspots?.find(h => h.id === "aurora-path")?.requiresTrackTime ?? 0) >= 315, "City chapter must reach the closing section of City of dawn before AURORA");
 assert(scenes["city-night"].onEnterFlags?.includes("city.completed"), "City chapter completion flag must be set at night");
 assert(scenes["city-night"].hotspots?.some(h => h.action.type === "advance" && h.action.to === "load-road-1"), "City of Dawn must flow into Load Road");
