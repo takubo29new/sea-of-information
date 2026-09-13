@@ -1,0 +1,51 @@
+/* QA polish: keep City progress HUD clear of investigation targets. */
+.gameProgressHUD-observe,
+.gameProgressHUD-compare {
+  left: 24px;
+  right: auto;
+}
+
+/* City uses the same completion language as Sea: checked, quieter, still readable. */
+.gameScreen.art-city .hotspot-complete {
+  opacity: .68;
+  filter: saturate(.72);
+}
+
+.gameScreen.art-city .hotspot-complete span {
+  border-color: rgba(126, 220, 255, .18);
+  background: rgba(7, 18, 25, .58);
+  box-shadow: 0 0 0 1px rgba(126, 220, 255, .05), 0 8px 24px rgba(0, 0, 0, .20);
+  transition: opacity .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.gameScreen.art-city .hotspot-complete span::before {
+  content: "✓ ";
+  color: rgba(164, 235, 255, .92);
+  text-shadow: 0 0 10px rgba(96, 213, 250, .24);
+}
+
+.gameScreen.art-city .hotspot-complete:hover {
+  opacity: .88;
+  filter: saturate(.9);
+}
+
+.gameScreen.art-city .hotspot-complete:hover span {
+  transform: translateY(-1px);
+  border-color: rgba(126, 220, 255, .30);
+}
+
+@media (max-width: 900px) {
+  .gameProgressHUD-observe,
+  .gameProgressHUD-compare {
+    left: 14px;
+    right: auto;
+    width: min(300px, calc(100vw - 28px));
+  }
+}
+
+@media (max-width: 640px) {
+  .gameProgressHUD-observe,
+  .gameProgressHUD-compare {
+    width: min(270px, calc(100vw - 28px));
+  }
+}
