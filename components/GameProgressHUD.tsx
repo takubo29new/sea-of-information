@@ -65,7 +65,7 @@ export function GameProgressHUD() {
     }
 
     const markManagedHotspots = () => {
-      ["主電源", "歯車", "クレーン"].forEach(prefix => {
+      ["電源", "歯車", "クレーン"].forEach(prefix => {
         const hotspot = findHotspot(prefix);
         if (hotspot) hotspot.dataset.puzzleManaged = "true";
       });
@@ -103,7 +103,7 @@ export function GameProgressHUD() {
       return {
         eyebrow: "RESTORE",
         title: "機械区画を復旧する",
-        hint: "3系統すべてを復旧すると整備室が開く",
+        hint: "3つすべて動かすと整備室が開く",
         completeHint: "COMPLETE — 奥の整備室へ進める",
         items: GADGET_SYSTEMS,
       };
@@ -132,7 +132,7 @@ export function GameProgressHUD() {
     setPowerError(false);
     const next = powerStep + 1;
     setPowerStep(next);
-    if (next === 3) window.setTimeout(() => finishSystem("主電源"), 260);
+    if (next === 3) window.setTimeout(() => finishSystem("電源"), 260);
   };
 
   const rotateGear = (index: number) => {
@@ -181,7 +181,7 @@ export function GameProgressHUD() {
       {activeSystem === "power" && !state.flags["gadget.powerRestored"] && (
         <section className="gadgetMiniPuzzle">
           <header><b>POWER ROUTING</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
-          <p>低圧から順に系統を接続する。AUX → BUS → MAIN</p>
+          <p>左から順に3つのスイッチを入れて、電源をつなぐ。</p>
           <div className="breakerRow">
             {["AUX", "BUS", "MAIN"].map((label, index) => <button type="button" key={label} className={index < powerStep ? "on" : ""} onClick={() => pressPower(index)}>{label}<i /></button>)}
           </div>
@@ -191,8 +191,8 @@ export function GameProgressHUD() {
 
       {activeSystem === "gear" && !state.flags["gadget.gearAligned"] && (
         <section className="gadgetMiniPuzzle">
-          <header><b>GEAR PHASE</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
-          <p>発光マーカーが上部の基準線へ揃うよう、3つの歯車を回す。</p>
+          <header><b>GEAR ALIGN</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
+          <p>光る印が上の基準線に合うよう、3つの歯車を回す。</p>
           <div className="gearRow">
             {gearPhase.map((phase, index) => <button type="button" key={index} onClick={() => rotateGear(index)} aria-label={`歯車${index + 1}を回す`}><span style={{ transform: `rotate(${phase * 90}deg)` }}>◆</span><small>{phase * 90}°</small></button>)}
           </div>
