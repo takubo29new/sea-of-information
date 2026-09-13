@@ -1,6 +1,8 @@
 import type { SyntheticEvent } from "react";
 import { ART_ASSETS } from "@/data/artAssets";
 import { getActiveListeningCue, LISTENING_TIMELINES, type ListeningTimeline } from "@/data/listeningCues";
+import { AudioReactiveSurface } from "@/components/visual/AudioReactiveSurface";
+import { getPvDirection } from "@/data/pvTimelines";
 
 function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
   event.currentTarget.style.display = "none";
@@ -33,13 +35,14 @@ export function ListeningStage({
 }) {
   const timeline = LISTENING_TIMELINES[track];
   const activeCue = getActiveListeningCue(track, position);
+  const pvDirection = getPvDirection(track, position);
   const asset = ART_ASSETS[timeline.artKey];
   const art = asset?.approved ? (asset.listeningArt ?? asset.background) : undefined;
   const progress = Math.min(100, Math.max(0, (position / duration) * 100));
 
   return (
     <section
-      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"}${characterSrc ? " listeningStage-withCharacter" : ""}`}
+      className={`listeningStage listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningStage-pv-${pvDirection.mood}${characterSrc ? " listeningStage-withCharacter" : ""}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
@@ -47,6 +50,8 @@ export function ListeningStage({
         <div className="listeningStageAtmosphere" />
         <div className="listeningStageGrain" />
       </div>
+
+      <AudioReactiveSurface track={track} position={position} strength={1.45} cinematic />
 
       {characterSrc && (
         <img
