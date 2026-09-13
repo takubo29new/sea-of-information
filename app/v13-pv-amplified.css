@@ -1,0 +1,224 @@
+/* v0.13 — amplified PV motion pass */
+
+/* Stronger cinematic motion for listening stages. */
+.listeningStageArtwork {
+  transform-origin: 52% 58%;
+  will-change: transform, filter;
+}
+.listeningStageCharacter {
+  transform-origin: 50% 100%;
+  will-change: transform, filter, opacity;
+}
+
+.listeningStage-pv-submerged .listeningStageArtwork {
+  animation: pvSubmergedCamera 10s ease-in-out infinite alternate;
+  filter: brightness(.68) saturate(.78) contrast(1.05) !important;
+}
+.listeningStage-pv-drift .listeningStageArtwork {
+  animation: pvDriftCamera 12s ease-in-out infinite alternate;
+}
+.listeningStage-pv-rise .listeningStageArtwork {
+  animation: pvRiseCamera 8s ease-in-out infinite alternate;
+  filter: brightness(1.08) saturate(1.18) !important;
+}
+.listeningStage-pv-impact .listeningStageArtwork {
+  animation: pvImpactCamera 5.2s ease-in-out infinite alternate;
+  filter: brightness(1.16) saturate(1.28) contrast(1.08) !important;
+}
+.listeningStage-pv-afterglow .listeningStageArtwork {
+  animation: pvAfterglowCamera 14s ease-in-out infinite alternate;
+  filter: brightness(.88) saturate(.92) !important;
+}
+
+.listeningStage-pv-submerged .listeningStageCharacter {
+  animation: pvCharacterFloat 6.8s ease-in-out infinite alternate;
+  opacity: .80;
+}
+.listeningStage-pv-drift .listeningStageCharacter {
+  animation: pvCharacterDrift 7.6s ease-in-out infinite alternate;
+}
+.listeningStage-pv-rise .listeningStageCharacter {
+  animation: pvCharacterRise 6s ease-in-out infinite alternate;
+}
+.listeningStage-pv-impact .listeningStageCharacter {
+  animation: pvCharacterImpact 4.5s ease-in-out infinite alternate;
+  filter: drop-shadow(-18px 26px 70px rgba(77,205,255,.45)) !important;
+}
+.listeningStage-pv-afterglow .listeningStageCharacter {
+  animation: pvCharacterAfterglow 9s ease-in-out infinite alternate;
+  opacity: .68;
+}
+
+@keyframes pvSubmergedCamera {
+  0% { transform: scale(1.06) translate3d(0, 1.5%, 0); }
+  100% { transform: scale(1.14) translate3d(-2.5%, -1.5%, 0); }
+}
+@keyframes pvDriftCamera {
+  0% { transform: scale(1.07) translate3d(1.5%, .5%, 0); }
+  100% { transform: scale(1.16) translate3d(-3%, -1%, 0); }
+}
+@keyframes pvRiseCamera {
+  0% { transform: scale(1.09) translate3d(2%, 1%, 0); }
+  100% { transform: scale(1.20) translate3d(-4%, -2.5%, 0); }
+}
+@keyframes pvImpactCamera {
+  0% { transform: scale(1.12) translate3d(2.2%, 1%, 0) rotate(-.15deg); }
+  100% { transform: scale(1.22) translate3d(-4.5%, -3%, 0) rotate(.18deg); }
+}
+@keyframes pvAfterglowCamera {
+  0% { transform: scale(1.05) translate3d(-1%, 0, 0); }
+  100% { transform: scale(1.11) translate3d(1.8%, -1.2%, 0); }
+}
+
+@keyframes pvCharacterFloat {
+  0% { transform: translate3d(0, 1%, 0) scale(1.00); }
+  100% { transform: translate3d(-1.5%, -1.5%, 0) scale(1.035); }
+}
+@keyframes pvCharacterDrift {
+  0% { transform: translate3d(0, 1.5%, 0) scale(1.00); }
+  100% { transform: translate3d(-2.2%, -1.8%, 0) scale(1.045); }
+}
+@keyframes pvCharacterRise {
+  0% { transform: translate3d(1%, 2%, 0) scale(1.00); }
+  100% { transform: translate3d(-2.5%, -2.5%, 0) scale(1.06); }
+}
+@keyframes pvCharacterImpact {
+  0% { transform: translate3d(1.5%, 1.5%, 0) scale(1.015); }
+  100% { transform: translate3d(-3%, -3%, 0) scale(1.075); }
+}
+@keyframes pvCharacterAfterglow {
+  0% { transform: translate3d(-1%, 1%, 0) scale(.99); }
+  100% { transform: translate3d(1%, -1%, 0) scale(1.025); }
+}
+
+/* Audio rings — bass makes concentric waves expand like light on water. */
+.audioReactiveRings {
+  position: absolute;
+  inset: 0;
+  perspective: 700px;
+  opacity: calc(.12 + var(--audio-bass) * .88);
+}
+.audioReactiveRings i {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  width: 24vw;
+  aspect-ratio: 1;
+  border: 1px solid rgba(171,236,255,.44);
+  border-radius: 50%;
+  box-shadow: 0 0 32px rgba(71,194,246,.20), inset 0 0 28px rgba(96,209,255,.10);
+  transform: translate(-50%,-50%) rotateX(68deg) scale(calc(.65 + var(--audio-bass) * .42));
+  animation: reactiveRingPulse 3.2s ease-out infinite;
+}
+.audioReactiveRings i:nth-child(2) { animation-delay: -1.05s; }
+.audioReactiveRings i:nth-child(3) { animation-delay: -2.1s; }
+@keyframes reactiveRingPulse {
+  0% { opacity: .78; transform: translate(-50%,-50%) rotateX(68deg) scale(.55); }
+  100% { opacity: 0; transform: translate(-50%,-50%) rotateX(68deg) scale(2.25); }
+}
+
+/* Moving water-light reflection across the lower half. */
+.audioReactiveWater {
+  position: absolute;
+  left: -12%;
+  right: -12%;
+  bottom: -6%;
+  height: 58%;
+  opacity: calc(.08 + var(--audio-energy) * .56);
+  background:
+    repeating-linear-gradient(174deg,
+      transparent 0 14px,
+      rgba(109,219,255,.13) 15px 17px,
+      transparent 18px 34px),
+    radial-gradient(ellipse at 50% 90%, rgba(75,194,246,.24), transparent 58%);
+  filter: blur(calc(1px + var(--audio-bass) * 2px));
+  transform: perspective(760px) rotateX(64deg) translateY(calc(var(--audio-bass) * -5%));
+  animation: reactiveWaterSweep 8s linear infinite;
+}
+@keyframes reactiveWaterSweep {
+  from { background-position: 0 0, center; }
+  to { background-position: 140px -70px, center; }
+}
+
+/* Fast diagonal streaks from high frequencies. */
+.audioReactiveStreaks { position:absolute; inset:0; overflow:hidden; }
+.audioReactiveStreaks i {
+  position:absolute;
+  width: 22vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,248,255,.82), transparent);
+  opacity: calc(var(--audio-treble) * .68);
+  transform: rotate(-28deg);
+  animation: reactiveStreak 4s linear infinite;
+}
+.audioReactiveStreaks i:nth-child(1){ left:-8%; top:18%; animation-delay:-.3s; }
+.audioReactiveStreaks i:nth-child(2){ left:16%; top:42%; animation-delay:-1.2s; }
+.audioReactiveStreaks i:nth-child(3){ left:38%; top:24%; animation-delay:-2.1s; }
+.audioReactiveStreaks i:nth-child(4){ left:58%; top:61%; animation-delay:-3s; }
+.audioReactiveStreaks i:nth-child(5){ left:74%; top:33%; animation-delay:-1.7s; }
+.audioReactiveStreaks i:nth-child(6){ left:86%; top:72%; animation-delay:-2.8s; }
+@keyframes reactiveStreak {
+  0% { translate: -18vw 10vh; opacity: 0; }
+  20% { opacity: calc(var(--audio-treble) * .74); }
+  100% { translate: 28vw -18vh; opacity: 0; }
+}
+
+/* Stronger glow/beams/particles. */
+.audioReactiveSurface-cinematic .audioReactiveGlow-bass {
+  background: radial-gradient(circle at 50% 68%, rgba(76,205,255,.52), transparent 40%) !important;
+  opacity: calc(.18 + var(--audio-light) * 1.05) !important;
+  transform: scale(calc(1 + var(--audio-bass) * .22)) !important;
+  filter: blur(calc(16px + var(--audio-bass) * 34px)) !important;
+}
+.audioReactiveSurface-cinematic .audioReactiveGlow-high {
+  opacity: calc(.08 + var(--audio-treble) * .82) !important;
+  transform: translate3d(calc(var(--audio-treble) * -2%), calc(var(--audio-mid) * 1.5%), 0) scale(calc(1 + var(--audio-treble) * .16));
+}
+.audioReactiveSurface-cinematic .audioReactiveBeams {
+  opacity: calc(.12 + var(--audio-mid) * .92) !important;
+  animation: reactiveBeamSweep 7s ease-in-out infinite alternate;
+}
+@keyframes reactiveBeamSweep {
+  from { transform: translateX(-5%) skewX(-2deg); }
+  to { transform: translateX(6%) skewX(2deg); }
+}
+.audioReactiveSurface-cinematic .audioReactiveParticles i {
+  width: 4px;
+  height: 4px;
+  box-shadow: 0 0 16px rgba(111,222,255,.98);
+  opacity: calc(.10 + var(--audio-particles) * .78);
+  animation-duration: calc(3.8s + (1 - var(--audio-energy)) * 3.5s);
+}
+.audioReactiveSurface-impact .audioReactiveFlash {
+  opacity: calc(max(0, (var(--audio-bass) - .36)) * .92) !important;
+  filter: blur(2px);
+}
+
+/* Slow exposure breathing even when the analyser is calm. */
+.listeningStage-pv-rise::before,
+.listeningStage-pv-impact::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  background: radial-gradient(circle at 50% 45%, rgba(145,229,255,.10), transparent 54%);
+  animation: pvExposureBreath 3.8s ease-in-out infinite alternate;
+}
+@keyframes pvExposureBreath {
+  from { opacity:.18; transform:scale(1); }
+  to { opacity:.72; transform:scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .listeningStageArtwork,
+  .listeningStageCharacter,
+  .audioReactiveRings i,
+  .audioReactiveWater,
+  .audioReactiveStreaks i,
+  .audioReactiveBeams,
+  .listeningStage-pv-rise::before,
+  .listeningStage-pv-impact::before {
+    animation: none !important;
+  }
+}
