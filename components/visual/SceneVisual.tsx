@@ -9,7 +9,8 @@ export function SceneVisual({ artKey }: { artKey: string }) {
   const asset = ART_ASSETS[artKey];
 
   return (
-    <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"}`} aria-hidden="true">
+    <div className={`sceneVisual sceneVisual-${asset?.overlay ?? "default"} sceneVisual-art-${artKey}`} aria-hidden="true">
+      <div className={`sceneVisualEnvironment sceneVisualEnvironment-${artKey}`} />
       {asset?.background && (
         <img
           className="sceneVisualBackground"
