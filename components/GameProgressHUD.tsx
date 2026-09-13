@@ -17,6 +17,12 @@ const CITY_COMPARE = [
   ["city.matchBakery", "BAKERY"],
 ] as const;
 
+const CITY_INVESTIGATE = [
+  ["city.clueClock", "CLOCK"],
+  ["city.clueStation", "STATION"],
+  ["city.clueBakery", "BAKERY"],
+] as const;
+
 const GADGET_SYSTEMS = [
   ["gadget.powerRestored", "POWER"],
   ["gadget.gearAligned", "GEAR"],
@@ -97,6 +103,15 @@ export function GameProgressHUD() {
         hint: "一致を確認して結果へ介入する",
         completeHint: "COMPLETE — 少年への介入が可能",
         items: CITY_COMPARE,
+      };
+    }
+    if (state.sceneId === "city-investigation") {
+      return {
+        eyebrow: "INVESTIGATE",
+        title: "朝を止めている仕組みを探す",
+        hint: "3つの記録を調べる",
+        completeHint: "COMPLETE — 地下制御区画への経路を確認",
+        items: CITY_INVESTIGATE,
       };
     }
     if (state.sceneId === "gadget-machinery") {
