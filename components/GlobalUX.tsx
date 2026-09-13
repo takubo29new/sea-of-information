@@ -1,8 +1,9 @@
 "use client";
 
+import "@/data/registerFutureScenes";
 import { useEffect, useState } from "react";
-import { loadManualSave } from "@/engine/saveClient";
-import { seekActiveAudio } from "@/engine/audio";
+import { loadManualSave, loadSave } from "@/engine/saveClient";
+import { playActiveAudio, seekActiveAudio, TRACK_META } from "@/engine/audio";
 import type { TrackId } from "@/engine/model";
 import { scenes } from "@/data/scenes";
 
@@ -62,6 +63,36 @@ function restoreManualContext(marker: ListeningMarker | null) {
   hotspot?.click();
 }
 
+function syncExtendedMusicArchive() {
+  const grid = document.querySelector<HTMLElement>(".archiveScreen .archiveGrid");
+  if (!grid) return;
+
+  const unlocked = loadSave()?.unlockedMusic ?? ["sea-of-information"];
+  const tracks = Object.keys(TRACK_META) as TrackId[];
+  const builtInTitles = new Set(Array.from(grid.querySelectorAll<HTMLElement>(".trackCard strong")).map(node => node.textContent ?? ""));
+
+  tracks.forEach((track, index) => {
+    const meta = TRACK_META[track];
+    if (builtInTitles.has(meta.title) || grid.querySelector(`[data-extended-track="${track}"]`)) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "trackCard extendedTrackCard";
+    button.dataset.extendedTrack = track;
+    const available = unlocked.includes(track);
+    button.disabled = !available;
+
+    const number = document.createElement("span");
+    number.textContent = String(index + 1).padStart(2, "0");
+    const title = document.createElement("strong");
+    title.textContent = available ? meta.title : "LOCKED";
+    const status = document.createElement("small");
+    status.textContent = available ? "Takubo29" : "—";
+    button.append(number, title, status);
+    grid.append(button);
+  });
+}
+
 export function GlobalUX() {
   const [showTitleNotice, setShowTitleNotice] = useState(false);
   const [pulses, setPulses] = useState<Pulse[]>([]);
@@ -72,6 +103,7 @@ export function GlobalUX() {
 
     const syncUiState = () => {
       setShowTitleNotice(Boolean(document.querySelector(".titleScreen")));
+      syncExtendedMusicArchive();
 
       const modal = document.querySelector<HTMLElement>(".modalBackdrop");
       if (modal && !activeModal) {
@@ -122,6 +154,9 @@ export function GlobalUX() {
 
       const trackCard = target?.closest?.(".archiveScreen .trackCard") as HTMLButtonElement | null;
       if (trackCard && !trackCard.disabled) {
+        const extendedTrack = trackCard.dataset.extendedTrack as TrackId | undefined;
+        if (extendedTrack) playActiveAudio(extendedTrack, true);
+
         document.querySelectorAll<HTMLElement>(".archiveScreen .trackCard.is-playing").forEach(card => {
           card.classList.remove("is-playing");
           const status = card.querySelector<HTMLElement>("small");
