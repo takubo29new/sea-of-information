@@ -32,12 +32,12 @@ export function ListeningStage({
   const timeline = LISTENING_TIMELINES[track];
   const activeCue = getActiveListeningCue(track, position);
   const asset = ART_ASSETS[timeline.artKey];
-  const art = asset?.listeningArt ?? asset?.background;
+  const art = asset?.approved ? (asset.listeningArt ?? asset.background) : undefined;
   const progress = Math.min(100, Math.max(0, (position / duration) * 100));
 
   return (
     <section
-      className={`listeningStage listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningCamera-${activeCue?.camera ?? "still"}`}
+      className={`listeningStage listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningCamera-${activeCue?.camera ?? "still"}${art ? " listeningStage-hasArt" : " listeningStage-placeholder"}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
