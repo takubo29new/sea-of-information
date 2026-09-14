@@ -47,8 +47,6 @@ export function AudioReactiveSurface({
     const tick = (now: number) => {
       if (!active) return;
 
-      // 30fps analysis is visually smooth after CSS interpolation and avoids
-      // forcing expensive style/filter updates on every display refresh.
       if (now - lastUpdate >= 33) {
         lastUpdate = now;
         const levels = getActiveAudioReactiveLevels();
@@ -100,6 +98,10 @@ export function AudioReactiveSurface({
       <div className="audioReactiveDawn"><i /><i /><i /><i /></div>
       <div className="audioReactiveRoad"><i /><i /><i /><i /><i /></div>
       <div className="audioReactiveGadget"><i /><i /><i /><i /></div>
+
+      <div className="audioReactiveTrackMotif">
+        {Array.from({ length: 8 }, (_, index) => <i key={index} />)}
+      </div>
 
       <div className="audioReactiveParticles">
         {Array.from({ length: cinematic ? 28 : 12 }, (_, index) => <i key={index} />)}
