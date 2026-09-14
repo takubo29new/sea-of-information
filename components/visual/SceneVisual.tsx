@@ -1,5 +1,5 @@
 import type { CSSProperties, SyntheticEvent } from "react";
-import type { DialogueLine } from "@/engine/model";
+import type { DialogueLine, TrackId } from "@/engine/model";
 import { ART_ASSETS } from "@/data/artAssets";
 import { AudioReactiveSurface } from "@/components/visual/AudioReactiveSurface";
 
@@ -108,11 +108,13 @@ function hideBrokenArt(event: SyntheticEvent<HTMLImageElement>) {
 export function SceneVisual({
   artKey,
   speaker,
-  reiExpression
+  reiExpression,
+  track
 }: {
   artKey: string;
   speaker?: DialogueLine["speaker"];
   reiExpression?: ReiExpression;
+  track?: TrackId;
 }) {
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
@@ -129,7 +131,7 @@ export function SceneVisual({
       )}
       <div className="sceneVisualParallax sceneVisualParallaxBack" />
       <div className="sceneVisualLight" />
-      <AudioReactiveSurface position={0} strength={0.55} />
+      <AudioReactiveSurface track={track} position={0} strength={0.55} />
 
       {visibleActors.length > 0 && (
         <div className={`dialogueCharacterStage dialogueCharacterStage-count-${visibleActors.length}`}>
