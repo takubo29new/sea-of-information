@@ -56,7 +56,7 @@ export function LoadRoadShootingStage() {
     };
     syncScene();
     const observer = new MutationObserver(syncScene);
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
 
