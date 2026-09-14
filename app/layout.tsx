@@ -19,6 +19,7 @@ import "./v16-track-visualizers.css";
 import "./v17-performance.css";
 import "./v18-qa-polish.css";
 import "./v19-debug-playback.css";
+import "./v20-full-track-visuals.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
