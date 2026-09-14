@@ -86,6 +86,7 @@ export function GameApp() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [musicPosition, setMusicPosition] = useState(0);
   const [musicDuration, setMusicDuration] = useState(0);
+  const [activeTrack, setActiveTrack] = useState<TrackId | null>(null);
   const [musicFocus, setMusicFocus] = useState<MusicFocusState | null>(null);
   const [pendingTrackTransition, setPendingTrackTransition] = useState<PendingTrackTransition | null>(null);
   const [sceneFade, setSceneFade] = useState(false);
@@ -116,10 +117,11 @@ export function GameApp() {
     if (screen !== "game") return;
     const id = window.setInterval(() => {
       const position = audioRef.current?.getPosition() ?? 0;
+      const track = audioRef.current?.getCurrentTrack() ?? null;
       setMusicPosition(position);
       setMusicDuration(audioRef.current?.getDuration() ?? 0);
+      setActiveTrack(track);
 
-      const track = audioRef.current?.getCurrentTrack();
       const now = Date.now();
       if (track && now - lastMusicPersistRef.current >= 1000) {
         lastMusicPersistRef.current = now;
@@ -231,6 +233,31 @@ export function GameApp() {
   }, [executeAction, scene.track]);
 
   useEffect(() => {
+    if (!scene.track || activeTrack !== scene.track) return;
+    const newlyHeard = (scene.hotspots ?? []).filter(hotspot => {
+      const gateTime = requiredTrackTime(scene.id, hotspot.id, hotspot.requiresTrackTime);
+      if (typeof gateTime !== "number" || musicPosition < gateTime) return false;
+      return !state.flags[listenedFlag(scene.id, hotspot.id)];
+    });
+    if (newlyHeard.length === 0) return;
+
+    setState(prev => {
+      const nextFlags = { ...prev.flags };
+      let changed = false;
+      newlyHeard.forEach(hotspot => {
+        const key = listenedFlag(scene.id, hotspot.id);
+        if (!nextFlags[key]) {
+          nextFlags[key] = true;
+          changed = true;
+        }
+      });
+      if (!changed) return prev;
+      pendingPersistRef.current = true;
+      return { ...prev, flags: nextFlags, updatedAt: new Date().toISOString() };
+    });
+  }, [activeTrack, musicPosition, scene.id, scene.hotspots, scene.track, state.flags]);
+
+  useEffect(() => {
     if (!musicFocus || musicFocus.phase !== "listening" || musicPosition < musicFocus.until) return;
     setPersistentFlag(musicFocus.checkpointKey);
     setMusicFocus(current => current ? { ...current, phase: "ready", canSkip: true } : current);
@@ -279,6 +306,7 @@ export function GameApp() {
       fadeInNextTrackRef.current = false;
       await audioRef.current?.play(scene.track, Boolean(scene.trackRestart), fadeInMs);
       if (cancelled) return;
+      setActiveTrack(scene.track);
       const restorePosition = restoreMusicPositionRef.current;
       if (restorePosition !== null) {
         audioRef.current?.seek(restorePosition);
@@ -400,7 +428,9 @@ export function GameApp() {
     const index = SCENE_IDS.indexOf(state.sceneId);
     const next = SCENE_IDS.slice(index + 1).find(id => id !== "title");
     if (!next) return;
-    requestDebugScene(next);
+    setSettingsOpen(false);
+    setPendingTrackTransition(null);
+    goToScene(next);
   };
 
   const debugNextTrack = () => {
@@ -411,6 +441,16 @@ export function GameApp() {
     });
     if (!next) return;
     requestDebugScene(next);
+  };
+
+  const debugPlayTrack = async (track: TrackId) => {
+    setSettingsOpen(false);
+    setMusicFocus(null);
+    setPendingTrackTransition(null);
+    await audioRef.current?.play(track, true);
+    setActiveTrack(track);
+    setMusicPosition(0);
+    setMusicDuration(audioRef.current?.getDuration() || TRACK_META[track].duration);
   };
 
   const changeVolume = (next: number) => {
@@ -425,6 +465,14 @@ export function GameApp() {
     if (scene.id === "sea-awakening" && h.id === "terminal-light" && seaMemoryCount < SEA_MEMORY_IDS.length) return false;
     return true;
   }), [scene.hotspots, scene.id, state.flags, seaMemoryCount]);
+
+  const storyMusicPosition = activeTrack === scene.track || activeTrack === null ? musicPosition : 0;
+  const playerAdvance = useMemo(() => visibleHotspots.find(hotspot => {
+    if (hotspot.action.type !== "advance" && hotspot.action.type !== "setFlagAndAdvance") return false;
+    const gateTime = requiredTrackTime(scene.id, hotspot.id, hotspot.requiresTrackTime);
+    if (typeof gateTime !== "number") return false;
+    return Boolean(state.flags[listenedFlag(scene.id, hotspot.id)]) || (activeTrack === scene.track && musicPosition >= gateTime);
+  }), [activeTrack, musicPosition, scene.id, scene.track, state.flags, visibleHotspots]);
 
   if (screen === "title") return <main className="titleScreen" onPointerDown={() => audioRef.current?.resume()}>
     <div className="titleOcean" aria-hidden="true"><img src="/art/production/characters/rei/rei-neutral.png" alt="" onError={hideBrokenArt} /><div className="titleHorizon" /><div className="dataRain" /></div>
@@ -443,23 +491,32 @@ export function GameApp() {
     </main>;
   }
 
+  const displayTrack = activeTrack ?? scene.track;
+
   return <main className={`gameScreen art-${scene.art}${sceneFade ? " scene-fading" : ""}`} onPointerDown={() => audioRef.current?.resume()}>
     <SceneVisual artKey={scene.art} speaker={currentDialogueLine?.speaker} /><div className="cinemaGrain" aria-hidden="true" />
     <div className="sceneFadeOverlay" aria-hidden="true" />
     {scene.title && <div className="chapterCard" key={scene.id}><span>{scene.subtitle}</span><h2>{scene.title}</h2></div>}
     {scene.id === "sea-awakening" && <section className="prologueObjective"><small>OBJECTIVE</small><strong>3つの記憶断片を復元する</strong><div className="objectiveProgress">{SEA_MEMORY_IDS.map(id => <i key={id} className={state.flags[seenFlag("sea-awakening", id)] ? "done" : ""} />)}</div><p>{seaMemoryCount}/3 復元済み{seaMemoryCount === 3 ? " — 新しい信号を検出" : ""}</p></section>}
-    {scene.track && <NowPlaying track={scene.track} position={musicPosition} duration={musicDuration || TRACK_META[scene.track].duration} />}
+    {displayTrack && <NowPlaying
+      track={displayTrack}
+      position={musicPosition}
+      duration={musicDuration || TRACK_META[displayTrack].duration}
+      nextLabel={playerAdvance && !dialogue && !musicFocus && !pendingTrackTransition ? playerAdvance.label : undefined}
+      onAdvance={playerAdvance && !dialogue && !musicFocus && !pendingTrackTransition ? () => runAction(playerAdvance.action) : undefined}
+    />}
     <button className="menuButton" onClick={() => setSettingsOpen(true)}>MENU</button>
 
     {!musicFocus && !pendingTrackTransition && visibleHotspots.map(h => {
       const gateTime = requiredTrackTime(scene.id, h.id, h.requiresTrackTime);
-      const locked = typeof gateTime === "number" && musicPosition < gateTime;
+      const checkpointKey = listenedFlag(scene.id, h.id);
+      const heard = typeof gateTime === "number" && Boolean(state.flags[checkpointKey]);
+      const locked = typeof gateTime === "number" && !heard && storyMusicPosition < gateTime;
       const label = locked ? (h.lockedLabel ?? "音に耳を澄ます") : h.label;
       const inspected = Boolean(state.flags[seenFlag(scene.id, h.id)]);
       return <button key={h.id} className={`hotspot${locked ? " hotspot-locked" : ""}${inspected ? " hotspot-complete" : ""}`} style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.width}%`, height: `${h.height}%` }} onClick={() => {
         setPersistentFlag(seenFlag(scene.id, h.id));
         if (locked && typeof gateTime === "number") {
-          const checkpointKey = listenedFlag(scene.id, h.id);
           return setMusicFocus({
             until: gateTime,
             label,
@@ -511,15 +568,32 @@ export function GameApp() {
       canLoad={hasManual}
       onDebugNextScene={debugNextScene}
       onDebugNextTrack={debugNextTrack}
+      onDebugPlayTrack={debugPlayTrack}
     />}
   </main>;
 }
 
-function NowPlaying({ track, position, duration }: { track: keyof typeof TRACK_META; position: number; duration: number }) {
+function NowPlaying({
+  track,
+  position,
+  duration,
+  nextLabel,
+  onAdvance
+}: {
+  track: keyof typeof TRACK_META;
+  position: number;
+  duration: number;
+  nextLabel?: string;
+  onAdvance?: () => void;
+}) {
   const meta = TRACK_META[track];
   const progress = Math.min(100, Math.max(0, (position / duration) * 100));
   const fmt = (value: number) => `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
-  return <div className="nowPlaying"><div className="nowPlayingTitle"><span>♪</span><strong>{meta.title}</strong><small>{fmt(position)} / {fmt(duration)}</small></div><div className="nowPlayingBar"><i style={{ width: `${progress}%` }} /></div></div>;
+  return <div className="nowPlaying">
+    <div className="nowPlayingTitle"><span>♪</span><strong>{meta.title}</strong><small>{fmt(position)} / {fmt(duration)}</small></div>
+    <div className="nowPlayingBar"><i style={{ width: `${progress}%` }} /></div>
+    {onAdvance && <button className="nowPlayingNext" type="button" onClick={onAdvance}><small>NEXT</small><span>{nextLabel ?? "次へ進む"}</span></button>}
+  </div>;
 }
 
 function DialogueBox({ dialogue, lineIndex, onAdvance }: { dialogue: Dialogue; lineIndex: number; onAdvance: () => void }) {
@@ -541,7 +615,8 @@ function Settings({
   onLoad,
   canLoad,
   onDebugNextScene,
-  onDebugNextTrack
+  onDebugNextTrack,
+  onDebugPlayTrack
 }: {
   volume: number;
   onVolume: (n: number) => void;
@@ -552,7 +627,9 @@ function Settings({
   canLoad?: boolean;
   onDebugNextScene?: () => void;
   onDebugNextTrack?: () => void;
+  onDebugPlayTrack?: (track: TrackId) => void;
 }) {
+  const [debugTrack, setDebugTrack] = useState<TrackId>("sea-of-information");
   const fullscreen = async () => {
     if (!document.fullscreenElement) await document.documentElement.requestFullscreen().catch(() => undefined);
     else await document.exitFullscreen().catch(() => undefined);
@@ -564,7 +641,9 @@ function Settings({
       <label>BGM VOLUME <strong>{Math.round(volume * 100)}</strong><input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => onVolume(Number(e.target.value))} /></label>
       <button className="settingsAction" onClick={fullscreen}>FULLSCREEN</button>
       {onSave && <div className="settingsGroup"><small>SAVE / LOAD</small><div className="settingsRow"><button className="settingsAction" onClick={onSave}>SAVE NOW</button><button className="settingsAction" onClick={onLoad} disabled={!canLoad}>LOAD MANUAL SAVE</button></div></div>}
-      {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK (CONFIRM)</button></div></div>}
+      {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK (CONFIRM)</button></div>
+        {onDebugPlayTrack && <div className="debugTrackPicker"><select value={debugTrack} onChange={event => setDebugTrack(event.target.value as TrackId)}>{(Object.keys(TRACK_META) as TrackId[]).map(track => <option key={track} value={track}>{TRACK_META[track].title}</option>)}</select><button className="settingsAction" onClick={() => onDebugPlayTrack(debugTrack)}>PLAY TRACK</button></div>}
+      </div>}
       {onTitle && <button className="settingsAction" onClick={onTitle}>RETURN TO TITLE</button>}
       <p>会話送り: クリック / Enter / Space　設定: Esc</p>
     </section>
