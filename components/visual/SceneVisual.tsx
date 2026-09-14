@@ -54,6 +54,36 @@ export const NOA_SCENE_EXPRESSION: Partial<Record<string, NoaExpression>> = {
   night: "soft-smile"
 };
 
+const ART_TRACK: Partial<Record<string, TrackId>> = {
+  sea: "sea-of-information",
+  terminal: "sea-of-information",
+  dive: "sea-of-information",
+  city: "city-of-dawn",
+  "city-glitch": "city-of-dawn",
+  noa: "city-of-dawn",
+  "city-investigation": "city-of-dawn",
+  "aurora-gate": "city-of-dawn",
+  aurora: "city-of-dawn",
+  dusk: "city-of-dawn",
+  night: "city-of-dawn",
+  "load-road": "load-road",
+  "gadget-entry": "gadget-area",
+  "gadget-machinery": "gadget-area",
+  "gadget-bit": "gadget-area",
+  "gadget-auth": "gadget-area",
+  wish: "wish",
+  fantasy: "fantasy",
+  beautiful: "beautiful",
+  break: "break",
+  blavery: "blavery",
+  naked: "naked",
+  signal: "signal",
+  spacecraft: "spacecraft",
+  "new-create": "new-create",
+  thundercloud: "thundercloud",
+  "space-home": "space-home"
+};
+
 const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
   noa: ["REI", "NOA"],
   "city-investigation": ["REI", "NOA"],
@@ -118,6 +148,7 @@ export function SceneVisual({
 }) {
   const asset = ART_ASSETS[artKey];
   const approved = Boolean(asset?.approved);
+  const visualTrack = track ?? ART_TRACK[artKey];
   const directedCast = speaker ? (DIALOGUE_CAST[artKey] ?? [speaker]) : [];
   const visibleActors = directedCast
     .map(actor => ({ speaker: actor, src: plannedCharacterPath(actor, artKey, reiExpression) }))
@@ -131,7 +162,7 @@ export function SceneVisual({
       )}
       <div className="sceneVisualParallax sceneVisualParallaxBack" />
       <div className="sceneVisualLight" />
-      <AudioReactiveSurface track={track} position={0} strength={0.55} />
+      <AudioReactiveSurface track={visualTrack} position={0} strength={0.55} />
 
       {visibleActors.length > 0 && (
         <div className={`dialogueCharacterStage dialogueCharacterStage-count-${visibleActors.length}`}>
