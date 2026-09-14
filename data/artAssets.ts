@@ -131,18 +131,19 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
   },
   "gadget-bit": {
     background: "/art/production/gadget/gadget-machinery.webp",
-    character: "/art/production/characters/bit/bit-normal.webp",
+    character: "/art/production/characters/bit/bit-neutral.png",
     characterPosition: "right",
     overlay: "industrial",
     approved: false,
-    note: "BIT is a small industrial robot, not a humanoid girl."
+    note: "Approved BIT character sprite; background remains pending approval."
   },
   "gadget-auth": {
     background: "/art/production/gadget/gadget-auth.webp",
-    character: "/art/production/characters/bit/bit-alert.webp",
+    character: "/art/production/characters/bit/bit-neutral.png",
     characterPosition: "right",
     overlay: "industrial",
-    approved: false
+    approved: false,
+    note: "Use the approved neutral BIT sprite until a restrained mechanical alert variant is formally approved."
   },
   end: { overlay: "industrial", approved: false }
 };
