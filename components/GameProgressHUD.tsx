@@ -129,8 +129,8 @@ export function GameProgressHUD() {
     if (state.sceneId === "gadget-machinery") {
       return {
         eyebrow: "RESTORE",
-        title: "機械区画を復旧する",
-        hint: "3つすべて動かすと整備室が開く",
+        title: "止まった機械を3つ動かす",
+        hint: "電源・歯車・クレーンを順に確認する",
         completeHint: "COMPLETE — 奥の整備室へ進める",
         items: GADGET_SYSTEMS,
       };
@@ -225,35 +225,35 @@ export function GameProgressHUD() {
 
       {activeSystem === "power" && !state.flags["gadget.powerRestored"] && (
         <section className="gadgetMiniPuzzle">
-          <header><b>POWER ROUTING</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
+          <header><b>POWER / 電源接続</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
           <p>左から順に3つのスイッチを入れて、電源をつなぐ。</p>
           <div className="breakerRow">
-            {["AUX", "BUS", "MAIN"].map((label, index) => <button type="button" key={label} className={index < powerStep ? "on" : ""} onClick={() => pressPower(index)}>{label}<i /></button>)}
+            {["AUX / 予備", "BUS / 中継", "MAIN / 主電源"].map((label, index) => <button type="button" key={label} className={index < powerStep ? "on" : ""} onClick={() => pressPower(index)}>{label}<i /></button>)}
           </div>
-          <small>{powerError ? "SEQUENCE ERROR — RESET" : `${powerStep} / 3 CONNECTED`}</small>
+          <small>{powerError ? "順番が違う — 最初から" : `${powerStep} / 3 接続済み`}</small>
         </section>
       )}
 
       {activeSystem === "gear" && !state.flags["gadget.gearAligned"] && (
         <section className="gadgetMiniPuzzle">
-          <header><b>GEAR ALIGN</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
+          <header><b>GEAR / 歯車合わせ</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
           <p>光る印が上の基準線に合うよう、3つの歯車を回す。</p>
           <div className="gearRow">
             {gearPhase.map((phase, index) => <button type="button" key={index} onClick={() => rotateGear(index)} aria-label={`歯車${index + 1}を回す`}><span style={{ transform: `rotate(${phase * 90}deg)` }}>◆</span><small>{phase * 90}°</small></button>)}
           </div>
-          <small>TARGET: 90° / 180° / 270°</small>
+          <small>目標: 左 90° / 中央 180° / 右 270°</small>
         </section>
       )}
 
       {activeSystem === "crane" && !state.flags["gadget.craneMoved"] && (
         <section className="gadgetMiniPuzzle">
-          <header><b>CRANE CLEARANCE</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
-          <p>クレーンを黄色い退避ベイまで移動する。</p>
+          <header><b>CRANE / 通路を空ける</b><button type="button" onClick={() => setActiveSystem(null)}>×</button></header>
+          <p>クレーンを黄色い退避場所まで動かす。</p>
           <div className="craneTrack">
             {[0, 1, 2, 3, 4].map(position => <i key={position} className={`${position === cranePosition ? "current" : ""}${position === 3 ? " target" : ""}`} />)}
           </div>
-          <div className="craneControls"><button type="button" onClick={() => moveCrane(-1)} disabled={cranePosition === 0}>← LEFT</button><button type="button" onClick={() => moveCrane(1)} disabled={cranePosition === 4}>RIGHT →</button></div>
-          <small>BAY {cranePosition + 1} / TARGET BAY 4</small>
+          <div className="craneControls"><button type="button" onClick={() => moveCrane(-1)} disabled={cranePosition === 0}>← 左へ</button><button type="button" onClick={() => moveCrane(1)} disabled={cranePosition === 4}>右へ →</button></div>
+          <small>現在: ベイ {cranePosition + 1} / 目標: ベイ 4</small>
         </section>
       )}
     </aside>
