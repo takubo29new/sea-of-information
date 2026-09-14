@@ -21,6 +21,8 @@ export const NOA_CHARACTER: Record<NoaExpression, string> = {
   "soft-smile": "/art/production/characters/noa/noa-soft-smile.png"
 };
 
+export const BIT_CHARACTER = "/art/production/characters/bit/bit-neutral.png";
+
 export const REI_SCENE_EXPRESSION: Partial<Record<string, ReiExpression>> = {
   sea: "neutral",
   terminal: "thinking",
@@ -109,7 +111,7 @@ const DIALOGUE_CAST: Partial<Record<string, Speaker[]>> = {
 const CHARACTER_APPROVAL: Record<Speaker, boolean> = {
   REI: true,
   NOA: true,
-  BIT: false,
+  BIT: true,
   AURORA: false,
   DR_REI: false,
   SYSTEM: false
@@ -123,6 +125,7 @@ function plannedCharacterPath(speaker: Speaker, artKey: string, reiExpression?: 
   if (speaker === "NOA") {
     return NOA_CHARACTER[NOA_SCENE_EXPRESSION[artKey] ?? "neutral"];
   }
+  if (speaker === "BIT") return BIT_CHARACTER;
   return undefined;
 }
 
