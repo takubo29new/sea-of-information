@@ -1,6 +1,6 @@
 # SEA OF INFORMATION — 現行ゲーム内テキスト集
 
-最終更新: 2026-09-14
+最終更新: 2026-09-15
 対象: `dev`
 
 この資料は、**現在ゲーム内でプレイヤーが実際に目にする文章だけ**をレビューするための索引です。
@@ -10,12 +10,24 @@
 ## 章別資料
 
 - `docs/scenario-text/00_COMMON.md` — タイトル・OBJECTIVE・共通UI
-- `docs/scenario-text/01_SEA.md` — Sea of information
-- `docs/scenario-text/02_CITY.md` — City of Dawn
+- `docs/scenario-text/01_SEA.md` — Sea of information（人間的なRei反応・DIVER / ADMINISTRATOR補助）
+- `docs/scenario-text/02_CITY.md` — City of Dawn（Noa会話増補・関係性・AURORA前の迷い）
 - `docs/scenario-text/03_LOAD_ROAD.md` — Load road（1回目 / 2回目）
-- `docs/scenario-text/04_GADGET.md` — Gadget Area / BIT / 99.7%
+- `docs/scenario-text/04_GADGET.md` — Gadget Area / BIT / 99.7%（平易な操作文言・Reiリアクション増補）
 - `docs/scenario-text/05_WISH_ENTRY.md` — WISH本編 / BIT自主復旧 / Fantasy入口
 - `docs/scenario-text/06_FANTASY_TO_SPACE_HOME.md` — FantasyからSpace Homeのエンディングまで
+
+## 2026-09-15 会話ポリッシュ
+
+世界観・設定・章順・キャラクター設定・結末は変更せず、以下のみを現行実装へ反映しました。
+
+- Noaの登場後の会話量を増やし、City of Dawnの街への個人的な思い出を追加
+- ReiとNoaの雑談・軽いやり取りを追加し、調査だけで関係が終わらないよう調整
+- AURORA前にNoaが迷い、Reiが待つ短い間を追加
+- Sea序盤ではReiがSYSTEM用語を普通の言葉へ言い換えるよう調整
+- Gadget Areaでは専門用語に日本語補助を付け、操作目的を先に理解できる文言へ変更
+- BITの機械的な口調と既存の強い短文は維持
+- Listening Stageの文章量・タイミングは変更していない
 
 ## レビュー時の優先資料
 
