@@ -27,11 +27,28 @@ export type AudioReactiveLevels = {
   treble: number;
 };
 
+export type ActiveAudioPlaybackState = {
+  track: TrackId | null;
+  position: number;
+  duration: number;
+  paused: boolean;
+};
+
 const ZERO_LEVELS: AudioReactiveLevels = { energy: 0, bass: 0, mid: 0, treble: 0 };
 let activeAudioManager: AudioManager | null = null;
 
 export function getActiveAudioReactiveLevels(): AudioReactiveLevels {
   return activeAudioManager?.getReactiveLevels() ?? ZERO_LEVELS;
+}
+
+export function getActiveAudioPlaybackState(): ActiveAudioPlaybackState {
+  if (!activeAudioManager) return { track: null, position: 0, duration: 0, paused: true };
+  return {
+    track: activeAudioManager.getCurrentTrack(),
+    position: activeAudioManager.getPosition(),
+    duration: activeAudioManager.getDuration(),
+    paused: activeAudioManager.isPaused()
+  };
 }
 
 export function seekActiveAudio(position: number, track?: TrackId) {
@@ -258,6 +275,10 @@ export class AudioManager {
 
   getCurrentTrack() {
     return this.currentTrack;
+  }
+
+  isPaused() {
+    return !this.audio || this.audio.paused;
   }
 
   destroy() {
