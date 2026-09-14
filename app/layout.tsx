@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GameProgressHUD } from "@/components/GameProgressHUD";
 import { GlobalUX } from "@/components/GlobalUX";
+import { LoadRoadShootingStage } from "@/components/stg/LoadRoadShootingStage";
 import "./globals.css";
 import "./v05.css";
 import "./v06.css";
@@ -20,6 +21,7 @@ import "./v17-performance.css";
 import "./v18-qa-polish.css";
 import "./v19-debug-playback.css";
 import "./v20-full-track-visuals.css";
+import "./v21-load-road-stg.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",
@@ -33,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <GameProgressHUD />
         <GlobalUX />
+        <LoadRoadShootingStage />
       </body>
     </html>
   );
