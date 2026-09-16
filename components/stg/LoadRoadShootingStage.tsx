@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { getActiveAudioPlaybackState } from "@/engine/audio";
 
 const UNLOCK_AT = 125;
-const HUD_INTERVAL = 180;
+const HUD_INTERVAL = 140;
+const AUTO_FIRE_INTERVAL = 105;
 
 type EntityKind = "noise" | "node" | "memory";
 type Entity = {
@@ -14,15 +15,28 @@ type Entity = {
   y: number;
   vx: number;
   hp?: number;
+  maxHp?: number;
   memoryIndex?: number;
   tutorial?: boolean;
+  flashUntil?: number;
 };
-type Shot = { x: number; y: number; vx: number };
+type Shot = { x: number; y: number; vx: number; life: number };
+type Particle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
+};
 type HudState = {
   sync: number;
   memories: number;
   repaired: number;
   damage: number;
+  combo: number;
   progress: number;
   phase: string;
 };
@@ -34,14 +48,20 @@ type GameRuntime = {
   repaired: number;
   damage: number;
   resyncs: number;
+  combo: number;
   entities: Entity[];
   shots: Shot[];
+  particles: Particle[];
   spawned: Set<string>;
   origin: number | null;
-  previousAudioPosition: number;
   lastShotAt: number;
   lastHudAt: number;
   invulnerableUntil: number;
+  hitFlashUntil: number;
+  playerFlashUntil: number;
+  muzzleFlashUntil: number;
+  shakeUntil: number;
+  shakePower: number;
   completeSaved: boolean;
 };
 
@@ -67,14 +87,20 @@ function makeRuntime(): GameRuntime {
     repaired: 0,
     damage: 0,
     resyncs: 0,
+    combo: 0,
     entities: [],
     shots: [],
+    particles: [],
     spawned: new Set<string>(),
     origin: null,
-    previousAudioPosition: 0,
     lastShotAt: 0,
     lastHudAt: 0,
     invulnerableUntil: 0,
+    hitFlashUntil: 0,
+    playerFlashUntil: 0,
+    muzzleFlashUntil: 0,
+    shakeUntil: 0,
+    shakePower: 0,
     completeSaved: false
   };
 }
@@ -84,8 +110,9 @@ function phaseFor(elapsed: number) {
   if (elapsed < 11) return "MOVE";
   if (elapsed < 18) return "MEMORY";
   if (elapsed < 25) return "NOISE";
-  if (elapsed < 33) return "SYNC SHOT";
-  if (elapsed < 92) return "ROUTE STABILIZE";
+  if (elapsed < 34) return "SYNC SHOT";
+  if (elapsed < 78) return "ROUTE STABILIZE";
+  if (elapsed < 105) return "HIGH LOAD";
   return "FINAL APPROACH";
 }
 
@@ -95,39 +122,81 @@ function spawn(runtime: GameRuntime, entity: Entity) {
   runtime.entities.push(entity);
 }
 
-function spawnTimeline(runtime: GameRuntime, elapsed: number) {
-  if (elapsed >= 11) spawn(runtime, { id: "memory-0", kind: "memory", x: 1.08, y: 0.5, vx: -0.12, memoryIndex: 0, tutorial: true });
-  if (elapsed >= 18) spawn(runtime, { id: "noise-tutorial", kind: "noise", x: 1.08, y: 0.34, vx: -0.16, tutorial: true });
-  if (elapsed >= 25) spawn(runtime, { id: "node-tutorial", kind: "node", x: 1.08, y: 0.58, vx: -0.105, hp: 2, tutorial: true });
-  if (elapsed >= 58) spawn(runtime, { id: "memory-1", kind: "memory", x: 1.08, y: 0.68, vx: -0.13, memoryIndex: 1 });
-  if (elapsed >= 100) spawn(runtime, { id: "memory-2", kind: "memory", x: 1.08, y: 0.42, vx: -0.14, memoryIndex: 2 });
-
-  if (elapsed < 32) return;
-  const noiseIndex = Math.floor((elapsed - 32) / 3.7);
-  for (let i = Math.max(0, noiseIndex - 2); i <= noiseIndex; i += 1) {
-    const at = 32 + i * 3.7;
-    if (elapsed < at) continue;
-    const intensity = elapsed > 78 ? 1.2 : 1;
-    spawn(runtime, {
-      id: `noise-${i}`,
-      kind: "noise",
-      x: 1.08,
-      y: 0.18 + (((i * 47 + 19) % 66) / 100),
-      vx: -(0.15 + (i % 3) * 0.018) * intensity
+function emitParticles(runtime: GameRuntime, x: number, y: number, color: string, count: number, speed = 0.32, size = 3) {
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const magnitude = speed * (0.35 + Math.random() * 0.65);
+    const life = 0.22 + Math.random() * 0.34;
+    runtime.particles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * magnitude,
+      vy: Math.sin(angle) * magnitude,
+      life,
+      maxLife: life,
+      size: size * (0.55 + Math.random() * 0.9),
+      color
     });
   }
+}
 
-  const nodeIndex = Math.floor((elapsed - 38) / 8.5);
-  for (let i = Math.max(0, nodeIndex - 1); i <= nodeIndex; i += 1) {
-    const at = 38 + i * 8.5;
+function spawnTimeline(runtime: GameRuntime, elapsed: number) {
+  if (elapsed >= 11) spawn(runtime, { id: "memory-0", kind: "memory", x: 1.08, y: 0.5, vx: -0.13, memoryIndex: 0, tutorial: true });
+  if (elapsed >= 18) spawn(runtime, { id: "noise-tutorial", kind: "noise", x: 1.08, y: 0.34, vx: -0.18, tutorial: true });
+  if (elapsed >= 25) spawn(runtime, { id: "node-tutorial", kind: "node", x: 1.08, y: 0.58, vx: -0.115, hp: 3, maxHp: 3, tutorial: true });
+  if (elapsed >= 58) spawn(runtime, { id: "memory-1", kind: "memory", x: 1.08, y: 0.68, vx: -0.16, memoryIndex: 1 });
+  if (elapsed >= 100) spawn(runtime, { id: "memory-2", kind: "memory", x: 1.08, y: 0.42, vx: -0.18, memoryIndex: 2 });
+
+  if (elapsed < 33) return;
+
+  const noiseStep = elapsed < 72 ? 2.35 : elapsed < 100 ? 1.72 : 1.42;
+  const noiseIndex = Math.floor((elapsed - 33) / noiseStep);
+  for (let i = Math.max(0, noiseIndex - 3); i <= noiseIndex; i += 1) {
+    const at = 33 + i * noiseStep;
     if (elapsed < at) continue;
+    const intensity = elapsed > 96 ? 1.28 : elapsed > 72 ? 1.15 : 1;
+    const baseY = 0.16 + (((i * 43 + 17) % 68) / 100);
+    spawn(runtime, {
+      id: `noise-${i}-a`,
+      kind: "noise",
+      x: 1.08,
+      y: baseY,
+      vx: -(0.18 + (i % 4) * 0.016) * intensity
+    });
+    if (elapsed > 60 && i % 2 === 0) {
+      spawn(runtime, {
+        id: `noise-${i}-b`,
+        kind: "noise",
+        x: 1.15,
+        y: Math.max(0.15, Math.min(0.85, 1 - baseY + ((i % 3) - 1) * 0.08)),
+        vx: -(0.19 + (i % 3) * 0.018) * intensity
+      });
+    }
+    if (elapsed > 88 && i % 3 === 0) {
+      spawn(runtime, {
+        id: `noise-${i}-c`,
+        kind: "noise",
+        x: 1.22,
+        y: 0.24 + (((i * 29 + 31) % 52) / 100),
+        vx: -0.26 * intensity
+      });
+    }
+  }
+
+  const nodeStep = elapsed < 80 ? 6.5 : 4.8;
+  const nodeIndex = Math.floor((elapsed - 38) / nodeStep);
+  for (let i = Math.max(0, nodeIndex - 2); i <= nodeIndex; i += 1) {
+    const at = 38 + i * nodeStep;
+    if (elapsed < at) continue;
+    const hp = elapsed > 95 ? 5 : elapsed > 70 ? 4 : 3;
     spawn(runtime, {
       id: `node-${i}`,
       kind: "node",
       x: 1.08,
-      y: 0.22 + (((i * 61 + 7) % 58) / 100),
-      vx: -0.09,
-      hp: elapsed > 82 ? 3 : 2
+      y: 0.2 + (((i * 61 + 7) % 61) / 100),
+      vx: elapsed > 90 ? -0.13 : -0.105,
+      hp,
+      maxHp: hp
     });
   }
 }
@@ -150,19 +219,34 @@ function drawStage(
   height: number,
   runtime: GameRuntime,
   elapsed: number,
-  paused: boolean
+  paused: boolean,
+  now: number
 ) {
   ctx.clearRect(0, 0, width, height);
   const scale = Math.min(width, height);
 
   ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.strokeStyle = "rgba(118,220,255,.24)";
+  if (now < runtime.shakeUntil) {
+    const strength = runtime.shakePower * (runtime.shakeUntil - now) / 220;
+    ctx.translate((Math.random() - 0.5) * strength, (Math.random() - 0.5) * strength);
+  }
+
+  ctx.save();
+  ctx.globalAlpha = 0.34;
+  ctx.strokeStyle = "rgba(118,220,255,.22)";
   ctx.lineWidth = 1;
+  const drift = (elapsed * 80) % (width * 0.12);
+  for (let i = -1; i < 10; i += 1) {
+    const x = i * width * 0.12 - drift;
+    ctx.beginPath();
+    ctx.moveTo(x, height * 0.12);
+    ctx.lineTo(x + width * 0.2, height * 0.9);
+    ctx.stroke();
+  }
   for (let i = 0; i < 9; i += 1) {
     const y = height * (0.18 + i * 0.08);
     ctx.beginPath();
-    ctx.moveTo(width * 0.08, y);
+    ctx.moveTo(width * 0.05, y);
     ctx.lineTo(width, y - height * 0.04);
     ctx.stroke();
   }
@@ -171,123 +255,183 @@ function drawStage(
   for (const entity of runtime.entities) {
     const x = entity.x * width;
     const y = entity.y * height;
+    const flashing = (entity.flashUntil ?? 0) > now;
+
     if (entity.kind === "noise") {
-      const r = scale * 0.022;
+      const r = scale * 0.028;
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(elapsed * 0.9 + x * 0.002);
-      ctx.strokeStyle = "rgba(255,105,91,.95)";
-      ctx.fillStyle = "rgba(255,67,54,.16)";
-      ctx.shadowColor = "rgba(255,72,55,.6)";
-      ctx.shadowBlur = 18;
-      ctx.lineWidth = 2;
+      ctx.rotate(elapsed * 1.25 + x * 0.003);
+      ctx.strokeStyle = flashing ? "#fff" : "rgba(255,102,87,.98)";
+      ctx.fillStyle = "rgba(255,45,34,.22)";
+      ctx.shadowColor = "rgba(255,55,42,.9)";
+      ctx.shadowBlur = 26;
+      ctx.lineWidth = Math.max(2, scale * 0.003);
       ctx.beginPath();
-      ctx.moveTo(-r, -r * 0.2);
-      ctx.lineTo(-r * 0.2, -r);
-      ctx.lineTo(r * 0.8, -r * 0.55);
-      ctx.lineTo(r, r * 0.35);
+      ctx.moveTo(-r, -r * 0.18);
+      ctx.lineTo(-r * 0.25, -r);
+      ctx.lineTo(r * 0.86, -r * 0.56);
+      ctx.lineTo(r, r * 0.38);
       ctx.lineTo(r * 0.1, r);
-      ctx.lineTo(-r * 0.85, r * 0.55);
+      ctx.lineTo(-r * 0.9, r * 0.56);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      ctx.strokeStyle = "rgba(255,210,203,.78)";
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(-r * 0.45, -r * 0.55);
-      ctx.lineTo(r * 0.45, r * 0.6);
-      ctx.moveTo(r * 0.52, -r * 0.52);
-      ctx.lineTo(-r * 0.5, r * 0.48);
+      ctx.moveTo(-r * 0.5, -r * 0.6);
+      ctx.lineTo(r * 0.48, r * 0.62);
+      ctx.moveTo(r * 0.56, -r * 0.56);
+      ctx.lineTo(-r * 0.54, r * 0.52);
       ctx.stroke();
       ctx.restore();
     } else if (entity.kind === "memory") {
-      const r = scale * 0.016;
+      const r = scale * 0.021;
+      const pulse = 1 + Math.sin(elapsed * 5 + entity.x * 9) * 0.12;
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(Math.PI / 4);
-      ctx.strokeStyle = "rgba(187,247,255,.98)";
-      ctx.fillStyle = "rgba(91,218,255,.2)";
-      ctx.shadowColor = "rgba(97,224,255,.9)";
-      ctx.shadowBlur = 24;
+      ctx.rotate(Math.PI / 4 + elapsed * 0.4);
+      ctx.scale(pulse, pulse);
+      ctx.strokeStyle = "rgba(207,251,255,.99)";
+      ctx.fillStyle = "rgba(75,221,255,.28)";
+      ctx.shadowColor = "rgba(72,231,255,1)";
+      ctx.shadowBlur = 32;
       ctx.lineWidth = 2;
       ctx.fillRect(-r, -r, r * 2, r * 2);
       ctx.strokeRect(-r, -r, r * 2, r * 2);
+      ctx.strokeRect(-r * 0.5, -r * 0.5, r, r);
       ctx.restore();
     } else {
-      const r = scale * 0.025;
+      const r = scale * 0.032;
+      const hpRatio = Math.max(0, (entity.hp ?? 0) / Math.max(1, entity.maxHp ?? 1));
       ctx.save();
-      ctx.strokeStyle = "rgba(255,201,91,.96)";
-      ctx.fillStyle = "rgba(255,177,52,.12)";
-      ctx.shadowColor = "rgba(255,188,65,.58)";
-      ctx.shadowBlur = 20;
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = flashing ? "#fff" : "rgba(255,206,91,.99)";
+      ctx.fillStyle = flashing ? "rgba(255,255,255,.46)" : "rgba(255,164,36,.18)";
+      ctx.shadowColor = flashing ? "#fff" : "rgba(255,181,48,.9)";
+      ctx.shadowBlur = flashing ? 34 : 25;
+      ctx.lineWidth = Math.max(2, scale * 0.003);
       drawHex(ctx, x, y, r);
       ctx.fill();
       ctx.stroke();
-      drawHex(ctx, x, y, r * 0.48);
+      drawHex(ctx, x, y, r * 0.5);
       ctx.stroke();
+      ctx.fillStyle = "rgba(255,216,120,.9)";
+      ctx.fillRect(x - r, y + r * 1.25, r * 2 * hpRatio, Math.max(2, scale * 0.004));
+      ctx.strokeStyle = "rgba(255,230,168,.42)";
+      ctx.strokeRect(x - r, y + r * 1.25, r * 2, Math.max(2, scale * 0.004));
       ctx.restore();
     }
 
     if (entity.tutorial) {
       ctx.save();
-      ctx.font = `${Math.max(10, Math.round(scale * 0.013))}px ui-monospace, monospace`;
+      const fontSize = Math.max(15, Math.round(scale * 0.021));
+      const label = entity.kind === "noise" ? "NOISE  —  AVOID" : entity.kind === "node" ? "BROKEN NODE  —  HOLD SPACE" : "MEMORY FRAGMENT  —  COLLECT";
+      const color = entity.kind === "noise" ? "#ffb1a6" : entity.kind === "node" ? "#ffe0a0" : "#bdf7ff";
+      ctx.font = `700 ${fontSize}px ui-monospace, monospace`;
       ctx.textAlign = "center";
-      ctx.fillStyle = entity.kind === "noise" ? "#ffb1a6" : entity.kind === "node" ? "#ffd88f" : "#b9f4ff";
-      const label = entity.kind === "noise" ? "NOISE — AVOID" : entity.kind === "node" ? "BROKEN NODE — SPACE" : "MEMORY FRAGMENT — COLLECT";
-      ctx.fillText(label, x, y - scale * 0.045);
+      const metrics = ctx.measureText(label);
+      const padX = 13;
+      const boxY = y - scale * 0.075;
+      ctx.fillStyle = "rgba(2,8,14,.82)";
+      ctx.fillRect(x - metrics.width / 2 - padX, boxY - fontSize, metrics.width + padX * 2, fontSize + 12);
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 0.72;
+      ctx.strokeRect(x - metrics.width / 2 - padX, boxY - fontSize, metrics.width + padX * 2, fontSize + 12);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = color;
+      ctx.fillText(label, x, boxY);
       ctx.restore();
     }
   }
 
   ctx.save();
-  ctx.strokeStyle = "rgba(181,244,255,.95)";
-  ctx.shadowColor = "rgba(105,225,255,.8)";
-  ctx.shadowBlur = 10;
-  ctx.lineWidth = Math.max(1.5, scale * 0.002);
+  ctx.strokeStyle = "rgba(198,249,255,.98)";
+  ctx.shadowColor = "rgba(80,232,255,1)";
+  ctx.shadowBlur = 14;
+  ctx.lineWidth = Math.max(2, scale * 0.0034);
   for (const shot of runtime.shots) {
+    const sx = shot.x * width;
+    const sy = shot.y * height;
+    const tail = scale * 0.045;
+    const gradient = ctx.createLinearGradient(sx - tail, sy, sx + scale * 0.012, sy);
+    gradient.addColorStop(0, "rgba(89,224,255,0)");
+    gradient.addColorStop(0.6, "rgba(111,235,255,.68)");
+    gradient.addColorStop(1, "rgba(234,254,255,1)");
+    ctx.strokeStyle = gradient;
     ctx.beginPath();
-    ctx.moveTo(shot.x * width - scale * 0.02, shot.y * height);
-    ctx.lineTo(shot.x * width + scale * 0.01, shot.y * height);
+    ctx.moveTo(sx - tail, sy);
+    ctx.lineTo(sx + scale * 0.012, sy);
     ctx.stroke();
   }
   ctx.restore();
 
+  for (const particle of runtime.particles) {
+    const alpha = Math.max(0, particle.life / particle.maxLife);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = particle.color;
+    ctx.shadowColor = particle.color;
+    ctx.shadowBlur = particle.size * 3;
+    ctx.fillRect(particle.x * width - particle.size / 2, particle.y * height - particle.size / 2, particle.size, particle.size);
+    ctx.restore();
+  }
+
   const px = runtime.player.x * width;
   const py = runtime.player.y * height;
-  const size = scale * 0.025;
+  const size = scale * 0.029;
+  const hitBlink = now < runtime.playerFlashUntil && Math.floor(now / 55) % 2 === 0;
   ctx.save();
   ctx.translate(px, py);
-  ctx.strokeStyle = "rgba(220,250,255,.98)";
-  ctx.fillStyle = "rgba(77,198,240,.2)";
-  ctx.shadowColor = "rgba(99,222,255,.85)";
-  ctx.shadowBlur = 22;
-  ctx.lineWidth = 2;
+  ctx.globalAlpha = hitBlink ? 0.32 : 1;
+  ctx.strokeStyle = "rgba(225,252,255,.99)";
+  ctx.fillStyle = "rgba(54,203,247,.28)";
+  ctx.shadowColor = "rgba(76,232,255,1)";
+  ctx.shadowBlur = 28;
+  ctx.lineWidth = Math.max(2, scale * 0.0025);
   ctx.beginPath();
-  ctx.moveTo(size * 1.2, 0);
-  ctx.lineTo(-size, -size * 0.75);
-  ctx.lineTo(-size * 0.55, 0);
-  ctx.lineTo(-size, size * 0.75);
+  ctx.moveTo(size * 1.3, 0);
+  ctx.lineTo(-size * 0.95, -size * 0.8);
+  ctx.lineTo(-size * 0.48, 0);
+  ctx.lineTo(-size * 0.95, size * 0.8);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  ctx.strokeStyle = "rgba(132,235,255,.8)";
   ctx.beginPath();
-  ctx.moveTo(-size * 1.05, 0);
-  ctx.lineTo(-size * 2.1, 0);
+  ctx.moveTo(-size * 0.9, 0);
+  ctx.lineTo(-size * 2.4, 0);
   ctx.stroke();
+  if (now < runtime.muzzleFlashUntil) {
+    ctx.fillStyle = "#ecfeff";
+    ctx.shadowColor = "#8ff3ff";
+    ctx.shadowBlur = 22;
+    ctx.beginPath();
+    ctx.arc(size * 1.55, 0, size * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 
   if (elapsed < 10) {
     ctx.save();
-    ctx.font = `${Math.max(10, Math.round(scale * 0.012))}px ui-monospace, monospace`;
+    ctx.font = `700 ${Math.max(13, Math.round(scale * 0.017))}px ui-monospace, monospace`;
     ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(211,247,255,.86)";
-    ctx.fillText("DIVE SIGNAL / REI", px, py - size * 1.8);
+    ctx.fillStyle = "rgba(220,250,255,.94)";
+    ctx.fillText("DIVE SIGNAL / REI", px, py - size * 2.1);
     ctx.restore();
   }
 
-  if (paused) {
-    ctx.fillStyle = "rgba(0,5,10,.28)";
+  if (now < runtime.hitFlashUntil) {
+    const alpha = Math.max(0, (runtime.hitFlashUntil - now) / 180) * 0.24;
+    ctx.fillStyle = `rgba(255,55,42,${alpha})`;
     ctx.fillRect(0, 0, width, height);
   }
+
+  if (paused) {
+    ctx.fillStyle = "rgba(0,5,10,.3)";
+    ctx.fillRect(0, 0, width, height);
+  }
+  ctx.restore();
 }
 
 export function LoadRoadShootingStage() {
@@ -301,7 +445,7 @@ export function LoadRoadShootingStage() {
   const [echo, setEcho] = useState<string | null>(null);
   const [complete, setComplete] = useState(false);
   const [result, setResult] = useState<{ rank: string; memories: number } | null>(null);
-  const [hud, setHud] = useState<HudState>({ sync: 100, memories: 0, repaired: 0, damage: 0, progress: 0, phase: "DIVE LINK" });
+  const [hud, setHud] = useState<HudState>({ sync: 100, memories: 0, repaired: 0, damage: 0, combo: 0, progress: 0, phase: "DIVE LINK" });
 
   useEffect(() => {
     const syncScene = () => {
@@ -316,7 +460,7 @@ export function LoadRoadShootingStage() {
         setComplete(false);
         setResult(null);
         setEcho(null);
-        setHud({ sync: 100, memories: 0, repaired: 0, damage: 0, progress: 0, phase: "DIVE LINK" });
+        setHud({ sync: 100, memories: 0, repaired: 0, damage: 0, combo: 0, progress: 0, phase: "DIVE LINK" });
       }
     };
     syncScene();
@@ -332,7 +476,6 @@ export function LoadRoadShootingStage() {
       const gameplayKey = ["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", " "].includes(key);
       if (!gameplayKey || pausedRef.current) return;
       event.preventDefault();
-      if (key === " ") return;
       keysRef.current.add(key);
     };
     const onUp = (event: KeyboardEvent) => keysRef.current.delete(event.key.toLowerCase());
@@ -343,20 +486,6 @@ export function LoadRoadShootingStage() {
       window.removeEventListener("keyup", onUp);
       keysRef.current.clear();
     };
-  }, [active]);
-
-  useEffect(() => {
-    if (!active) return;
-    const onShoot = (event: KeyboardEvent) => {
-      if (event.code !== "Space" || pausedRef.current || event.repeat) return;
-      const runtime = runtimeRef.current;
-      const now = performance.now();
-      if (now - runtime.lastShotAt < 170) return;
-      runtime.lastShotAt = now;
-      runtime.shots.push({ x: runtime.player.x + 0.025, y: runtime.player.y, vx: 0.78 });
-    };
-    window.addEventListener("keydown", onShoot);
-    return () => window.removeEventListener("keydown", onShoot);
   }, [active]);
 
   useEffect(() => {
@@ -385,11 +514,7 @@ export function LoadRoadShootingStage() {
       const height = canvas.clientHeight;
       const stagePaused = pausedRef.current || audio.paused || audio.track !== "load-road";
 
-      if (!stagePaused && runtime.origin === null) {
-        runtime.origin = audio.position;
-        runtime.previousAudioPosition = audio.position;
-      }
-
+      if (!stagePaused && runtime.origin === null) runtime.origin = audio.position;
       const elapsed = runtime.origin === null ? 0 : Math.max(0, audio.position - runtime.origin);
       const dt = Math.min(0.034, Math.max(0, (now - previous) / 1000));
       previous = now;
@@ -405,25 +530,50 @@ export function LoadRoadShootingStage() {
         if (keys.has("arrowdown") || keys.has("s")) dy += 1;
         if (dx || dy) {
           const length = Math.hypot(dx, dy) || 1;
-          runtime.player.x = Math.max(0.08, Math.min(0.82, runtime.player.x + (dx / length) * 0.42 * dt));
-          runtime.player.y = Math.max(0.14, Math.min(0.86, runtime.player.y + (dy / length) * 0.42 * dt));
+          runtime.player.x = Math.max(0.07, Math.min(0.82, runtime.player.x + (dx / length) * 0.5 * dt));
+          runtime.player.y = Math.max(0.13, Math.min(0.87, runtime.player.y + (dy / length) * 0.5 * dt));
+        }
+
+        if (keys.has(" ") && elapsed >= 25 && now - runtime.lastShotAt >= AUTO_FIRE_INTERVAL) {
+          runtime.lastShotAt = now;
+          runtime.muzzleFlashUntil = now + 60;
+          runtime.shots.push({ x: runtime.player.x + 0.035, y: runtime.player.y, vx: 1.05, life: 1.1 });
+          emitParticles(runtime, runtime.player.x + 0.03, runtime.player.y, "#bdf8ff", 2, 0.13, 2);
         }
 
         for (const entity of runtime.entities) entity.x += entity.vx * dt;
-        for (const shot of runtime.shots) shot.x += shot.vx * dt;
-        runtime.shots = runtime.shots.filter(shot => shot.x < 1.1);
+        for (const shot of runtime.shots) {
+          shot.x += shot.vx * dt;
+          shot.life -= dt;
+        }
+        for (const particle of runtime.particles) {
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          particle.vx *= Math.pow(0.04, dt);
+          particle.vy *= Math.pow(0.04, dt);
+          particle.life -= dt;
+        }
 
         for (const shot of runtime.shots) {
+          if (shot.life <= 0 || shot.x > 1.1) continue;
           for (const entity of runtime.entities) {
-            if (entity.kind !== "node" || (entity.hp ?? 0) <= 0) continue;
-            if (Math.abs(shot.x - entity.x) < 0.035 && Math.abs(shot.y - entity.y) < 0.06) {
+            if (entity.kind !== "node" || (entity.hp ?? 0) <= 0 || entity.x < 0) continue;
+            if (Math.abs(shot.x - entity.x) < 0.04 && Math.abs(shot.y - entity.y) < 0.065) {
               entity.hp = (entity.hp ?? 1) - 1;
-              shot.x = 2;
+              entity.flashUntil = now + 90;
+              shot.life = 0;
+              emitParticles(runtime, entity.x, entity.y, "#fff1bd", 7, 0.24, 2.6);
               if (entity.hp <= 0) {
                 runtime.repaired += 1;
-                runtime.sync = Math.min(100, runtime.sync + 5);
+                runtime.combo += 1;
+                runtime.sync = Math.min(100, runtime.sync + 6);
+                runtime.shakeUntil = now + 90;
+                runtime.shakePower = 8;
+                emitParticles(runtime, entity.x, entity.y, "#ffd36e", 22, 0.45, 3.3);
+                emitParticles(runtime, entity.x, entity.y, "#ffffff", 9, 0.28, 2.4);
                 entity.x = -2;
               }
+              break;
             }
           }
         }
@@ -431,25 +581,37 @@ export function LoadRoadShootingStage() {
         for (const entity of runtime.entities) {
           if (entity.x < -0.08) {
             if (entity.kind === "node" && (entity.hp ?? 0) > 0) {
-              runtime.sync = Math.max(0, runtime.sync - 8);
+              runtime.sync = Math.max(0, runtime.sync - 11);
               runtime.damage += 1;
+              runtime.combo = 0;
+              runtime.hitFlashUntil = now + 120;
             }
             continue;
           }
           const dxp = Math.abs(entity.x - runtime.player.x);
           const dyp = Math.abs(entity.y - runtime.player.y);
-          if (dxp > 0.042 || dyp > 0.06) continue;
+          if (dxp > 0.044 || dyp > 0.064) continue;
 
           if (entity.kind === "noise" && now >= runtime.invulnerableUntil) {
-            runtime.invulnerableUntil = now + 700;
-            runtime.sync = Math.max(0, runtime.sync - 18);
+            runtime.invulnerableUntil = now + 620;
+            runtime.sync = Math.max(0, runtime.sync - 22);
             runtime.damage += 1;
+            runtime.combo = 0;
+            runtime.hitFlashUntil = now + 180;
+            runtime.playerFlashUntil = now + 620;
+            runtime.shakeUntil = now + 220;
+            runtime.shakePower = 18;
+            emitParticles(runtime, runtime.player.x, runtime.player.y, "#ff5f50", 26, 0.52, 3.5);
+            emitParticles(runtime, runtime.player.x, runtime.player.y, "#ffffff", 8, 0.35, 2.5);
             entity.x = -2;
           } else if (entity.kind === "memory" && typeof entity.memoryIndex === "number") {
             const index = entity.memoryIndex;
             if (!runtime.memories[index]) {
               runtime.memories[index] = true;
-              runtime.sync = Math.min(100, runtime.sync + 7);
+              runtime.sync = Math.min(100, runtime.sync + 9);
+              runtime.combo += 1;
+              emitParticles(runtime, entity.x, entity.y, "#70eaff", 28, 0.46, 3.2);
+              emitParticles(runtime, entity.x, entity.y, "#ffffff", 10, 0.3, 2.4);
               setEcho(MEMORY_ECHOES[index]);
               window.setTimeout(() => setEcho(current => current === MEMORY_ECHOES[index] ? null : current), 3300);
             }
@@ -458,12 +620,19 @@ export function LoadRoadShootingStage() {
         }
 
         if (runtime.sync <= 0) {
-          runtime.sync = 45;
+          runtime.sync = 42;
           runtime.resyncs += 1;
           runtime.damage += 2;
+          runtime.combo = 0;
+          runtime.hitFlashUntil = now + 260;
+          runtime.shakeUntil = now + 340;
+          runtime.shakePower = 24;
+          emitParticles(runtime, runtime.player.x, runtime.player.y, "#ff8274", 40, 0.62, 4);
         }
 
         runtime.entities = runtime.entities.filter(entity => entity.x > -0.08);
+        runtime.shots = runtime.shots.filter(shot => shot.life > 0 && shot.x < 1.1);
+        runtime.particles = runtime.particles.filter(particle => particle.life > 0);
       }
 
       const memoryCount = runtime.memories.filter(Boolean).length;
@@ -487,13 +656,13 @@ export function LoadRoadShootingStage() {
           memories: memoryCount,
           repaired: runtime.repaired,
           damage: runtime.damage,
+          combo: runtime.combo,
           progress: Math.min(100, Math.round((audio.position / UNLOCK_AT) * 100)),
           phase: phaseFor(elapsed)
         });
       }
 
-      drawStage(ctx, width, height, runtime, elapsed, stagePaused);
-      runtime.previousAudioPosition = audio.position;
+      drawStage(ctx, width, height, runtime, elapsed, stagePaused, now);
       frame = requestAnimationFrame(tick);
     };
 
@@ -520,6 +689,7 @@ export function LoadRoadShootingStage() {
         <div className="loadRoadStgHudSync"><small>SYNC</small><strong>{hud.sync}%</strong><i><b style={{ width: `${hud.sync}%` }} /></i></div>
         <div><small>MEMORY</small><strong>{hud.memories}/3</strong></div>
         <div><small>NODE</small><strong>{hud.repaired}</strong></div>
+        <div><small>CHAIN</small><strong>{hud.combo}</strong></div>
         <div><small>ROUTE</small><strong>{hud.progress}%</strong></div>
       </div>
 
@@ -529,9 +699,9 @@ export function LoadRoadShootingStage() {
           {hud.phase === "DIVE LINK" && <><strong>情報経路の同期を維持する</strong><p>次のARCHIVEへ進むには、ReiのDIVE SIGNALを手動で通す必要がある。</p></>}
           {hud.phase === "MOVE" && <><strong>WASD / ARROW — MOVE</strong><p>画面内のDIVE SIGNALを動かしてください。</p></>}
           {hud.phase === "MEMORY" && <><strong>CYAN — MEMORY FRAGMENT</strong><p>触れると失われた記憶を復元できます。完全復元は3個。</p></>}
-          {hud.phase === "NOISE" && <><strong>RED — NOISE</strong><p>接触するとSYNCが低下します。避けてください。</p></>}
-          {hud.phase === "SYNC SHOT" && <><strong>AMBER — BROKEN NODE</strong><p>SPACEでSYNC SHOT。ノードを修復すると経路が安定します。</p></>}
-          {(hud.phase === "ROUTE STABILIZE" || hud.phase === "FINAL APPROACH") && <><strong>SYNCを保ち、記憶を持ち帰る</strong><p>赤を避ける / 黄を撃つ / 青を拾う。高SYNCほど記憶を完全に復元できます。</p></>}
+          {hud.phase === "NOISE" && <><strong>RED — NOISE</strong><p>接触するとSYNCが大きく低下します。避けてください。</p></>}
+          {hud.phase === "SYNC SHOT" && <><strong>AMBER — BROKEN NODE</strong><p>SPACE長押しでSYNC SHOTを連射。壊れたノードを修復してください。</p></>}
+          {(hud.phase === "ROUTE STABILIZE" || hud.phase === "HIGH LOAD" || hud.phase === "FINAL APPROACH") && <><strong>SYNCを保ち、記憶を持ち帰る</strong><p>赤を避ける / 黄を撃つ / 青を拾う。後半ほど負荷が上がります。</p></>}
         </div>
       )}
 
