@@ -30,6 +30,24 @@ const MANUAL_MUSIC_TRACK_KEY = "sea-of-information:manual-music-track";
 const SEA_MEMORY_IDS = ["memory-light", "memory-voice", "memory-sky"] as const;
 const SEA_DIVE_MIN_TIME = 165;
 
+const DEBUG_TRACK_SCENE: Record<TrackId, SceneId> = {
+  "sea-of-information": "sea-awakening",
+  "city-of-dawn": "city-loop-1",
+  "load-road": "load-road-1",
+  "gadget-area": "gadget-entry",
+  wish: "wish-entry",
+  fantasy: "fantasy-entry",
+  beautiful: "beautiful-entry",
+  break: "break-entry",
+  blavery: "blavery-entry",
+  naked: "naked-entry",
+  signal: "signal-entry",
+  spacecraft: "spacecraft-entry",
+  "new-create": "new-create-entry",
+  thundercloud: "thundercloud-entry",
+  "space-home": "space-home-entry"
+};
+
 type MusicFocusState = {
   until: number;
   label: string;
@@ -444,9 +462,32 @@ export function GameApp() {
   };
 
   const debugPlayTrack = async (track: TrackId) => {
+    const targetSceneId = DEBUG_TRACK_SCENE[track];
+    const target = scenes[targetSceneId];
+    if (!target) return;
+
     setSettingsOpen(false);
+    setDialogue(null);
+    setLineIndex(0);
     setMusicFocus(null);
     setPendingTrackTransition(null);
+    restoreMusicPositionRef.current = null;
+    window.localStorage.setItem(musicPositionKey(track), "0");
+
+    setState(prev => {
+      const nextFlags = { ...prev.flags };
+      target.onEnterFlags?.forEach(flag => { nextFlags[flag] = true; });
+      const nextMusic = prev.unlockedMusic.includes(track) ? prev.unlockedMusic : [...prev.unlockedMusic, track];
+      pendingPersistRef.current = true;
+      return {
+        ...prev,
+        sceneId: targetSceneId,
+        flags: nextFlags,
+        unlockedMusic: nextMusic,
+        updatedAt: new Date().toISOString()
+      };
+    });
+
     await audioRef.current?.play(track, true);
     setActiveTrack(track);
     setMusicPosition(0);
@@ -642,7 +683,7 @@ function Settings({
       <button className="settingsAction" onClick={fullscreen}>FULLSCREEN</button>
       {onSave && <div className="settingsGroup"><small>SAVE / LOAD</small><div className="settingsRow"><button className="settingsAction" onClick={onSave}>SAVE NOW</button><button className="settingsAction" onClick={onLoad} disabled={!canLoad}>LOAD MANUAL SAVE</button></div></div>}
       {onDebugNextScene && <div className="settingsGroup debugGroup"><small>DEBUG</small><div className="settingsRow"><button className="settingsAction" onClick={onDebugNextScene}>SKIP NEXT SCENE</button><button className="settingsAction" onClick={onDebugNextTrack}>SKIP NEXT TRACK (CONFIRM)</button></div>
-        {onDebugPlayTrack && <div className="debugTrackPicker"><select value={debugTrack} onChange={event => setDebugTrack(event.target.value as TrackId)}>{(Object.keys(TRACK_META) as TrackId[]).map(track => <option key={track} value={track}>{TRACK_META[track].title}</option>)}</select><button className="settingsAction" onClick={() => onDebugPlayTrack(debugTrack)}>PLAY TRACK</button></div>}
+        {onDebugPlayTrack && <div className="debugTrackPicker"><select value={debugTrack} onChange={event => setDebugTrack(event.target.value as TrackId)}>{(Object.keys(TRACK_META) as TrackId[]).map(track => <option key={track} value={track}>{TRACK_META[track].title}</option>)}</select><button className="settingsAction" onClick={() => onDebugPlayTrack(debugTrack)}>GO TO TRACK</button></div>}
       </div>}
       {onTitle && <button className="settingsAction" onClick={onTitle}>RETURN TO TITLE</button>}
       <p>会話送り: クリック / Enter / Space　設定: Esc</p>
