@@ -112,7 +112,8 @@ export const ART_ASSETS: Record<string, ArtAsset> = {
     character: "/art/production/characters/rei/rei-neutral.png",
     characterPosition: "left",
     overlay: "road",
-    approved: false
+    approved: true,
+    note: "Clean Load Road corridor background; original 1672x941 composition preserved as WebP. Gameplay sprites and UI remain separate."
   },
   gadget: { overlay: "industrial", approved: false },
   "gadget-entry": {

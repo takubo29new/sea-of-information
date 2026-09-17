@@ -39,6 +39,9 @@ UI・文字・ロゴは背景画像へ焼き込まず、React/CSSで描画する
 
 ## 静止背景の扱い
 
+Load Roadは正式背景を組み込み済み（2026-09-17）。[素材記録と表示確認](../public/art/production/load-road/README.md)を参照。
+承認済みLoad Roadでは追加の走行グリッドを抑え、画像の構図とSTGの視認性を優先する。
+
 全15曲の制作再開時は、[STG全体設計の構図要件](STG_OVERALL_DESIGN.md#stg対応背景の制作要件)も適用する。
 Load Road / Break / Signal / Thundercloudは戦闘の視認性、Space Homeは非戦闘フライトの余白を確保する。
 Breakの具体的な背景条件は[Stage 2詳細設計](STG_BREAK_STAGE2_DESIGN.md#break背景への発注条件)を参照。

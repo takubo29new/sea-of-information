@@ -22,6 +22,7 @@ import "./v18-qa-polish.css";
 import "./v19-debug-playback.css";
 import "./v20-full-track-visuals.css";
 import "./v21-load-road-stg.css";
+import "./load-road-art.css";
 
 export const metadata: Metadata = {
   title: "SEA OF INFORMATION",

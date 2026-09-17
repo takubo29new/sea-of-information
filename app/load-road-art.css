@@ -1,0 +1,23 @@
+/* Preserve the approved corridor's quiet playfield and original composition. */
+.sceneVisual-art-load-road.sceneVisual-approved .audioReactiveRoad,
+.sceneVisual-art-load-road.sceneVisual-approved .sceneVisualParallax,
+.sceneVisual-art-load-road.sceneVisual-approved .sceneVisualLight,
+.listeningStage-track-load-road.listeningStage-hasArt .audioReactiveRoad {
+  display: none !important;
+}
+
+.listeningStage-track-load-road.listeningStage-hasArt .listeningStageArtwork,
+.listeningStage-track-load-road.listeningStage-hasArt .listeningStageArtwork img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  transform: none !important;
+  animation: none !important;
+  will-change: auto;
+}
+
+.sceneVisual-art-load-road.sceneVisual-approved .audioReactiveGlow-bass,
+.listeningStage-track-load-road.listeningStage-hasArt .audioReactiveGlow-bass {
+  opacity: calc(.03 + var(--audio-energy) * .10) !important;
+}

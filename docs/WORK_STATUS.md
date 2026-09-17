@@ -162,8 +162,12 @@ Music Archiveは既存4曲に加え、解放済み後半曲をGlobalUXから追�
 
 ## グラフィック
 
-Reiの正式立ち絵のみ承認済み。
-Noa / BIT / 各章背景は別セッションで正式素材を制作中・制作予定。
+Load Roadの正式背景を2026-09-17に組み込み、STG実画面で自機・回収物・敵・敵弾の視認性を確認した。
+原画1672×941をクロップせずWebP化し、通常シーンとListening Stageで共有する。
+詳細・確認範囲は[素材記録](../public/art/production/load-road/README.md)を参照。
+
+ランタイムにはTitle / Seaの背景、Rei / Noa / BITの立ち絵も登録されている。
+その他の背景は引き続き別セッションで正式素材を制作・確認する。
 未承認素材はランタイムで表示せず、CSSフォールバックを使う。
 
 今後の重要背景 production target:

@@ -42,7 +42,7 @@ export function ListeningStage({
 
   return (
     <section
-      className={`listeningStage listeningStage-track-${track} listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningStage-pv-${pvDirection.mood}${characterSrc ? " listeningStage-withCharacter" : ""}`}
+      className={`listeningStage listeningStage-track-${track} listeningStage-simple listeningStage-${phase} listeningStage-${activeCue?.mood ?? "calm"} listeningStage-pv-${pvDirection.mood}${art ? " listeningStage-hasArt" : ""}${characterSrc ? " listeningStage-withCharacter" : ""}`}
       aria-live="polite"
     >
       <div className="listeningStageArtwork">
