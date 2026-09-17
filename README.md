@@ -39,6 +39,12 @@ Claudeのコードレビュー、AstraのQAも、特別な指示がない限り`
 
 最新の作業状況は [`docs/WORK_STATUS.md`](docs/WORK_STATUS.md) も参照してください。
 
+STGの今後の設計（後半STGは未実装）:
+- [STG全体設計・段階的な難易度・背景構図要件](docs/STG_OVERALL_DESIGN.md)
+- [Break Stage 2詳細設計](docs/STG_BREAK_STAGE2_DESIGN.md)
+
+次は全15曲の正式背景制作を優先し、その後にBreak本体を実装します。
+
 ## 最重要UX: Listening Phase
 
 「まだ曲が進んでいないから」という理由で、通常の探索画面のままクリックを無反応にしてはいけません。

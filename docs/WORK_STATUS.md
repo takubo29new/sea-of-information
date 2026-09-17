@@ -1,10 +1,17 @@
 # 最新作業状況
 
-最終更新: 2026-09-14
+最終更新: 2026-09-17
 
 ## 現在のマイルストーン
 
 **Full Soundtrack Story Route — 15曲の正規ルート実装完了 / グラフィック・QA仕上げフェーズへ移行**
+
+## STG設計の更新（2026-09-17）
+
+- Load RoadのStage 1は実装済み。CORRUPTED NODEの排除、敵弾、段階的な同時出現を基準とする。
+- [STG全体設計](STG_OVERALL_DESIGN.md)を新規作成。Break=Stage 2、Signal=Stage 3、Thundercloud=Stage 4/ボス、Space Home=非戦闘フライトを設計上の役割として整理した。
+- [Break詳細設計](STG_BREAK_STAGE2_DESIGN.md)を新規作成。3WAY弾・シールドの段階導入、既存会話と音楽への挿入、報酬・PERFECT条件、背景要件を定義した。
+- 今回は設計資料のみ。Break以降のSTG、フライト、報酬保存、音楽再キューは未実装。数値は試作初期値で、実プレイ未検証。
 
 ## 正規ルート
 
@@ -192,12 +199,12 @@ Full soundtrack route実装後のQualityが成功済み。
 
 ## 次の開発順
 
-1. 全曲ルートをClaude / 実ブラウザで通しQA
-2. 後半章のListening Stage・ホットスポット位置・待機時間を実プレイで微調整
-3. 別セッションで制作した正式グラフィックを順次承認・組み込み
-4. Noa / BIT / Dr. Reiなど未承認キャラクター素材の統合
-5. 狭幅・SAVE/LOAD・Music Archiveの全曲回帰確認
-6. シナリオ全体を「普通の日本人プレイヤー」視点でもう一度通読レビュー
+1. STG全体設計・Break Stage 2詳細設計を基準に、全15曲の正式背景候補制作へ戻る。
+2. STG対応5曲の構図・視認性と探索ホットスポットを確認し、承認済み背景を順次組み込む。
+3. Load Roadの最終QA（音量・チュートリアル・PERFECT・再訪）を行う。
+4. 背景制作後にBreak Stage 2を実装し、Stage 1からの学習曲線を実プレイで調整する。
+5. Noa / BIT / Dr. Reiなど未承認キャラクター素材を統合する。
+6. 全曲ルート、Listening Stage、狭幅、SAVE/LOAD、Music Archiveの回帰QAとシナリオ通読を行う。
 
 ## AI分担
 
